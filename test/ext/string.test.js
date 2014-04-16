@@ -1,8 +1,8 @@
 var err = require('../util').err;
 var should = require('../../');
 
-module.exports['string'] = {
-  'test startWith()': function() {
+describe('string', function() {
+  it('test startWith()', function() {
     'foobar'.should.startWith('foo');
     'foobar'.should.not.startWith('bar');
 
@@ -21,9 +21,9 @@ module.exports['string'] = {
     err(function() {
       'foobar'.should.not.startWith('foo', 'baz');
     }, "baz");
-  },
+  });
 
-  'test endWith()': function() {
+  it('test endWith()', function() {
     'foobar'.should.endWith('bar');
     'foobar'.should.not.endWith('foo');
 
@@ -42,6 +42,6 @@ module.exports['string'] = {
     err(function() {
       'foobar'.should.not.endWith('bar', 'baz');
     }, "baz");
-  },
+  });
 
-}
+});

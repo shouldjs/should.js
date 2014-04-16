@@ -12,16 +12,29 @@
     "test": "make test"
   },
   "devDependencies": {
-    "browserify": "*",
-    "mocha": "*",
+    "browserify": "^3.41.0",
     "jsdom": "*",
     "jquery": "*",
-    "mocha-better-spec-reporter": "0.0.2"
+    "mocha-better-spec-reporter": "0.0.2",
+    "gulp-mocha": "^0.4.1",
+    "gulp-uglify": "^0.2.1",
+    "gulp-util": "^2.2.14",
+    "gulp": "^3.6.0",
+    "vinyl-source-stream": "^0.1.1",
+    "gulp-load-plugins": "^0.5.0",
+    "gulp-streamify": "0.0.5",
+    "gulp-rename": "^1.2.0",
+    "gulp-header": "^1.0.2",
+    "glob": "^3.2.9",
+    "gulp-connect": "^2.0.5",
+    "mocha": "^1.18.2",
+    "gulp-clean": "^0.2.4"
   },
   "keywords": [
     "test",
     "bdd",
     "assert"
   ],
-  "main": "./lib/node.js"
+  "main": "./lib/node.js",
+  "license": "MIT"
 }

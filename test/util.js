@@ -1,4 +1,4 @@
-var assert = require('assert');
+var should = require('../');
 
 function err(fn, msg) {
   var ok = true;
@@ -6,9 +6,10 @@ function err(fn, msg) {
     fn();
     ok = false;
   } catch (err) {
-    assert.equal(err.message, msg);
+    if(err.message !== msg)
+      throw new should.AssertionError({ message: 'Expected message does not match', expected: msg, actual: err.message });
   }
-  if(!ok) assert.fail('expected an error');
+  if(!ok) throw new Error('expected an error');
 }
 
 exports.err = err;

@@ -15,26 +15,26 @@ function err(fn, msg) {
   }
 }
 
-module.exports['should'] = {
-  'test double require': function(){
+describe('should', function() {
+  it('test double require', function() {
     require('../').should.equal(should);
-  },
+  });
 
-  'test assertion': function(){
+  it('test assertion', function() {
     'test'.should.be.a.string;
     should.equal('foo', 'foo');
-  },
+  });
   
-  'test .expected and .actual': function(){
+  it('test .expected and .actual', function() {
     try {
       'foo'.should.equal('bar');
     } catch (err) {
       assert('foo' == err.actual, 'err.actual');
       assert('bar' == err.expected, 'err.expected');
     }
-  },
+  });
  
-  'test chaining': function(){
+  it('test chaining', function() {
     var user = { name: 'tj', pets: ['tobi', 'loki', 'jane', 'bandit'] };
 
     user.should.be.an.instanceOf(Object).and.have.property('name', 'tj');
@@ -42,5 +42,5 @@ module.exports['should'] = {
     user.should.have.ownProperty('name')
       .which.not.have.length(3)
         .and.be.equal('tj');
-  }
-};
+  });
+});

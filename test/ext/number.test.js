@@ -1,8 +1,8 @@
 var err = require('../util').err;
 var should = require('../../');
 
-module.exports['number'] = {
-  'test NaN': function(){
+describe('number', function() {
+  it('test NaN', function() {
     NaN.should.be.NaN;
     Infinity.should.not.be.NaN;
     (0).should.not.be.NaN;
@@ -19,9 +19,9 @@ module.exports['number'] = {
     err(function(){
       NaN.should.not.be.NaN;
     }, "expected NaN not to be NaN")
-  },
+  });
 
-  'test Infinity': function(){
+  it('test Infinity', function() {
     NaN.should.not.be.Infinity;
     (1/0).should.be.Infinity;
     Infinity.should.be.Infinity;
@@ -39,9 +39,9 @@ module.exports['number'] = {
     err(function(){
       Infinity.should.not.be.Infinity;
     }, "expected Infinity not to be Infinity")
-  },
+  });
 
-  'test within(start, finish)': function(){
+  it('test within(start,  it(finish)', function() {
     (5).should.be.within(5, 10);
     (5).should.be.within(3,6);
     (5).should.be.within(3,5);
@@ -62,9 +62,9 @@ module.exports['number'] = {
     err(function(){
       (10).should.be.within(50,100, 'foo');
     }, "foo");
-  },
+  });
 
-  'test approximately(number, delta)': function() {
+  it('test approximately(number,  it(delta)', function() {
     (1.5).should.be.approximately(1.4, 0.2);
     (1.5).should.be.approximately(1.5, 10E-10);
     (1.5).should.not.be.approximately(1.4, 1E-2);
@@ -76,10 +76,10 @@ module.exports['number'] = {
     err(function(){
       (99.99).should.be.approximately(105, 0.1);
     }, "expected 99.99 to be approximately 105 ±0.1");
-  },
+  });
 
 
-  'test above(n)': function(){
+  it('test above(n)', function() {
     (5).should.be.above(2);
     (5).should.be.greaterThan(2);
     (5).should.not.be.above(5);
@@ -100,9 +100,9 @@ module.exports['number'] = {
     err(function(){
       (10).should.not.be.above(6, 'foo');
     }, "foo");
-  },
+  });
 
-  'test below(n)': function(){
+  it('test below(n)', function() {
     (2).should.be.below(5);
     (2).should.be.lessThan(5);
     (5).should.not.be.below(5);
@@ -123,5 +123,5 @@ module.exports['number'] = {
     err(function(){
       (6).should.not.be.below(10, 'foo');
     }, "foo");
-  }
-}
+  });
+});

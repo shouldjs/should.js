@@ -1,35 +1,4 @@
-/**
- * should - test framework agnostic BDD-style assertions
- * @version v3.3.0
- * @author TJ Holowaychuk <tj@vision-media.ca>
- * @link https://github.com/visionmedia/should.js
- * @license MIT
- */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*!
- * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-var should = require('./should');
-
-should
-  .use(require('./ext/assert'))
-  .use(require('./ext/chain'))
-  .use(require('./ext/bool'))
-  .use(require('./ext/number'))
-  .use(require('./ext/eql'))
-  .use(require('./ext/type'))
-  .use(require('./ext/string'))
-  .use(require('./ext/property'))
-  .use(require('./ext/error'))
-  .use(require('./ext/match'))
-  .use(require('./ext/browser/jquery'))
-  .use(require('./ext/deprecated'));
-
- module.exports = should;
-},{"./ext/assert":3,"./ext/bool":4,"./ext/browser/jquery":5,"./ext/chain":6,"./ext/deprecated":7,"./ext/eql":8,"./ext/error":9,"./ext/match":10,"./ext/number":11,"./ext/property":12,"./ext/string":13,"./ext/type":14,"./should":15}],2:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -133,7 +102,7 @@ function objEquiv (a, b) {
   return true;
 }
 
-},{"./util":16}],3:[function(require,module,exports){
+},{"./util":16}],2:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -157,7 +126,6 @@ module.exports = function(should) {
    *
    */
   util.merge(should, assert);
-
 
   /**
    * Assert _obj_ exists, with optional message.
@@ -191,7 +159,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../util":16,"assert":17}],4:[function(require,module,exports){
+},{"../util":16,"assert":17}],3:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -213,237 +181,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj);
   }, true);
 };
-},{}],5:[function(require,module,exports){
-/*!
- * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-/*!
- * Portions copyright (c) 2010, 2011, 2012 Wojciech Zawistowski, Travis Jeffery
- * From the jasmine-jquery project under the MIT License.
- */
-
-var util = require('../../util');
-
-module.exports = function(should, Assertion) {
-  var i = should.format;
-  var $ = this.jQuery || this.$;
-
-  /* Otherwise, node's util.inspect loops hangs */
-  if (typeof HTMLElement !== "undefined" && HTMLElement && !HTMLElement.prototype.inspect) {
-    HTMLElement.prototype.inspect = function () {
-      return this.outerHTML;
-    };
-  }
-
-  if (typeof jQuery !== "undefined" && jQuery && !jQuery.prototype.inspect) {
-    jQuery.fn.inspect = function () {
-      var elementList = this.toArray().map(function (e) {
-        return util.inspect(e);
-      }).join(", ");
-      if (this.selector) {
-        return "SELECTOR(" + this.selector + ") matching " + this.length + " elements" + (elementList.length ? ": " + elementList : "");
-      } else {
-        return elementList;
-      }
-    };
-  }
-
-  function jQueryAttributeTestHelper(method, singular, plural, nameOrHash, value) {
-    var keys = util.isObject(nameOrHash) ? Object.keys(nameOrHash) : [nameOrHash];
-    var allRelevantAttributes = keys.reduce(function (memo, key) {
-      var value = $(this.obj)[method](key);
-      if (typeof value !== 'undefined') {
-        memo[key] = value;
-      }
-      return memo;
-    }.bind(this), {});
-
-    if (arguments.length === 4 && util.isObject(nameOrHash)) {
-      this.params = { operator: 'to have ' + plural + ' ' + i(nameOrHash) };
-      allRelevantAttributes.should.have.properties(nameOrHash);
-    } else if (arguments.length === 4) {
-      this.params = { operator: 'to have ' + singular + ' ' + i(nameOrHash) };
-      allRelevantAttributes.should.have.property(nameOrHash);
-    } else {
-      this.params = { operator: 'to have ' + singular + ' ' + i(nameOrHash) + ' with value ' + i(value) };
-      allRelevantAttributes.should.have.property(nameOrHash, value);
-    }
-  }
-
-  var browserTagCaseIndependentHtml = function (html) {
-    return $('<div/>').append(html).html();
-  };
-
-  var addJqPredicateAssertion = function (predicate, nameOverride, operatorOverride) {
-    Assertion.add(nameOverride || predicate, function() {
-      this.params = { operator: 'to be ' + (operatorOverride || predicate) };
-      this.assert($(this.obj).is(':' + predicate));
-    }, true);
-  }
-
-  Assertion.add('className', function(className) {
-    this.params = { operator: 'to have class ' + className };
-    this.assert($(this.obj).hasClass(className));
-  });
-
-  Assertion.add('css', function(css) {
-    this.params = { operator: 'to have css ' + i(css) };
-    for (var prop in css) {
-      var value = css[prop];
-      if (value === 'auto' && $(this.obj).get(0).style[prop] === 'auto') {
-        continue;
-      }
-      $(this.obj).css(prop).should.eql(value);
-    }
-  });
-
-  addJqPredicateAssertion('visible');
-  addJqPredicateAssertion('hidden');
-  addJqPredicateAssertion('selected');
-  addJqPredicateAssertion('checked');
-  addJqPredicateAssertion('disabled');
-  addJqPredicateAssertion('empty', 'emptyJq');
-  addJqPredicateAssertion('focus', 'focused', 'focused');
-
-  Assertion.add('inDOM', function() {
-    this.params = { operator: 'to be in the DOM' };
-    this.assert($.contains(document.documentElement, $(this.obj)[0]));
-  }, true);
-
-  Assertion.add('exist', function() {
-    this.params = { operator: 'to exist' };
-    $(this.obj).should.not.have.length(0);
-  }, true);
-
-  Assertion.add('attr', function() {
-    var args = [
-      'attr',
-      'attribute',
-      'attributes'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('prop', function() {
-    var args = [
-      'prop',
-      'property',
-      'properties'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('elementId', function(id) {
-    this.params = { operator: 'to have ID ' + i(id) };
-    this.obj.should.have.attr('id', id);
-  });
-
-  Assertion.add('html', function(html) {
-    this.params = { operator: 'to have HTML ' + i(html) };
-    $(this.obj).html().should.eql(browserTagCaseIndependentHtml(html));
-  });
-
-  Assertion.add('containHtml', function(html) {
-    this.params = { operator: 'to contain HTML ' + i(html) };
-    $(this.obj).html().indexOf(browserTagCaseIndependentHtml(html)).should.be.above(-1);
-  });
-
-  Assertion.add('text', function(text) {
-    this.params = { operator: 'to have text ' + i(text) };
-    var trimmedText = $.trim($(this.obj).text());
-
-    if (util.isRegExp(text)) {
-      trimmedText.should.match(text);
-    } else {
-      trimmedText.should.eql(text);
-    }
-  });
-
-  Assertion.add('containText', function(text) {
-    this.params = { operator: 'to contain text ' + i(text) };
-    var trimmedText = $.trim($(this.obj).text());
-
-    if (util.isRegExp(text)) {
-      trimmedText.should.match(text);
-    } else {
-      trimmedText.indexOf(text).should.be.above(-1);
-    }
-  });
-
-  Assertion.add('value', function(val) {
-    this.params = { operator: 'to have value ' + i(val) };
-    $(this.obj).val().should.eql(val);
-  });
-
-  Assertion.add('data', function() {
-    var args = [
-      'data',
-      'data',
-      'data'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('containElement', function(target) {
-    this.params = { operator: 'to contain ' + $(target).inspect() };
-    $(this.obj).find(target).should.not.have.length(0);
-  });
-
-  Assertion.add('matchedBy', function(selector) {
-    this.params = { operator: 'to be matched by selector ' + selector };
-    $(this.obj).filter(selector).should.not.have.length(0);
-  });
-
-  Assertion.add('handle', function(event) {
-    this.params = { operator: 'to handle ' + event };
-
-    var events = $._data($(this.obj).get(0), "events");
-
-    if (!events || !event || typeof event !== "string") {
-      return this.assert(false);
-    }
-
-    var namespaces = event.split("."),
-        eventType = namespaces.shift(),
-        sortedNamespaces = namespaces.slice(0).sort(),
-        namespaceRegExp = new RegExp("(^|\\.)" + sortedNamespaces.join("\\.(?:.*\\.)?") + "(\\.|$)");
-
-    if (events[eventType] && namespaces.length) {
-      for (var i = 0; i < events[eventType].length; i++) {
-        var namespace = events[eventType][i].namespace;
-
-        if (namespaceRegExp.test(namespace)) {
-          return;
-        }
-      }
-    } else {
-      events.should.have.property(eventType);
-      events[eventType].should.not.have.length(0);
-      return;
-    }
-
-    this.assert(false);
-  });
-
-  Assertion.add('handleWith', function(eventName, eventHandler) {
-    this.params = { operator: 'to handle ' + eventName + ' with ' + eventHandler };
-
-    var normalizedEventName = eventName.split('.')[0],
-        stack = $._data($(this.obj).get(0), "events")[normalizedEventName];
-
-    for (var i = 0; i < stack.length; i++) {
-      if (stack[i].handler == eventHandler) {
-        return;
-      }
-    }
-
-    this.assert(false);
-  });
-};
-},{"../../util":16}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -462,7 +200,7 @@ module.exports = function(should, Assertion) {
 
   ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
 };
-},{}],7:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -496,7 +234,7 @@ module.exports = function(should, Assertion) {
     }));
   });
 };
-},{"../eql":2,"../util":16}],8:[function(require,module,exports){
+},{"../eql":1,"../util":16}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -520,7 +258,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../eql":2}],9:[function(require,module,exports){
+},{"../eql":1}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -572,7 +310,47 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
+/*!
+ * Should
+ * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+var util = require('../util');
+
+//var statusCodes = require('http').STATUS_CODES;
+
+module.exports = function(should, Assertion) {
+  var i = should.format;
+
+  Assertion.add('header', function(field, val) {
+    this.have.property('headers');
+    this.params = { obj: '{ ..., headers: ' + i(this.obj)  + ', ... }', operator: 'to have header ' + i(field) + (val !== undefined ? (':' + i(val)) : '') };
+    if (val !== undefined) {
+      this.have.property(field.toLowerCase(), val);
+    } else {
+      this.have.property(field.toLowerCase());
+    }
+  });
+
+  Assertion.add('status', function(code) {
+    //this.params = { operator: 'to have response code ' + code + ' ' + i(statusCodes[code])
+    //    + ', but got ' + this.obj.statusCode + ' ' + i(statusCodes[this.obj.statusCode]) }
+
+    this.have.property('statusCode', code);
+  });
+
+  Assertion.add('json', function() {
+    this.have.property('headers')
+      .and.have.property('content-type').include('application/json');
+  }, true);
+
+  Assertion.add('html', function() {
+    this.have.property('headers')
+      .and.have.property('content-type').include('text/html');
+  }, true);
+};
+},{"../util":16}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -685,7 +463,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../eql":2,"../util":16}],11:[function(require,module,exports){
+},{"../eql":1,"../util":16}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -736,7 +514,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -974,7 +752,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../eql":2,"../util":16}],13:[function(require,module,exports){
+},{"../eql":1,"../util":16}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -994,7 +772,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1072,7 +850,31 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('instanceof', 'instanceOf');
 };
-},{"../util":16}],15:[function(require,module,exports){
+},{"../util":16}],14:[function(require,module,exports){
+/*!
+ * Should
+ * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
+var should = require('./should');
+
+should
+  .use(require('./ext/assert'))
+  .use(require('./ext/chain'))
+  .use(require('./ext/bool'))
+  .use(require('./ext/number'))
+  .use(require('./ext/eql'))
+  .use(require('./ext/type'))
+  .use(require('./ext/string'))
+  .use(require('./ext/property'))
+  .use(require('./ext/http'))
+  .use(require('./ext/error'))
+  .use(require('./ext/match'))
+  .use(require('./ext/deprecated'));
+
+ module.exports = should;
+},{"./ext/assert":2,"./ext/bool":3,"./ext/chain":4,"./ext/deprecated":5,"./ext/eql":6,"./ext/error":7,"./ext/http":8,"./ext/match":9,"./ext/number":10,"./ext/property":11,"./ext/string":12,"./ext/type":13,"./should":15}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1153,7 +955,7 @@ Assertion.add = function(name, f, isGetter) {
 };
 
 Assertion.alias = function(from, to) {
-  Assertion.prototype[to] = Assertion.prototype[from]
+  Assertion.prototype[to] = Assertion.prototype[from];
 };
 
 should.AssertionError = AssertionError;
@@ -2360,4 +2162,1370 @@ if (typeof Object.create === 'function') {
 module.exports=require(18)
 },{}],22:[function(require,module,exports){
 module.exports=require(19)
-},{"./support/isBuffer":21,"inherits":20}]},{},[1])
+},{"./support/isBuffer":21,"inherits":20}],23:[function(require,module,exports){
+/**
+ * Module dependencies.
+ */
+
+var should = require('../');
+var util = require('util');
+
+function err(fn, msg) {
+  try {
+    fn();
+    should.fail('expected an error');
+  } catch(err) {
+    should.equal(msg, err.message);
+  }
+}
+
+function err_should_exist(obj) {
+  err(function() {
+      should.exist(obj);
+    },
+      'expected ' + util.inspect(obj) + ' to exist');
+}
+
+function err_should_not_exist(obj) {
+  err(function() {
+      should.not.exist(obj);
+    },
+      'expected ' + util.inspect(obj) + ' to not exist');
+}
+
+describe('should.exist', function() {
+
+  // static should.exist() pass,
+  it('test static should.exist() pass w/ bool', function() {
+    should.exist(false);
+  });
+
+  it('test static should.exist() pass w/ number', function() {
+    should.exist(0);
+  });
+
+  it('test static should.exist() pass w/ string', function() {
+    should.exist('');
+  });
+
+  it('test static should.exist() pass w/ object', function() {
+    should.exist({});
+  });
+
+  it('test static should.exist() pass w/ array', function() {
+    should.exist([]);
+  });
+
+  // static should.exist() fail,
+  it('test static should.exist() fail w/ null', function() {
+    err_should_exist(null);
+  });
+
+  it('test static should.exist() fail w/ undefined', function() {
+    err_should_exist(undefined);
+  });
+
+  // static should.not.exist() pass,
+  it('test static should.not.exist() pass w/ null', function() {
+    should.not.exist(null);
+  });
+
+  it('test static should.not.exist() pass w/ undefined', function() {
+    should.not.exist(undefined);
+  });
+
+// static should.not.exist() fail,
+  it('test static should.not.exist() fail w/ bool', function() {
+    err_should_not_exist(false);
+  });
+
+  it('test static should.not.exist() fail w/ number', function() {
+    err_should_not_exist(0);
+  });
+
+  it('test static should.not.exist() fail w/ string', function() {
+    err_should_not_exist('');
+  });
+
+  it('test static should.not.exist() fail w/ object', function() {
+    err_should_not_exist({});
+  });
+
+  it('test static should.not.exist() fail w/ array', function() {
+    err_should_not_exist([]);
+  });
+
+});
+
+},{"../":14,"util":22}],24:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('bool', function() {
+  it('test true', function() {
+    true.should.be.true;
+    false.should.not.be.true;
+    (1).should.not.be.true;
+
+    err(function(){
+      'test'.should.be.true;
+    }, "expected 'test' to be true")
+
+    err(function(){
+      true.should.not.be.true;
+    }, "expected true not to be true")
+  });
+
+  it('test false', function() {
+    false.should.be.false;
+    true.should.not.be.false;
+    (0).should.not.be.false;
+
+    err(function(){
+      ''.should.be.false;
+    }, "expected '' to be false")
+
+    err(function(){
+      false.should.not.be.false;
+    }, "expected false not to be false")
+  });
+
+  it('test ok', function() {
+    true.should.be.ok;
+    false.should.not.be.ok;
+    (1).should.be.ok;
+    (0).should.not.be.ok;
+
+    err(function(){
+      ''.should.be.ok;
+    }, "expected '' to be truthy");
+
+    err(function(){
+      'test'.should.not.be.ok;
+    }, "expected 'test' not to be truthy");
+  });
+});
+},{"../../":14,"../util":35}],25:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('deprecated', function() {
+  it('test include() with string', function() {
+    'foobar'.should.include('bar');
+    'foobar'.should.include('foo');
+    'foobar'.should.not.include('baz');
+
+    err(function(){
+      'foobar'.should.include('baz');
+    }, "expected 'foobar' to include 'baz'");
+
+    err(function(){
+      'foobar'.should.not.include('bar');
+    }, "expected 'foobar' not to include 'bar'");
+
+    err(function(){
+      'foobar'.should.include('baz', 'foo');
+    }, "foo");
+  });
+
+  it('test include() with array', function() {
+    ['foo', 'bar'].should.include('foo');
+    ['foo', 'bar'].should.include('foo');
+    ['foo', 'bar'].should.include('bar');
+    [1,2].should.include(1);
+    ['foo', 'bar'].should.not.include('baz');
+    ['foo', 'bar'].should.not.include(1);
+
+    err(function(){
+      ['foo'].should.include('bar');
+    }, "expected [ 'foo' ] to include 'bar'");
+
+    err(function(){
+      ['bar', 'foo'].should.not.include('foo');
+    }, "expected [ 'bar', 'foo' ] not to include 'foo'");
+
+    err(function(){
+      ['bar', 'foo'].should.not.include('foo', 'foo');
+    }, "foo");
+  });
+
+  it('test include() with object', function() {
+    var tobi = { name: 'Tobi', age: 2 };
+    var jane = { name: 'Jane', age: 2 };
+
+    var user = { name: 'TJ', pet: tobi, age: 24 };
+
+    user.should.include({ pet: tobi });
+    user.should.include({ pet: tobi, name: 'TJ' });
+    user.should.not.include({ pet: tobi, name: 'Someone else' });
+    user.should.not.include({ pet: jane });
+    user.should.not.include({ pet: jane, name: 'TJ' });
+
+    err(function(){
+      user.should.include({ pet: { name: 'Luna' } });
+    }, "expected { name: 'TJ', pet: { name: 'Tobi', age: 2 }, age: 24 } to include an object equal to { pet: { name: 'Luna' } }");
+  });
+
+  it('test includeEql() with array', function() {
+    [['foo'], ['bar']].should.includeEql(['foo']);
+    [['foo'], ['bar']].should.includeEql(['bar']);
+    [['foo'], ['bar']].should.not.includeEql(['baz']);
+    [].should.not.includeEql(['baz']);
+
+    err(function(){
+      [['foo']].should.includeEql(['bar']);
+    }, "expected [ [ 'foo' ] ] to include an object equal to [ 'bar' ]");
+
+    err(function(){
+      [['foo']].should.not.includeEql(['foo']);
+    }, "expected [ [ 'foo' ] ] not to include an object equal to [ 'foo' ]");
+
+    err(function(){
+      [['foo']].should.not.includeEql(['foo'], 'foo');
+    }, "foo");
+  });
+});
+},{"../../":14,"../util":35}],26:[function(require,module,exports){
+var err = require('../util').err,
+	should = require('../../');
+
+describe('eql', function() {
+  it('test eql(val)', function() {
+    'test'.should.eql('test');
+    ({ foo: 'bar' }).should.eql({ foo: 'bar' });
+    (1).should.eql(1);
+    '4'.should.eql(4);
+    var memo = [];
+    function memorize() {
+        memo.push(arguments);
+    }
+    memorize('a', [1, 2]);
+    memorize('a', [1, 2]);
+    memo[0].should.eql(memo[1]);
+
+    err(function(){
+      (4).should.eql(3);
+    }, 'expected 4 to equal 3');
+  });
+
+  it('test equal(val)', function() {
+    'test'.should.equal('test');
+    (1).should.equal(1);
+
+    err(function(){
+      (4).should.equal(3);
+    }, 'expected 4 to be 3');
+
+    err(function(){
+      '4'.should.equal(4);
+    }, "expected '4' to be 4");
+
+    var date = new Date;
+    date.should.equal(date);
+  });
+
+  it('test .equal()', function() {
+    var foo;
+    should.equal(undefined, foo);
+  });
+});
+},{"../../":14,"../util":35}],27:[function(require,module,exports){
+var err = require('../util').err,
+	should = require('../../');
+
+describe('error', function() {
+  it('test throw()', function() {
+    (function(){}).should.not.throw();
+    (function(){ throw new Error('fail') }).should.throw();
+
+    err(function(){
+      (function(){}).should.throw();
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){
+        throw new Error('fail');
+      }).should.not.throw();
+    }, 'expected [Function] not to throw exception (got [Error: fail])');
+  });
+
+  it('test throw() with regex message', function() {
+    (function(){ throw new Error('fail'); }).should.throw(/fail/);
+
+    err(function(){
+      (function(){}).should.throw(/fail/);
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw new Error('error'); }).should.throw(/fail/);
+    }, "expected [Function] to throw exception with a message matching /fail/, but got 'error'");
+  });
+
+  it('test throw() with string message', function() {
+    (function(){ throw new Error('fail'); }).should.throw('fail');
+
+    err(function(){
+      (function(){}).should.throw('fail');
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw new Error('error'); }).should.throw('fail');
+    }, "expected [Function] to throw exception with a message matching 'fail', but got 'error'");
+  });
+
+  it('test throw() with type', function() {
+    (function(){ throw new Error('fail'); }).should.throw(Error);
+
+    err(function(){
+      (function(){}).should.throw(Error);
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw 'error'; }).should.throw(Error);
+    }, "expected [Function] to throw exception of type Error, but got String");
+  });
+
+  it('test throwError()', function() {
+    (function(){}).should.not.throwError();
+    (function(){ throw new Error('fail') }).should.throwError();
+
+    err(function(){
+      (function(){}).should.throwError();
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){
+        throw new Error('fail');
+      }).should.not.throwError();
+    }, 'expected [Function] not to throw exception (got [Error: fail])');
+  });
+
+  it('test throwError() with regex message', function() {
+    (function(){ throw new Error('fail'); }).should.throwError(/fail/);
+
+    err(function(){
+      (function(){}).should.throwError(/fail/);
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw new Error('error'); }).should.throwError(/fail/);
+    }, "expected [Function] to throw exception with a message matching /fail/, but got 'error'");
+  });
+
+  it('test throwError() with string message', function() {
+    (function(){ throw new Error('fail'); }).should.throwError('fail');
+
+    err(function(){
+      (function(){}).should.throwError('fail');
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw new Error('error'); }).should.throwError('fail');
+    }, "expected [Function] to throw exception with a message matching 'fail', but got 'error'");
+  });
+
+  it('test throwError() with type', function() {
+    (function(){ throw new Error('fail'); }).should.throw(Error);
+
+    err(function(){
+      (function(){}).should.throw(Error);
+    }, 'expected [Function] to throw exception');
+
+    err(function(){
+      (function(){ throw 'error'; }).should.throw(Error);
+    }, "expected [Function] to throw exception of type Error, but got String");
+  });
+});
+},{"../../":14,"../util":35}],28:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('http', function() {
+  it('test .json', function() {
+    var req = {
+      headers: {
+        'content-type': 'application/json'
+      }
+    };
+
+    req.should.be.json;
+
+    req = {
+      headers: {
+        'content-type': 'application/json; charset=utf-8'
+      }
+    };
+
+    req.should.be.json;
+
+    req = {
+      headers: {
+        'content-type': 'text/html'
+      }
+    };
+
+    req.should.not.be.json;
+
+    ({}).should.not.be.json;
+  });
+
+  it('test .status', function() {
+    ({ statusCode: 300 }).should.have.not.status(200);
+
+    ({ statusCode: 200 }).should.have.status(200);
+  });
+
+  it('test .header', function () {
+    ({
+      headers: {
+        'content-type': 'image/x-icon',
+        'content-length': '318',
+        etag: '"4acba26164356285e6908e8bf0529fab"',
+        'cache-control': 'public, max-age=86400',
+        'x-response-time': '1ms',
+        date: 'Wed, 19 Feb 2014 05:20:55 GMT',
+        connection: 'close'
+      }
+    }).should.header('Content-Type', 'image/x-icon');
+
+    ({
+      headers: {
+        'content-type': 'image/x-icon',
+        'content-length': '318',
+        etag: '"4acba26164356285e6908e8bf0529fab"',
+        'cache-control': 'public, max-age=86400',
+        'x-response-time': '1ms',
+        date: 'Wed, 19 Feb 2014 05:20:55 GMT',
+        connection: 'close'
+      }
+    }).should.header('Content-Type');
+
+  });
+});
+
+},{"../../":14,"../util":35}],29:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('match', function() {
+
+  it('test string match(regexp)', function() {
+    'foobar'.should.match(/^foo/)
+    'foobar'.should.not.match(/^bar/)
+
+    err(function() {
+      'foobar'.should.match(/^bar/i)
+    }, "expected 'foobar' to match /^bar/i");
+
+    err(function() {
+      'foobar'.should.not.match(/^foo/i)
+    }, "expected 'foobar' not to match /^foo/i");
+
+    err(function() {
+      'foobar'.should.match(/^bar/i, 'foo')
+    }, "foo");
+
+    err(function() {
+      'foobar'.should.not.match(/^foo/i, 'foo')
+    }, "foo");
+  });
+
+  it('test object match(regexp)', function() {
+    ({ a: 'foo', c: 'barfoo' }).should.match(/foo$/);
+
+    ({ a: 'a' }).should.not.match(/^http/);
+
+    // positive false
+    err(function() {
+      ({ a: 'foo', c: 'barfoo' }).should.not.match(/foo$/);
+    }, "expected { a: 'foo', c: 'barfoo' } not to match /foo$/\n\tmatched properties: 'a', 'c'");
+
+    // negative true
+    err(function() {
+      ({ a: 'foo', c: 'barfoo' }).should.match(/^foo$/);
+    }, "expected { a: 'foo', c: 'barfoo' } to match /^foo$/\n\tnot matched properties: 'c'\n\tmatched properties: 'a'");
+  });
+
+  it('test array match(regexp)', function() {
+    ['a', 'b', 'c'].should.match(/[a-z]/);
+    ['a', 'b', 'c'].should.not.match(/[d-z]/);
+
+    err(function() {
+      ['a', 'b', 'c'].should.not.match(/[a-z]/);
+    }, "expected [ 'a', 'b', 'c' ] not to match /[a-z]/");
+
+    err(function() {
+      ['a', 'b', 'c'].should.match(/[d-z]/);
+    }, "expected [ 'a', 'b', 'c' ] to match /[d-z]/");
+  });
+
+  it('test match(function)', function() {
+    (5).should.match(function(n) {
+      return n > 0;
+    });
+
+    (5).should.not.match(function(n) {
+      return n < 0;
+    });
+
+    (5).should.not.match(function(it) {
+      it.should.be.an.Array;
+    });
+
+    (5).should.match(function(it) {
+      it.should.be.a.Number;
+    });
+
+    err(function() {
+      (5).should.match(function(n) {
+        return n < 0;
+      });
+    }, "expected 5 to match [Function]");
+
+    err(function() {
+      (5).should.match(function(it) {
+        it.should.be.an.Array;
+      });
+    }, "expected 5 to match [Function]\n\texpected 5 to be an array");
+
+    err(function() {
+      (5).should.not.match(function(it) {
+        return it.should.be.a.Number;
+      });
+    }, "expected 5 not to match [Function]\n\texpected 5 to be a number");
+
+    err(function() {
+      (5).should.not.match(function(n) {
+        return n > 0;
+      });
+    }, "expected 5 not to match [Function]");
+  });
+
+  it('test match(object)', function() {
+    ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should
+      .match({ a: 10, b: /c$/, c: function(it) {
+        return it.should.have.property('d', 10);
+      }});
+
+    [10, 'abc', { d: 10 }, 0].should
+      .match({ '0': 10, '1': /c$/, '2': function(it) {
+        return it.should.have.property('d', 10);
+      } });
+
+    [10, 'abc', { d: 10 }, 0].should
+      .match([10, /c$/, function(it) {
+        return it.should.have.property('d', 10);
+      }]);
+
+    err(function() {
+      ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should
+        .match({ a: 11, b: /c$/, c: function(it) {
+          return it.should.have.property('d', 10);
+        }});
+    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } to match { a: 11, b: /c$/, c: [Function] }\n\tnot matched properties: a\n\tmatched properties: b, c");
+
+    err(function() {
+      ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should.not
+        .match({ a: 10, b: /c$/, c: function(it) {
+          return it.should.have.property('d', 10);
+        }});
+    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } not to match { a: 10, b: /c$/, c: [Function] }\n\tmatched properties: a, b, c");
+  });
+
+  it('test each property match(function)', function() {
+    [10, 11, 12].should.matchEach(function(it) {
+      return it >= 10;
+    });
+
+    [10, 10].should.matchEach(10);
+
+    ({ a: 10, b: 11, c: 12}).should.matchEach(function(value, key) {
+      value.should.be.a.Number;
+    });
+
+    (['a', 'b', 'c']).should.matchEach(/[a-c]/);
+
+    err(function() {
+      (['a', 'b', 'c']).should.not.matchEach(/[a-c]/);
+    }, "expected [ 'a', 'b', 'c' ] not to match each /[a-c]/");
+
+    err(function() {
+      [10, 11].should.matchEach(10);
+    }, "expected [ 10, 11 ] to match each 10");
+  });
+});
+},{"../../":14,"../util":35}],30:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('number', function() {
+  it('test NaN', function() {
+    NaN.should.be.NaN;
+    Infinity.should.not.be.NaN;
+    (0).should.not.be.NaN;
+    false.should.not.be.NaN;
+    ({}).should.not.be.NaN;
+    ''.should.not.be.NaN;
+    'foo'.should.not.be.NaN;
+    /^$/.should.not.be.NaN;
+
+    err(function(){
+      Infinity.should.be.NaN;
+    }, "expected Infinity to be NaN")
+
+    err(function(){
+      NaN.should.not.be.NaN;
+    }, "expected NaN not to be NaN")
+  });
+
+  it('test Infinity', function() {
+    NaN.should.not.be.Infinity;
+    (1/0).should.be.Infinity;
+    Infinity.should.be.Infinity;
+    (0).should.not.be.Infinity;
+    false.should.not.be.Infinity;
+    ({}).should.not.be.Infinity;
+    ''.should.not.be.Infinity;
+    'foo'.should.not.be.Infinity;
+    /^$/.should.not.be.Infinity;
+
+    err(function(){
+      NaN.should.be.Infinity;
+    }, "expected NaN to be Infinity")
+
+    err(function(){
+      Infinity.should.not.be.Infinity;
+    }, "expected Infinity not to be Infinity")
+  });
+
+  it('test within(start,  it(finish)', function() {
+    (5).should.be.within(5, 10);
+    (5).should.be.within(3,6);
+    (5).should.be.within(3,5);
+    (5).should.not.be.within(1,3);
+
+    err(function(){
+      (5).should.not.be.within(4,6);
+    }, "expected 5 not to be within 4..6");
+
+    err(function(){
+      (10).should.be.within(50,100);
+    }, "expected 10 to be within 50..100");
+
+    err(function(){
+      (5).should.not.be.within(4,6, 'foo');
+    }, "foo");
+
+    err(function(){
+      (10).should.be.within(50,100, 'foo');
+    }, "foo");
+  });
+
+  it('test approximately(number,  it(delta)', function() {
+    (1.5).should.be.approximately(1.4, 0.2);
+    (1.5).should.be.approximately(1.5, 10E-10);
+    (1.5).should.not.be.approximately(1.4, 1E-2);
+
+    err(function(){
+      (99.99).should.not.be.approximately(100, 0.1);
+    }, "expected 99.99 not to be approximately 100 ±0.1");
+
+    err(function(){
+      (99.99).should.be.approximately(105, 0.1);
+    }, "expected 99.99 to be approximately 105 ±0.1");
+  });
+
+
+  it('test above(n)', function() {
+    (5).should.be.above(2);
+    (5).should.be.greaterThan(2);
+    (5).should.not.be.above(5);
+    (5).should.not.be.above(6);
+
+    err(function(){
+      (5).should.be.above(6);
+    }, "expected 5 to be above 6");
+
+    err(function(){
+      (10).should.not.be.above(6);
+    }, "expected 10 not to be above 6");
+
+    err(function(){
+      (5).should.be.above(6, 'foo');
+    }, "foo");
+
+    err(function(){
+      (10).should.not.be.above(6, 'foo');
+    }, "foo");
+  });
+
+  it('test below(n)', function() {
+    (2).should.be.below(5);
+    (2).should.be.lessThan(5);
+    (5).should.not.be.below(5);
+    (6).should.not.be.below(5);
+
+    err(function(){
+      (6).should.be.below(5);
+    }, "expected 6 to be below 5");
+
+    err(function(){
+      (6).should.not.be.below(10);
+    }, "expected 6 not to be below 10");
+
+    err(function(){
+      (6).should.be.below(5, 'foo');
+    }, "foo");
+
+    err(function(){
+      (6).should.not.be.below(10, 'foo');
+    }, "foo");
+  });
+});
+},{"../../":14,"../util":35}],31:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('property', function() {
+  it('test enumerable(name)', function() {
+    ({'length': 5}).should.have.enumerable('length');
+    (4).should.not.have.enumerable('length');
+
+    err(function() {
+      'asd'.should.have.enumerable('length');
+    }, "expected 'asd' to have enumerable property 'length'");
+  });
+
+  it('test enumerable(name,  it(val)', function() {
+    ({'length': 5}).should.have.enumerable('length', 5);
+
+    err(function() {
+      ({'length': 3}).should.have.enumerable('length', 5);
+    }, "expected { length: 3 } to have enumerable property 'length' equal to '5'");
+  });
+
+  it('test property(name)', function() {
+    'test'.should.have.property('length');
+    (4).should.not.have.property('length');
+
+    err(function() {
+      'asd'.should.have.property('foo');
+    }, "expected 'asd' to have property 'foo'");
+  });
+
+  it('test property(name,  it(val)', function() {
+    'test'.should.have.property('length', 4);
+    'asd'.should.have.property('constructor', String);
+
+    err(function() {
+      'asd'.should.have.property('length', 4);
+    }, "expected 'asd' to have property 'length' of 4 (got 3)");
+
+    err(function() {
+      'asd'.should.not.have.property('length', 3);
+    }, "expected 'asd' not to have property 'length' of 3");
+
+    err(function() {
+      'asd'.should.have.property('constructor', Number);
+    }, "expected 'asd' to have property 'constructor' of [Function: Number] (got [Function: String])");
+
+    err(function() {
+      ({a: {b: 1}}).should.have.property('a')
+        .and.have.property('b', 100);
+    }, "expected { b: 1 } to have property 'b' of 100 (got 1)");
+
+    err(function() {
+      ({a: {b: 1}}).should.have.property('a')
+        .and.have.property('c', 100);
+    }, "expected { b: 1 } to have property 'c'");
+
+    err(function() {
+      ({a: {b: 1}}).should.have.property('a')
+        .and.have.property('c');
+    }, "expected { b: 1 } to have property 'c'");
+
+  });
+
+  it('test length(n)', function() {
+    'test'.should.have.length(4);
+    'test'.should.have.lengthOf(4);
+    'test'.should.not.have.length(3);
+    [1, 2, 3].should.have.length(3);
+    ({ length: 10}).should.have.length(10);
+
+    err(function() {
+      (4).should.have.length(3);
+    }, "expected 4 to have property 'length'");
+
+    err(function() {
+      'asd'.should.not.have.length(3);
+    }, "expected 'asd' not to have property 'length' of 3");
+
+  });
+
+  it('test ownProperty(name)', function() {
+    'test'.should.have.ownProperty('length');
+    ({ length: 12 }).should.have.ownProperty('length');
+
+    err(function() {
+      ({ length: 12 }).should.not.have.ownProperty('length');
+    }, "expected { length: 12 } not to have own property 'length'");
+
+    err(function() {
+      ({ length: 12 }).should.not.have.ownProperty('length', 'foo');
+    }, "foo");
+
+    err(function() {
+      ({ length: 12 }).should.have.ownProperty('foo', 'foo');
+    }, "foo");
+  });
+
+  it('test ownProperty(name).equal(val)', function() {
+    ({length: 10}).should.have.ownProperty('length').equal(10);
+  });
+
+  it('test properties(name1, name2,  it(...)', function() {
+    'test'.should.have.properties('length', 'indexOf');
+    (4).should.not.have.properties('length');
+
+    err(function() {
+      'asd'.should.have.properties('foo');
+    }, "expected 'asd' to have property 'foo'");
+
+    err(function() {
+      'asd'.should.not.have.properties('length', 'indexOf');
+    }, "expected 'asd' not to have properties 'length', 'indexOf'");
+  });
+
+  it('test properties([names])', function() {
+    'test'.should.have.properties(['length', 'indexOf']);
+    (4).should.not.have.properties(['length']);
+
+    err(function() {
+      'asd'.should.have.properties(['foo']);
+    }, "expected 'asd' to have property 'foo'");
+  });
+
+  it('test any of properties', function() {
+    'test'.should.have.any.of.properties('length', 'a', 'b');
+
+    'test'.should.have.any.of.properties('length');
+
+    ({ a: 10 }).should.have.any.of.properties('a', 'b');
+
+    ({ a: 10 }).should.have.any.of.properties({ a: 10, b: 12 });
+
+    ({ a: 10 }).should.not.have.any.of.properties('b', 'c');
+
+    ({ a: 10 }).should.have.any.of.properties(['a', 'b']);
+
+    err(function() {
+      ({ a: 10 }).should.not.have.any.of.properties(['a', 'b']);
+    }, "expected { a: 10 } not to have property 'a'");
+
+    err(function() {
+      ({ a: 10, b: 10 }).should.not.have.any.of.properties(['a', 'b']);
+    }, "expected { a: 10, b: 10 } not to have any of properties 'a', 'b'");
+
+    err(function() {
+      ({ a: 10, b: 10 }).should.not.have.any.of.properties({ a: 10, b: 12 });
+    }, "expected { a: 10, b: 10 } not to have property 'a' of 10");
+
+    err(function() {
+      ({ a: 10, b: 10 }).should.not.have.any.of.properties({ a: 10, b: 10 });
+    }, "expected { a: 10, b: 10 } not to have any of properties 'a' of 10, 'b' of 10");
+
+    err(function() {
+      ({ a: 11, b: 11 }).should.have.any.of.properties({ a: 10, b: 10 });
+    }, "expected { a: 11, b: 11 } to have any of properties 'a' of 10 (got 11), 'b' of 10 (got 11)");
+  });
+
+  it('test keys(array)', function() {
+    ({ foo: 1 }).should.have.keys(['foo']);
+    ({ foo: 1, bar: 2 }).should.have.keys(['foo', 'bar']);
+    ({ foo: 1, bar: 2 }).should.have.keys('foo', 'bar');
+    ({}).should.have.keys();
+    ({}).should.have.keys([]);
+
+    err(function() {
+      ({ foo: 1 }).should.have.keys(['bar']);
+    }, "expected { foo: 1 } to have key 'bar'\n\tmissing keys: 'bar'\n\textra keys: 'foo'");
+
+    err(function() {
+      ({ foo: 1 }).should.have.keys(['bar', 'baz']);
+    }, "expected { foo: 1 } to have keys 'bar', 'baz'\n\tmissing keys: 'bar', 'baz'\n\textra keys: 'foo'");
+
+    err(function() {
+      ({ foo: 1 }).should.not.have.keys('foo');
+    }, "expected { foo: 1 } not to have key 'foo'");
+
+    err(function() {
+      ({ foo: 1 }).should.not.have.keys(['foo']);
+    }, "expected { foo: 1 } not to have key 'foo'");
+
+    err(function() {
+      ({ foo: 1, bar: 2 }).should.not.have.keys(['foo', 'bar']);
+    }, "expected { foo: 1, bar: 2 } not to have keys 'foo', 'bar'");
+  });
+
+  it('test empty', function() {
+    ''.should.be.empty;
+    [].should.be.empty;
+    ({}).should.be.empty;
+    ({ length: 10 }).should.not.be.empty;
+
+    (function() {
+      arguments.should.be.empty;
+    })();
+
+    err(function() {
+      ({}).should.not.be.empty;
+    }, 'expected {} not to be empty');
+
+    err(function() {
+      ({ length: 10 }).should.be.empty;
+    }, 'expected { length: 10 } to be empty');
+
+    err(function() {
+      'asd'.should.be.empty;
+    }, "expected 'asd' to be empty");
+
+    err(function() {
+      ''.should.not.be.empty;
+    }, "expected '' not to be empty");
+  });
+
+  it('test containEql', function() {
+    'hello boy'.should.containEql('boy');
+    [1, 2, 3].should.containEql(3);
+    [
+      [1],
+      [2],
+      [3]
+    ].should.containEql([3]);
+    [
+      [1],
+      [2],
+      [3, 4]
+    ].should.not.containEql([3]);
+    [
+      {a: 'a'},
+      {b: 'b', c: 'c'}
+    ].should.containEql({a: 'a'});
+    [
+      {a: 'a'},
+      {b: 'b', c: 'c'}
+    ].should.not.containEql({b: 'b'});
+
+    ({}).should.not.containEql({ a: 10 });
+
+    ({ b: 10 }).should.containEql({ b: 10 });
+    [1, 2, 3].should.containEql(1);
+    ([1, 2, { a: 10 }]).should.containEql({ a: 10 });
+    [1, 2, 3].should.not.containEql({ a: 1 });
+
+    err(function() {
+      [1, 2, 3].should.not.containEql(3);
+    }, "expected [ 1, 2, 3 ] not to contain 3");
+
+    err(function() {
+      [1, 2, 3].should.containEql(4);
+    }, "expected [ 1, 2, 3 ] to contain 4");
+  });
+
+  it('test containDeep', function() {
+    'hello boy'.should.containDeep('boy');
+
+    ({ a: { b: 10 }, b: { c: 10, d: 11, a: { b: 10, c: 11} }}).should
+      .containDeep({ a: { b: 10 }, b: { c: 10, a: { c: 11 }}});
+
+    [1, 2, 3, { a: { b: { d: 12 }}}].should.containDeep([
+      { a: { b: {d: 12}}}
+    ]);
+
+    [
+      [1, [2, 3], 3],
+      [2]
+    ].should.not.containDeep([1, 2]);
+
+    [
+      [1],
+      [2],
+      [3]
+    ].should.containDeep([
+        [3]
+      ]);
+    [
+      [1],
+      [2],
+      [3, 4]
+    ].should.containDeep([
+        [3]
+      ]);
+    [
+      [1],
+      [2],
+      [3, 4]
+    ].should.containDeep([
+        [1],
+        [3]
+      ]);
+    [
+      [1],
+      [2],
+      [3, 4]
+    ].should.not.containDeep([
+        [3],
+        [1]
+      ]);
+    [
+      {a: 'a'},
+      {b: 'b', c: 'c'}
+    ].should.containDeep([
+        {a: 'a'}
+      ]);
+    [
+      {a: 'a'},
+      {b: 'b', c: 'c'}
+    ].should.containDeep([
+        {b: 'b'}
+      ]);
+
+    err(function() {
+      'hello boy'.should.not.containDeep('boy');
+    }, "expected 'hello boy' not to contain 'boy'");
+
+    err(function() {
+      [
+        {a: 'a'},
+        {b: 'b', c: 'c'}
+      ].should.not.containDeep([
+          {b: 'b'}
+        ]);
+    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
+  });
+});
+
+},{"../../":14,"../util":35}],32:[function(require,module,exports){
+var err = require('../util').err;
+var should = require('../../');
+
+describe('string', function() {
+  it('test startWith()', function() {
+    'foobar'.should.startWith('foo');
+    'foobar'.should.not.startWith('bar');
+
+    err(function() {
+      'foobar'.should.startWith('bar');
+    }, "expected 'foobar' to start with 'bar'");
+
+    err(function() {
+      'foobar'.should.not.startWith('foo');
+    }, "expected 'foobar' not to start with 'foo'");
+
+    err(function() {
+      'foobar'.should.startWith('bar', 'baz');
+    }, "baz");
+
+    err(function() {
+      'foobar'.should.not.startWith('foo', 'baz');
+    }, "baz");
+  });
+
+  it('test endWith()', function() {
+    'foobar'.should.endWith('bar');
+    'foobar'.should.not.endWith('foo');
+
+    err(function() {
+      'foobar'.should.endWith('foo');
+    }, "expected 'foobar' to end with 'foo'");
+
+    err(function() {
+      'foobar'.should.not.endWith('bar');
+    }, "expected 'foobar' not to end with 'bar'");
+
+    err(function() {
+      'foobar'.should.endWith('foo', 'baz');
+    }, "baz");
+
+    err(function() {
+      'foobar'.should.not.endWith('bar', 'baz');
+    }, "baz");
+  });
+
+});
+},{"../../":14,"../util":35}],33:[function(require,module,exports){
+var err = require('../util').err,
+  should = require('../../');
+
+var AssertionError = require('assert').AssertionError;
+var util = require('util');
+
+describe('type', function() {
+  it('test arguments', function() {
+    var args = (function(){ return arguments; })(1,2,3);
+    args.should.be.arguments;
+    [].should.not.be.arguments;
+
+    err(function() {
+      ((function(){ return arguments; })(1,2,3)).should.not.be.arguments;
+    }, "expected { '0': 1, '1': 2, '2': 3 } not to be arguments");
+
+    err(function() {
+      ({}).should.be.arguments;
+    }, "expected {} to be arguments");
+  });
+
+  it('test typeof', function() {
+    'test'.should.have.type('string');
+
+    err(function(){
+      'test'.should.not.have.type('string');
+    }, "expected 'test' not to have type string");
+
+    err(function(){
+      'test'.should.not.have.type('string', 'foo');
+    }, "foo");
+
+    err(function(){
+      (10).should.have.type('string');
+    }, "expected 10 to have type string");
+
+    (5).should.have.type('number');
+
+    err(function(){
+      (5).should.not.have.type('number');
+    }, "expected 5 not to have type number");
+
+    err(function(){
+      (5).should.not.have.type('number', 'foo');
+    }, "foo");
+  });
+
+  it('test instanceof', function() {
+    function Foo(){}
+    new Foo().should.be.an.instanceof(Foo);
+
+    new Date().should.be.an.instanceof(Date);
+
+    var tobi = { name: 'Tobi', age: 2 };
+    tobi.should.be.an.instanceof(Object);
+
+    var getSomething = function() {return "something"};
+    getSomething.should.be.an.instanceof(Function);
+
+    var number = Object(5);
+    (number instanceof Number).should.be.true;
+    number.should.be.an.instanceof(Number);
+
+    var boolean = Object(true);
+    (boolean instanceof Boolean).should.be.true;
+    boolean.should.be.an.instanceof(Boolean);
+
+    var string = Object('string');
+    (string instanceof String).should.be.true;
+    string.should.be.an.instanceof(String);
+
+    err(function(){
+      (3).should.an.instanceof(Foo);
+    }, "expected 3 to be an instance of Foo");
+
+    err(function(){
+      (3).should.an.instanceof(Foo, 'foo');
+    }, "foo");
+
+    err(function(){
+      ({}).should.not.be.an.instanceof(Object);
+    }, "expected {} not to be an instance of Object");
+  });
+
+  it('test instanceOf (non-  it(reserved)', function() {
+    function Foo(){}
+    new Foo().should.be.an.instanceOf(Foo);
+
+    new Date().should.be.an.instanceOf(Date);
+
+    var tobi = { name: 'Tobi', age: 2 };
+    tobi.should.be.an.instanceOf(Object);
+
+    var getSomething = function() {return "something"};
+    getSomething.should.be.an.instanceOf(Function);
+
+    err(function(){
+      (9).should.an.instanceOf(Foo);
+    }, "expected 9 to be an instance of Foo");
+
+    err(function(){
+      (9).should.an.instanceOf(Foo, 'foo');
+    }, "foo");
+
+    function Foo2(){}
+    Foo2.prototype.valueOf = function (){ return 'foo'; };
+    new Foo2().should.be.an.instanceOf(Foo2);
+  });
+
+  it('test Function', function() {
+    var f = function() {};
+    f.should.be.a.Function;
+
+    Object.should.be.a.Function;
+
+    Function.should.be.a.Function;
+
+    (new Function("1 * 1")).should.be.a.Function;
+
+    err(function() {
+      (1).should.be.a.Function;
+    }, "expected 1 to be a function");
+  });
+
+  it('test Object', function() {
+    ({}).should.be.an.Object;
+    Function.should.not.be.an.Object;
+
+    (new Object()).should.be.an.Object;
+    (new Date()).should.be.an.Object;
+
+    err(function() {
+      (1).should.be.an.Object;
+    }, 'expected 1 to be an object');
+  });
+
+  it('test String', function() {
+    ''.should.be.a.String;
+    ({}).should.not.be.a.String;
+    (0).should.not.be.a.String;
+
+    (new String("")).should.be.a.String;
+
+    err(function() {
+      (1).should.be.a.String
+    }, 'expected 1 to be a string');
+  });
+
+  it('test Array', function() {
+    [].should.be.an.Array;
+    (new Array(10)).should.be.an.Array;
+
+    ''.should.not.be.Array;
+    (1).should.not.be.Array;
+
+    err(function() {
+      [].should.not.be.Array
+    }, 'expected [] not to be an array');
+  });
+
+  it('test Number', function() {
+    (1).should.be.a.Number;
+    (new Number(10)).should.be.a.Number;
+
+    NaN.should.be.a.Number;
+    Infinity.should.be.a.Number;
+
+    ({}).should.not.be.a.Number;
+
+    err(function() {
+      ([]).should.be.a.Number;
+    }, 'expected [] to be a number');
+  });
+  it('test Boolean', function() {
+    (true).should.be.a.Boolean;
+    (false).should.be.a.Boolean;
+
+    (new Boolean(false)).should.be.a.Boolean;
+
+    ({}).should.not.be.a.Boolean;
+
+    err(function() {
+      [].should.be.a.Boolean;
+    }, 'expected [] to be a boolean');
+  });
+  it('test Error', function() {
+    (new Error()).should.be.an.Error;
+
+    ({}).should.not.be.Error;
+
+    var ae = new AssertionError({ actual: 10 });
+    ae.should.be.an.Error;
+
+    var AsyncTimeoutError = function AsyncTimeoutError(msg) {
+      msg && (this.message = msg);
+      Error.apply(this, arguments);
+      Error.captureStackTrace && Error.captureStackTrace(this, AsyncTimeoutError);
+    };
+    util.inherits(AsyncTimeoutError, Error);
+    AsyncTimeoutError.prototype.name = AsyncTimeoutError.name;
+
+    var e = new AsyncTimeoutError('foo');
+    e.should.be.an.Error;
+
+    err(function() {
+      ([]).should.be.an.Error;
+    }, 'expected [] to be an error');
+  });
+});
+},{"../../":14,"../util":35,"assert":17,"util":22}],34:[function(require,module,exports){
+
+/**
+ * Module dependencies.
+ */
+
+var should = require('../')
+  , assert = require('assert');
+
+function err(fn, msg) {
+  try {
+    fn();
+    should.fail('expected an error');
+  } catch (err) {
+    should.equal(msg, err.message);
+  }
+}
+
+describe('should', function() {
+  it('test double require', function() {
+    require('../').should.equal(should);
+  });
+
+  it('test assertion', function() {
+    'test'.should.be.a.string;
+    should.equal('foo', 'foo');
+  });
+  
+  it('test .expected and .actual', function() {
+    try {
+      'foo'.should.equal('bar');
+    } catch (err) {
+      assert('foo' == err.actual, 'err.actual');
+      assert('bar' == err.expected, 'err.expected');
+    }
+  });
+ 
+  it('test chaining', function() {
+    var user = { name: 'tj', pets: ['tobi', 'loki', 'jane', 'bandit'] };
+
+    user.should.be.an.instanceOf(Object).and.have.property('name', 'tj');
+
+    user.should.have.ownProperty('name')
+      .which.not.have.length(3)
+        .and.be.equal('tj');
+  });
+});
+
+},{"../":14,"assert":17}],35:[function(require,module,exports){
+var should = require('../');
+
+function err(fn, msg) {
+  var ok = true;
+  try {
+    fn();
+    ok = false;
+  } catch (err) {
+    if(err.message !== msg)
+      throw new should.AssertionError({ message: 'Expected message does not match', expected: msg, actual: err.message });
+  }
+  if(!ok) throw new Error('expected an error');
+}
+
+exports.err = err;
+},{"../":14}]},{},[23,24,25,26,27,28,29,30,31,32,33,34])

@@ -4,8 +4,8 @@ var err = require('../util').err,
 var AssertionError = require('assert').AssertionError;
 var util = require('util');
 
-module.exports['type'] = {
-  'test arguments': function(){
+describe('type', function() {
+  it('test arguments', function() {
     var args = (function(){ return arguments; })(1,2,3);
     args.should.be.arguments;
     [].should.not.be.arguments;
@@ -17,9 +17,9 @@ module.exports['type'] = {
     err(function() {
       ({}).should.be.arguments;
     }, "expected {} to be arguments");
-  },
+  });
 
-  'test typeof': function(){
+  it('test typeof', function() {
     'test'.should.have.type('string');
 
     err(function(){
@@ -43,9 +43,9 @@ module.exports['type'] = {
     err(function(){
       (5).should.not.have.type('number', 'foo');
     }, "foo");
-  },
+  });
 
-  'test instanceof': function(){
+  it('test instanceof', function() {
     function Foo(){}
     new Foo().should.be.an.instanceof(Foo);
 
@@ -80,9 +80,9 @@ module.exports['type'] = {
     err(function(){
       ({}).should.not.be.an.instanceof(Object);
     }, "expected {} not to be an instance of Object");
-  },
+  });
 
-  'test instanceOf (non-reserved)': function(){
+  it('test instanceOf (non-  it(reserved)', function() {
     function Foo(){}
     new Foo().should.be.an.instanceOf(Foo);
 
@@ -105,9 +105,9 @@ module.exports['type'] = {
     function Foo2(){}
     Foo2.prototype.valueOf = function (){ return 'foo'; };
     new Foo2().should.be.an.instanceOf(Foo2);
-  },
+  });
 
-  'test Function': function() {
+  it('test Function', function() {
     var f = function() {};
     f.should.be.a.Function;
 
@@ -120,9 +120,9 @@ module.exports['type'] = {
     err(function() {
       (1).should.be.a.Function;
     }, "expected 1 to be a function");
-  },
+  });
 
-  'test Object': function() {
+  it('test Object', function() {
     ({}).should.be.an.Object;
     Function.should.not.be.an.Object;
 
@@ -132,9 +132,9 @@ module.exports['type'] = {
     err(function() {
       (1).should.be.an.Object;
     }, 'expected 1 to be an object');
-  },
+  });
 
-  'test String': function() {
+  it('test String', function() {
     ''.should.be.a.String;
     ({}).should.not.be.a.String;
     (0).should.not.be.a.String;
@@ -144,9 +144,9 @@ module.exports['type'] = {
     err(function() {
       (1).should.be.a.String
     }, 'expected 1 to be a string');
-  },
+  });
 
-  'test Array': function() {
+  it('test Array', function() {
     [].should.be.an.Array;
     (new Array(10)).should.be.an.Array;
 
@@ -156,9 +156,9 @@ module.exports['type'] = {
     err(function() {
       [].should.not.be.Array
     }, 'expected [] not to be an array');
-  },
+  });
 
-  'test Number': function() {
+  it('test Number', function() {
     (1).should.be.a.Number;
     (new Number(10)).should.be.a.Number;
 
@@ -170,8 +170,8 @@ module.exports['type'] = {
     err(function() {
       ([]).should.be.a.Number;
     }, 'expected [] to be a number');
-  },
-  'test Boolean': function() {
+  });
+  it('test Boolean', function() {
     (true).should.be.a.Boolean;
     (false).should.be.a.Boolean;
 
@@ -182,8 +182,8 @@ module.exports['type'] = {
     err(function() {
       [].should.be.a.Boolean;
     }, 'expected [] to be a boolean');
-  },
-  'test Error': function() {
+  });
+  it('test Error', function() {
     (new Error()).should.be.an.Error;
 
     ({}).should.not.be.Error;
@@ -194,7 +194,7 @@ module.exports['type'] = {
     var AsyncTimeoutError = function AsyncTimeoutError(msg) {
       msg && (this.message = msg);
       Error.apply(this, arguments);
-      Error.captureStackTrace(this, AsyncTimeoutError);
+      Error.captureStackTrace && Error.captureStackTrace(this, AsyncTimeoutError);
     };
     util.inherits(AsyncTimeoutError, Error);
     AsyncTimeoutError.prototype.name = AsyncTimeoutError.name;
@@ -205,5 +205,5 @@ module.exports['type'] = {
     err(function() {
       ([]).should.be.an.Error;
     }, 'expected [] to be an error');
-  }
-}
+  });
+});

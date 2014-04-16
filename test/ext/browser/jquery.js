@@ -1,28 +1,13 @@
 var err = require('../../util').err;
-var fs = require('fs');
-var jsdom = require('jsdom');
-var path = require('path');
+//var fs = require('fs');
+//var jsdom = require('jsdom');
+//var path = require('path');
 
-var jQuerySource = fs.readFileSync(path.resolve('node_modules/jquery/dist/jquery.js', '.'), "utf-8");
-var shouldSource = fs.readFileSync(path.resolve('should.js.for-tests', '.'), "utf-8");
+//var jQuerySource = fs.readFileSync(path.resolve('node_modules/jquery/dist/jquery.js', '.'), "utf-8");
+//var shouldSource = fs.readFileSync(path.resolve('should.js.for-tests', '.'), "utf-8");
 
 function executeWithJsdom(html, callback) {
-  if (typeof html === 'function') {
-    callback = html;
-    html = null;
-  }
-
-  jsdom.env({
-    html: html || '<body></body>',
-    src: [jQuerySource, shouldSource],
-    done: function (errors, window) {
-      if (errors) {
-        throw errors;
-      } else {
-        callback(window);
-      }
-    }
-  });
+    callback();
 }
 
 module.exports['browser - jquery'] = {
@@ -62,7 +47,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test css()': function(done) {
     executeWithJsdom(function (window) {
@@ -78,7 +63,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test selected()': function(done) {
     executeWithJsdom(function (window) {
@@ -90,7 +75,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test checked()': function(done) {
     executeWithJsdom(function (window) {
@@ -102,7 +87,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test emptyJq()': function(done) {
     executeWithJsdom(function (window) {
@@ -114,7 +99,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test inDOM()': function(done) {
     executeWithJsdom(function (window) {
@@ -126,7 +111,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test exist()': function(done) {
     executeWithJsdom('<div>hello</div>', function (window) {
@@ -138,7 +123,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test attr()': function(done) {
     executeWithJsdom(function (window) {
@@ -164,7 +149,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test haveProp()': function(done) {
     executeWithJsdom(function (window) {
@@ -193,7 +178,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test elementId()': function(done) {
     executeWithJsdom(function (window) {
@@ -206,7 +191,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test html()': function(done) {
     executeWithJsdom('<div><p>hello</p></div>', function (window) {
@@ -218,7 +203,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test containHtml()': function(done) {
     executeWithJsdom('<div><p><em>hello</em></p></div>', function (window) {
@@ -230,7 +215,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test text()': function(done) {
     executeWithJsdom('<div>hello</div>', function (window) {
@@ -247,7 +232,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test containText()': function(done) {
     executeWithJsdom('<div>hello</div>', function (window) {
@@ -264,7 +249,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test value()': function(done) {
     executeWithJsdom('<input type="text" value="hello" />', function (window) {
@@ -276,7 +261,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test data()': function(done) {
     executeWithJsdom('<input type="text" data-greeting="hello" />', function (window) {
@@ -302,7 +287,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test containElement()': function(done) {
     executeWithJsdom('<div><p>hi</p></div><table></table>', function (window) {
@@ -319,7 +304,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test matchedBy()': function(done) {
     executeWithJsdom('<div class="foo"></div>', function (window) {
@@ -336,7 +321,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test disabled()': function(done) {
     executeWithJsdom(function (window) {
@@ -348,7 +333,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test focused()': function(done) {
     executeWithJsdom('<input id="one" /><input id="two" />', function (window) {
@@ -362,7 +347,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
   'test handle()': function(done) {
     executeWithJsdom('<input>', function (window) {
@@ -376,7 +361,7 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  },
+  });
 
 
   'test handleWith()': function(done) {
@@ -395,5 +380,5 @@ module.exports['browser - jquery'] = {
 
       done();
     });
-  }
+  });
 };

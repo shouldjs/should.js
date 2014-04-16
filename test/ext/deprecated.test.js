@@ -1,8 +1,8 @@
 var err = require('../util').err;
 var should = require('../../');
 
-module.exports['deprecated'] = {
-	 'test include() with string': function(){
+describe('deprecated', function() {
+  it('test include() with string', function() {
     'foobar'.should.include('bar');
     'foobar'.should.include('foo');
     'foobar'.should.not.include('baz');
@@ -18,9 +18,9 @@ module.exports['deprecated'] = {
     err(function(){
       'foobar'.should.include('baz', 'foo');
     }, "foo");
-  },
+  });
 
-  'test include() with array': function(){
+  it('test include() with array', function() {
     ['foo', 'bar'].should.include('foo');
     ['foo', 'bar'].should.include('foo');
     ['foo', 'bar'].should.include('bar');
@@ -39,9 +39,9 @@ module.exports['deprecated'] = {
     err(function(){
       ['bar', 'foo'].should.not.include('foo', 'foo');
     }, "foo");
-  },
+  });
 
-  'test include() with object': function(){
+  it('test include() with object', function() {
     var tobi = { name: 'Tobi', age: 2 };
     var jane = { name: 'Jane', age: 2 };
 
@@ -56,9 +56,9 @@ module.exports['deprecated'] = {
     err(function(){
       user.should.include({ pet: { name: 'Luna' } });
     }, "expected { name: 'TJ', pet: { name: 'Tobi', age: 2 }, age: 24 } to include an object equal to { pet: { name: 'Luna' } }");
-  },
+  });
 
-  'test includeEql() with array': function(){
+  it('test includeEql() with array', function() {
     [['foo'], ['bar']].should.includeEql(['foo']);
     [['foo'], ['bar']].should.includeEql(['bar']);
     [['foo'], ['bar']].should.not.includeEql(['baz']);
@@ -75,5 +75,5 @@ module.exports['deprecated'] = {
     err(function(){
       [['foo']].should.not.includeEql(['foo'], 'foo');
     }, "foo");
-  },
-}
+  });
+});

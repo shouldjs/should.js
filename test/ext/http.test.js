@@ -1,8 +1,8 @@
 var err = require('../util').err;
 var should = require('../../');
 
-module.exports['http'] = {
- 'test .json': function(){
+describe('http', function() {
+  it('test .json', function() {
     var req = {
       headers: {
         'content-type': 'application/json'
@@ -28,15 +28,15 @@ module.exports['http'] = {
     req.should.not.be.json;
 
     ({}).should.not.be.json;
-  },
+  });
 
-  'test .status': function() {
+  it('test .status', function() {
     ({ statusCode: 300 }).should.have.not.status(200);
 
     ({ statusCode: 200 }).should.have.status(200);
-  },
+  });
 
-  'test .header': function () {
+  it('test .header', function () {
     ({
       headers: {
         'content-type': 'image/x-icon',
@@ -61,5 +61,5 @@ module.exports['http'] = {
       }
     }).should.header('Content-Type');
 
-  },
-};
+  });
+});

@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="./mocha.css" />
+</head>
+<body>
+<div id="mocha"></div>
+<script src="./mocha.js"></script>
+<script>
+    mocha.setup('bdd');
+</script>
+<script src="./client.js"></script>
+<script>
+    if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+        mocha.run();
+    }
+</script>
+</body>
+</html>
