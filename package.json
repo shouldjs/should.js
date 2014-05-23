@@ -30,6 +30,15 @@
     "mocha": "^1.18.2",
     "gulp-clean": "^0.2.4"
   },
+  "testling": {
+    "harness": "mocha-bdd",
+    "files": "test/**/*.test.js",
+    "browsers": [
+      "ie/9..latest",
+      "chrome/latest",
+      "firefox/latest"
+    ]
+  },
   "keywords": [
     "test",
     "bdd",
