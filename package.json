@@ -28,7 +28,7 @@
     "harness": "mocha-bdd",
     "files": "test/**/*.test.js",
     "browsers": [
-      "ie/8..latest",
+      "ie/9..latest",
       "firefox/15",
       "firefox/latest",
       "firefox/nightly",
@@ -37,10 +37,7 @@
       "chrome/canary",
       "opera/12..latest",
       "opera/next",
-      "safari/5.1..latest",
-      "ipad/6.0..latest",
-      "iphone/6.0..latest",
-      "android-browser/4.2..latest"
+      "safari/5.1..latest"
     ]
   },
   "keywords": [
