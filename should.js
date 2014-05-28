@@ -158,7 +158,6 @@ module.exports = function(should) {
    */
   util.merge(should, assert);
 
-
   /**
    * Assert _obj_ exists, with optional message.
    *
@@ -1072,6 +1071,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('instanceof', 'instanceOf');
 };
+
 },{"../util":16}],15:[function(require,module,exports){
 /*!
  * Should
@@ -1153,7 +1153,7 @@ Assertion.add = function(name, f, isGetter) {
 };
 
 Assertion.alias = function(from, to) {
-  Assertion.prototype[to] = Assertion.prototype[from]
+  Assertion.prototype[to] = Assertion.prototype[from];
 };
 
 should.AssertionError = AssertionError;

@@ -1,9 +1,8 @@
 var gulp = require('gulp');
 var $ = require('gulp-load-plugins')({ lazy: false });
 
-var source = require('vinyl-source-stream');
+var source = require('vinyl-source-stream2');
 var browserify = require('browserify');
-var glob = require('glob');
 
 var path = require('path');
 
@@ -18,7 +17,7 @@ var banner = ['/**',
 ' */',
 ''].join('\n');
 
-gulp.task('tests', function() {
+gulp.task('test', function() {
     return gulp.src(['test/**/*.test.js', '!test/ext/browser/**'], { read: false })
       .pipe($.mocha({
           reporter: 'mocha-better-spec-reporter'
@@ -37,10 +36,10 @@ gulp.task('script', function () {
 
     return bundleStream
       .pipe(source('should.js'))
-      .pipe($.streamify($.header(banner, { pkg : pkg } )))
+      .pipe($.header(banner, { pkg : pkg } ))
       .pipe(gulp.dest('./'))
-      .pipe($.streamify($.uglify()))
-      .pipe($.streamify($.header(banner, { pkg : pkg } )))
+      .pipe($.uglify())
+      .pipe($.header(banner, { pkg : pkg } ))
       .pipe($.rename('should.min.js'))
       .pipe(gulp.dest('./'));
 });

@@ -2,33 +2,28 @@
   "name": "should",
   "description": "test framework agnostic BDD-style assertions",
   "version": "3.3.0",
-  "author": "TJ Holowaychuk <tj@vision-media.ca>",
+  "author": "TJ Holowaychuk <tj@vision-media.ca> and contributors",
   "repository": {
     "type": "git",
-    "url": "git://github.com/visionmedia/should.js.git"
+    "url": "https://github.com/shouldjs/core.git"
   },
-  "homepage": "https://github.com/visionmedia/should.js",
+  "homepage": "https://github.com/shouldjs/core",
   "scripts": {
-    "test": "make test"
+    "test": "gulp tests"
   },
   "devDependencies": {
-    "browserify": "^3.41.0",
+    "browserify": "latest",
     "jsdom": "*",
     "jquery": "*",
     "mocha-better-spec-reporter": "0.0.2",
     "gulp-mocha": "^0.4.1",
-    "gulp-uglify": "^0.2.1",
+    "gulp-uglify": "^0.3.0",
     "gulp-util": "^2.2.14",
-    "gulp": "^3.6.0",
-    "vinyl-source-stream": "^0.1.1",
-    "gulp-load-plugins": "^0.5.0",
-    "gulp-streamify": "0.0.5",
+    "gulp": "^3.6.2",
+    "vinyl-source-stream2": "^0.1.1",
+    "gulp-load-plugins": "^0.5.1",
     "gulp-rename": "^1.2.0",
-    "gulp-header": "^1.0.2",
-    "glob": "^3.2.9",
-    "gulp-connect": "^2.0.5",
-    "mocha": "^1.18.2",
-    "gulp-clean": "^0.2.4"
+    "gulp-header": "^1.0.2"
   },
   "testling": {
     "harness": "mocha-bdd",
