@@ -21,7 +21,8 @@
     "vinyl-source-stream2": "^0.1.1",
     "gulp-load-plugins": "^0.5.1",
     "gulp-rename": "^1.2.0",
-    "gulp-header": "^1.0.2"
+    "gulp-header": "^1.0.2",
+    "mocha": "^1.19.0"
   },
   "testling": {
     "harness": "mocha-bdd",
