@@ -41,8 +41,10 @@ describe('property', function() {
     }, "expected 'asd' not to have property 'length' of 3");
 
     err(function() {
-      'asd'.should.have.property('constructor', Number);
-    }, "expected 'asd' to have property 'constructor' of [Function: Number] (got [Function: String])");
+      var obj = { f: function() {} };
+      var f1 = function() {};
+      obj.should.have.property('f', f1);
+    }, "expected { f: [Function] } to have property 'f' of [Function] (got [Function])");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')
