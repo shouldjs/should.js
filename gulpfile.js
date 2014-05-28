@@ -18,7 +18,7 @@ var banner = ['/**',
 ''].join('\n');
 
 gulp.task('test', function() {
-    return gulp.src(['test/**/*.test.js', '!test/ext/browser/**'], { read: false })
+    return gulp.src('test/**/*.test.js', { read: false })
       .pipe($.mocha({
           reporter: 'mocha-better-spec-reporter'
       }));
@@ -26,7 +26,7 @@ gulp.task('test', function() {
 
 gulp.task('script', function () {
     var bundleStream = browserify({
-        entries: './lib/browser.js',
+        entries: './lib/should.js',
         builtins: ['util', 'assert']
     })
       .bundle({

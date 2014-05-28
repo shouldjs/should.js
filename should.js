@@ -1,35 +1,11 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v3.3.0
- * @author TJ Holowaychuk <tj@vision-media.ca>
- * @link https://github.com/visionmedia/should.js
+ * @version v3.3.2
+ * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
+ * @link https://github.com/shouldjs/core
  * @license MIT
  */
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*!
- * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-var should = require('./should');
-
-should
-  .use(require('./ext/assert'))
-  .use(require('./ext/chain'))
-  .use(require('./ext/bool'))
-  .use(require('./ext/number'))
-  .use(require('./ext/eql'))
-  .use(require('./ext/type'))
-  .use(require('./ext/string'))
-  .use(require('./ext/property'))
-  .use(require('./ext/error'))
-  .use(require('./ext/match'))
-  .use(require('./ext/browser/jquery'))
-  .use(require('./ext/deprecated'));
-
- module.exports = should;
-},{"./ext/assert":3,"./ext/bool":4,"./ext/browser/jquery":5,"./ext/chain":6,"./ext/deprecated":7,"./ext/eql":8,"./ext/error":9,"./ext/match":10,"./ext/number":11,"./ext/property":12,"./ext/string":13,"./ext/type":14,"./should":15}],2:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -133,7 +109,7 @@ function objEquiv (a, b) {
   return true;
 }
 
-},{"./util":16}],3:[function(require,module,exports){
+},{"./util":14}],2:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -190,7 +166,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../util":16,"assert":17}],4:[function(require,module,exports){
+},{"../util":14,"assert":15}],3:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -202,9 +178,13 @@ module.exports = function(should, Assertion) {
     this.is.exactly(true);
   }, true);
 
+  Assertion.alias('true', 'True');
+
   Assertion.add('false', function() {
     this.is.exactly(false);
   }, true);
+
+  Assertion.alias('false', 'False');
 
   Assertion.add('ok', function() {
     this.params = { operator: 'to be truthy' };
@@ -212,237 +192,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj);
   }, true);
 };
-},{}],5:[function(require,module,exports){
-/*!
- * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-/*!
- * Portions copyright (c) 2010, 2011, 2012 Wojciech Zawistowski, Travis Jeffery
- * From the jasmine-jquery project under the MIT License.
- */
-
-var util = require('../../util');
-
-module.exports = function(should, Assertion) {
-  var i = should.format;
-  var $ = this.jQuery || this.$;
-
-  /* Otherwise, node's util.inspect loops hangs */
-  if (typeof HTMLElement !== "undefined" && HTMLElement && !HTMLElement.prototype.inspect) {
-    HTMLElement.prototype.inspect = function () {
-      return this.outerHTML;
-    };
-  }
-
-  if (typeof jQuery !== "undefined" && jQuery && !jQuery.prototype.inspect) {
-    jQuery.fn.inspect = function () {
-      var elementList = this.toArray().map(function (e) {
-        return util.inspect(e);
-      }).join(", ");
-      if (this.selector) {
-        return "SELECTOR(" + this.selector + ") matching " + this.length + " elements" + (elementList.length ? ": " + elementList : "");
-      } else {
-        return elementList;
-      }
-    };
-  }
-
-  function jQueryAttributeTestHelper(method, singular, plural, nameOrHash, value) {
-    var keys = util.isObject(nameOrHash) ? Object.keys(nameOrHash) : [nameOrHash];
-    var allRelevantAttributes = keys.reduce(function (memo, key) {
-      var value = $(this.obj)[method](key);
-      if (typeof value !== 'undefined') {
-        memo[key] = value;
-      }
-      return memo;
-    }.bind(this), {});
-
-    if (arguments.length === 4 && util.isObject(nameOrHash)) {
-      this.params = { operator: 'to have ' + plural + ' ' + i(nameOrHash) };
-      allRelevantAttributes.should.have.properties(nameOrHash);
-    } else if (arguments.length === 4) {
-      this.params = { operator: 'to have ' + singular + ' ' + i(nameOrHash) };
-      allRelevantAttributes.should.have.property(nameOrHash);
-    } else {
-      this.params = { operator: 'to have ' + singular + ' ' + i(nameOrHash) + ' with value ' + i(value) };
-      allRelevantAttributes.should.have.property(nameOrHash, value);
-    }
-  }
-
-  var browserTagCaseIndependentHtml = function (html) {
-    return $('<div/>').append(html).html();
-  };
-
-  var addJqPredicateAssertion = function (predicate, nameOverride, operatorOverride) {
-    Assertion.add(nameOverride || predicate, function() {
-      this.params = { operator: 'to be ' + (operatorOverride || predicate) };
-      this.assert($(this.obj).is(':' + predicate));
-    }, true);
-  }
-
-  Assertion.add('className', function(className) {
-    this.params = { operator: 'to have class ' + className };
-    this.assert($(this.obj).hasClass(className));
-  });
-
-  Assertion.add('css', function(css) {
-    this.params = { operator: 'to have css ' + i(css) };
-    for (var prop in css) {
-      var value = css[prop];
-      if (value === 'auto' && $(this.obj).get(0).style[prop] === 'auto') {
-        continue;
-      }
-      $(this.obj).css(prop).should.eql(value);
-    }
-  });
-
-  addJqPredicateAssertion('visible');
-  addJqPredicateAssertion('hidden');
-  addJqPredicateAssertion('selected');
-  addJqPredicateAssertion('checked');
-  addJqPredicateAssertion('disabled');
-  addJqPredicateAssertion('empty', 'emptyJq');
-  addJqPredicateAssertion('focus', 'focused', 'focused');
-
-  Assertion.add('inDOM', function() {
-    this.params = { operator: 'to be in the DOM' };
-    this.assert($.contains(document.documentElement, $(this.obj)[0]));
-  }, true);
-
-  Assertion.add('exist', function() {
-    this.params = { operator: 'to exist' };
-    $(this.obj).should.not.have.length(0);
-  }, true);
-
-  Assertion.add('attr', function() {
-    var args = [
-      'attr',
-      'attribute',
-      'attributes'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('prop', function() {
-    var args = [
-      'prop',
-      'property',
-      'properties'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('elementId', function(id) {
-    this.params = { operator: 'to have ID ' + i(id) };
-    this.obj.should.have.attr('id', id);
-  });
-
-  Assertion.add('html', function(html) {
-    this.params = { operator: 'to have HTML ' + i(html) };
-    $(this.obj).html().should.eql(browserTagCaseIndependentHtml(html));
-  });
-
-  Assertion.add('containHtml', function(html) {
-    this.params = { operator: 'to contain HTML ' + i(html) };
-    $(this.obj).html().indexOf(browserTagCaseIndependentHtml(html)).should.be.above(-1);
-  });
-
-  Assertion.add('text', function(text) {
-    this.params = { operator: 'to have text ' + i(text) };
-    var trimmedText = $.trim($(this.obj).text());
-
-    if (util.isRegExp(text)) {
-      trimmedText.should.match(text);
-    } else {
-      trimmedText.should.eql(text);
-    }
-  });
-
-  Assertion.add('containText', function(text) {
-    this.params = { operator: 'to contain text ' + i(text) };
-    var trimmedText = $.trim($(this.obj).text());
-
-    if (util.isRegExp(text)) {
-      trimmedText.should.match(text);
-    } else {
-      trimmedText.indexOf(text).should.be.above(-1);
-    }
-  });
-
-  Assertion.add('value', function(val) {
-    this.params = { operator: 'to have value ' + i(val) };
-    $(this.obj).val().should.eql(val);
-  });
-
-  Assertion.add('data', function() {
-    var args = [
-      'data',
-      'data',
-      'data'
-    ].concat(Array.prototype.slice.call(arguments, 0));
-    jQueryAttributeTestHelper.apply(this, args);
-  });
-
-  Assertion.add('containElement', function(target) {
-    this.params = { operator: 'to contain ' + $(target).inspect() };
-    $(this.obj).find(target).should.not.have.length(0);
-  });
-
-  Assertion.add('matchedBy', function(selector) {
-    this.params = { operator: 'to be matched by selector ' + selector };
-    $(this.obj).filter(selector).should.not.have.length(0);
-  });
-
-  Assertion.add('handle', function(event) {
-    this.params = { operator: 'to handle ' + event };
-
-    var events = $._data($(this.obj).get(0), "events");
-
-    if (!events || !event || typeof event !== "string") {
-      return this.assert(false);
-    }
-
-    var namespaces = event.split("."),
-        eventType = namespaces.shift(),
-        sortedNamespaces = namespaces.slice(0).sort(),
-        namespaceRegExp = new RegExp("(^|\\.)" + sortedNamespaces.join("\\.(?:.*\\.)?") + "(\\.|$)");
-
-    if (events[eventType] && namespaces.length) {
-      for (var i = 0; i < events[eventType].length; i++) {
-        var namespace = events[eventType][i].namespace;
-
-        if (namespaceRegExp.test(namespace)) {
-          return;
-        }
-      }
-    } else {
-      events.should.have.property(eventType);
-      events[eventType].should.not.have.length(0);
-      return;
-    }
-
-    this.assert(false);
-  });
-
-  Assertion.add('handleWith', function(eventName, eventHandler) {
-    this.params = { operator: 'to handle ' + eventName + ' with ' + eventHandler };
-
-    var normalizedEventName = eventName.split('.')[0],
-        stack = $._data($(this.obj).get(0), "events")[normalizedEventName];
-
-    for (var i = 0; i < stack.length; i++) {
-      if (stack[i].handler == eventHandler) {
-        return;
-      }
-    }
-
-    this.assert(false);
-  });
-};
-},{"../../util":16}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -461,7 +211,7 @@ module.exports = function(should, Assertion) {
 
   ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
 };
-},{}],7:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -495,7 +245,7 @@ module.exports = function(should, Assertion) {
     }));
   });
 };
-},{"../eql":2,"../util":16}],8:[function(require,module,exports){
+},{"../eql":1,"../util":14}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -519,7 +269,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../eql":2}],9:[function(require,module,exports){
+},{"../eql":1}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -571,7 +321,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{}],10:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -684,7 +434,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../eql":2,"../util":16}],11:[function(require,module,exports){
+},{"../eql":1,"../util":14}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -735,7 +485,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],12:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -859,7 +609,7 @@ module.exports = function(should, Assertion) {
     this.obj = this.obj[name];
   });
 
-  Assertion.alias('hasOwnProperty', 'ownProperty');
+  Assertion.alias('ownProperty', 'hasOwnProperty');
 
   Assertion.add('empty', function() {
     this.params = { operator: 'to be empty' };
@@ -942,7 +692,7 @@ module.exports = function(should, Assertion) {
         var otherIdx = 0;
         obj.forEach(function(item) {
           try {
-            should(item).not.be.null.and.containDeep(other[otherIdx]);
+            should(item).not.be.Null.and.containDeep(other[otherIdx]);
             otherIdx++;
           } catch(e) {
             if(e instanceof should.AssertionError) {
@@ -961,7 +711,7 @@ module.exports = function(should, Assertion) {
     } else if(util.isObject(obj)) {// object contains object case
       if(util.isObject(other)) {
         util.forOwn(other, function(value, key) {
-          should(obj[key]).not.be.null.and.containDeep(value);
+          should(obj[key]).not.be.Null.and.containDeep(value);
         });
       } else {//one of the properties contain value
         this.assert(false);
@@ -973,7 +723,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../eql":2,"../util":16}],13:[function(require,module,exports){
+},{"../eql":1,"../util":14}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -993,7 +743,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
-},{}],14:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1069,10 +819,12 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj === null);
   }, true);
 
+  Assertion.alias('null', 'Null');
+
   Assertion.alias('instanceof', 'instanceOf');
 };
 
-},{"../util":16}],15:[function(require,module,exports){
+},{"../util":14}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1080,9 +832,9 @@ module.exports = function(should, Assertion) {
  */
 
 
-var util = require('./util')
-  , AssertionError = util.AssertionError
-  , inspect = util.inspect;
+var util = require('./util'),
+  AssertionError = util.AssertionError,
+  inspect = util.inspect;
 
 /**
  * Our function should
@@ -1090,7 +842,7 @@ var util = require('./util')
  * @returns {Assertion}
  */
 var should = function(obj) {
-  return new Assertion(util.isWrapperType(obj) ? obj.valueOf(): obj);
+  return new Assertion(util.isWrapperType(obj) ? obj.valueOf() : obj);
 };
 
 /**
@@ -1106,12 +858,12 @@ var Assertion = should.Assertion = function Assertion(obj) {
 
 
 /**
-  Way to extend Assertion function. It uses some logic 
-  to define only positive assertions and itself rule with negative assertion.
+ Way to extend Assertion function. It uses some logic
+ to define only positive assertions and itself rule with negative assertion.
 
-  All actions happen in subcontext and this method take care about negation.
-  Potentially we can add some more modifiers that does not depends from state of assertion.
-*/
+ All actions happen in subcontext and this method take care about negation.
+ Potentially we can add some more modifiers that does not depends from state of assertion.
+ */
 Assertion.add = function(name, f, isGetter) {
   var prop = {};
   prop[isGetter ? 'get' : 'value'] = function() {
@@ -1153,11 +905,13 @@ Assertion.add = function(name, f, isGetter) {
 };
 
 Assertion.alias = function(from, to) {
-  Assertion.prototype[to] = Assertion.prototype[from];
+  var desc = Object.getOwnPropertyDescriptor(Assertion.prototype, from);
+  if(!desc) throw new Error('Alias ' + from + ' -> ' + to + ' could not be created as ' + from + ' not defined');
+  Object.defineProperty(Assertion.prototype, to, desc);
 };
 
 should.AssertionError = AssertionError;
-var i = should.format = function i(value) {
+should.format = function (value) {
   if(util.isDate(value) && typeof value.inspect !== 'function') return value.toISOString(); //show millis in dates
   return inspect(value, { depth: null });
 };
@@ -1181,8 +935,9 @@ exports = module.exports = should;
  */
 
 Object.defineProperty(Object.prototype, 'should', {
-  set: function(){},
-  get: function(){
+  set: function() {
+  },
+  get: function() {
     return should(this);
   },
   configurable: true
@@ -1204,10 +959,7 @@ Assertion.prototype = {
     }
 
     var err = new AssertionError({
-      message: msg
-      , actual: this.obj
-      , expected: params.expected
-      , stackStartFunction: this.assert
+      message: msg, actual: this.obj, expected: params.expected, stackStartFunction: this.assert
     });
 
     err.showDiff = params.showDiff;
@@ -1218,8 +970,8 @@ Assertion.prototype = {
   },
 
   getMessage: function() {
-    return 'expected ' + ('obj' in this.params ? this.params.obj: i(this.obj)) + (this.negate ? ' not ': ' ') +
-        this.params.operator + ('expected' in this.params  ? ' ' + i(this.params.expected) : '');
+    return 'expected ' + ('obj' in this.params ? this.params.obj: should.format(this.obj)) + (this.negate ? ' not ': ' ') +
+       this.params.operator + ('expected' in this.params  ? ' ' + should.format(this.params.expected) : '');
   },
 
   copy: function(other) {
@@ -1253,8 +1005,20 @@ Assertion.prototype = {
   }
 };
 
+should
+  .use(require('./ext/assert'))
+  .use(require('./ext/chain'))
+  .use(require('./ext/bool'))
+  .use(require('./ext/number'))
+  .use(require('./ext/eql'))
+  .use(require('./ext/type'))
+  .use(require('./ext/string'))
+  .use(require('./ext/property'))
+  .use(require('./ext/error'))
+  .use(require('./ext/match'))
+  .use(require('./ext/deprecated'));
 
-},{"./util":16}],16:[function(require,module,exports){
+},{"./ext/assert":2,"./ext/bool":3,"./ext/chain":4,"./ext/deprecated":5,"./ext/eql":6,"./ext/error":7,"./ext/match":8,"./ext/number":9,"./ext/property":10,"./ext/string":11,"./ext/type":12,"./util":14}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1374,7 +1138,7 @@ exports.forOwn = function(obj, f, context) {
     }
   }
 };
-},{"assert":17,"util":22}],17:[function(require,module,exports){
+},{"assert":15,"util":20}],15:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -1736,14 +1500,14 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":19}],18:[function(require,module,exports){
+},{"util/":17}],16:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],19:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2331,7 +2095,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":18,"inherits":20}],20:[function(require,module,exports){
+},{"./support/isBuffer":16,"inherits":18}],18:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2356,8 +2120,8 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],21:[function(require,module,exports){
-module.exports=require(18)
-},{}],22:[function(require,module,exports){
-module.exports=require(19)
-},{"./support/isBuffer":21,"inherits":20}]},{},[1])
+},{}],19:[function(require,module,exports){
+module.exports=require(16)
+},{}],20:[function(require,module,exports){
+module.exports=require(17)
+},{"./support/isBuffer":19,"inherits":18}]},{},[13])
