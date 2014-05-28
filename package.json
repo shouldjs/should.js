@@ -9,12 +9,10 @@
   },
   "homepage": "https://github.com/shouldjs/core",
   "scripts": {
-    "test": "gulp tests"
+    "test": "gulp test"
   },
   "devDependencies": {
     "browserify": "latest",
-    "jsdom": "*",
-    "jquery": "*",
     "mocha-better-spec-reporter": "0.0.2",
     "gulp-mocha": "^0.4.1",
     "gulp-uglify": "^0.3.0",
@@ -49,6 +47,6 @@
     "bdd",
     "assert"
   ],
-  "main": "./lib/node.js",
+  "main": "./lib/should.js",
   "license": "MIT"
 }
