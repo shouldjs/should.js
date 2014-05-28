@@ -5,9 +5,9 @@
   "author": "TJ Holowaychuk <tj@vision-media.ca> and contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/shouldjs/core.git"
+    "url": "https://github.com/shouldjs/should.js.git"
   },
-  "homepage": "https://github.com/shouldjs/core",
+  "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
     "test": "gulp test"
   },
