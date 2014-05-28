@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/shouldjs/core.svg?branch=master)](https://travis-ci.org/shouldjs/core)
 
+[![testling badge](https://ci.testling.com/shouldjs/core.png)](https://ci.testling.com/shouldjs/core)
+
 _should_ is an expressive, readable, test framework agnostic, assertion library. Main goals of this library __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
 
 It extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave, also it returns itself when required with `require`.
