@@ -44,36 +44,3 @@ gulp.task('script', function () {
       .pipe($.rename('should.min.js'))
       .pipe(gulp.dest('./'));
 });
-
-gulp.task('browser-tests-clean', function() {
-    gulp.src(['./test/runner/{client.js,mocha.css,mocha.js}'], { read: false }).pipe($.clean());
-});
-
-gulp.task('copy-mocha-files', function() {
-    gulp.src(['./node_modules/mocha/mocha.js', './node_modules/mocha/mocha.css'])
-      .pipe(gulp.dest('./test/runner/'));
-});
-
-gulp.task('build-browser-tests', function() {
-    var bundleStream = browserify({
-        entries: glob.sync('./test/**/*.test.js'),
-        builtins: ['util', 'assert']
-    });
-
-    bundleStream
-      .bundle({
-          insertGlobals: false,
-          detectGlobals: false
-      })
-      .pipe(source('client.js'))
-      .pipe(gulp.dest('test/runner'));
-});
-
-gulp.task('browser-runner', function() {
-    $.connect.server({
-        root: './test/runner/'
-    });
-});
-
-gulp.task('browser-tests', ['browser-tests-clean', 'copy-mocha-files', 'build-browser-tests', 'browser-runner']);
-
