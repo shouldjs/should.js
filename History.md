@@ -1,9 +1,10 @@
 4.0.0 /
 ==================
 
- * Move non core assertions out
+ * Breaking change: Move non core assertions out
  * Added casting in properties assertions to String for all property names
  * Added .propertyByPath assertion
+ * Breaking change: Remove deprecated .includeEql and .include
 
 3.3.2 / 2014-05-23
 ==================
