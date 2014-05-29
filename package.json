@@ -9,7 +9,8 @@
   },
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test",
+    "zuul": "zuul -- test"
   },
   "devDependencies": {
     "browserify": "latest",
@@ -23,22 +24,6 @@
     "gulp-rename": "^1.2.0",
     "gulp-header": "^1.0.2",
     "mocha": "^1.19.0"
-  },
-  "testling": {
-    "harness": "mocha-bdd",
-    "files": "test/**/*.test.js",
-    "browsers": [
-      "ie/9..latest",
-      "firefox/15",
-      "firefox/latest",
-      "firefox/nightly",
-      "chrome/15",
-      "chrome/latest",
-      "chrome/canary",
-      "opera/12..latest",
-      "opera/next",
-      "safari/5.1..latest"
-    ]
   },
   "keywords": [
     "test",
