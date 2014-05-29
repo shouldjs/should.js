@@ -323,4 +323,20 @@ describe('property', function() {
         ]);
     }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
   });
+
+  it('should .propertyByPath lookup properties by name path', function() {
+    ({ a: { b: 10}}).should.have.propertyByPath('a', 'b');
+
+    ({ '0': { '0': 10}}).should.not.have.propertyByPath(0, 0, 1);
+
+    // true fail
+    err(function() {
+      ({ a: { b: 10}}).should.have.propertyByPath('a', 'b', 'c');
+    }, "expected { a: { b: 10 } } to have property by path 'a','b','c' - failed on 'c'");
+
+    // false positive
+    err(function() {
+      ({ a: { b: 10}}).should.not.have.propertyByPath('a', 'b');
+    }, "expected { a: { b: 10 } } not to have property by path 'a','b'");
+  })
 });

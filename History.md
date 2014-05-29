@@ -1,3 +1,10 @@
+4.0.0 /
+==================
+
+ * Move non core assertions out
+ * Added casting in properties assertions to String for all property names
+ * Added .propertyByPath assertion
+
 3.3.2 / 2014-05-23
 ==================
 

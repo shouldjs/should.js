@@ -391,6 +391,17 @@ obj.should.have.keys(['foo', 'baz']);
 ({}).should.have.keys('key'); //fail AssertionError: expected {} to have key 'key'missing keys: 'key'
 ```
 
+## .propertyByPath([name1, ...]) or .propertyByPath(name1, name2, ...)
+
+Assert property exists and has optional value (compare using `.eql`):
+```javascript
+var obj = { foo: 'bar', baz: 'raz', zad: { a: 10 } };
+obj.should.have.propertyByPath('zad', 'a');
+obj.should.not.have.propertyByPath(0, 1, 2);
+```
+
+__NB__ `.propertyByPath` changes the chain's object to the given property's value if found
+
 ## .containEql(otherValue)
 
 Assert given value to contain something *.eql* to otherValue. See examples to understand better:
