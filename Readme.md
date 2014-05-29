@@ -451,7 +451,7 @@ Main difference with `.containEql` is that this assertion requires full type cha
 if asserted value is an object, otherValue should be also an object (which is sub object of given).
 The same is true for arrays, otherValue should be an array which compared to be subsequence of given object.
 
-When `.containDeep` check arrays it check elements to be in the same order (as arrays ordered collections) in `otherValue` and object just to be presented.
+Also exists assertion `.containDeepOrdered` which check arrays in the same order.
 
 ## .match(otherValue)
 

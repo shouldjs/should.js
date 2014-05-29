@@ -5,6 +5,8 @@
  * Added casting in properties assertions to String for all property names
  * Added .propertyByPath assertion
  * Breaking change: Remove deprecated .includeEql and .include
+ * Breaking change: .containDeep now do not check order for 2 arrays case
+ * Added .containDeepOrdered for old .containDeep
 
 3.3.2 / 2014-05-23
 ==================
