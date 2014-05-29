@@ -8,6 +8,10 @@ _should_ is an expressive, readable, test framework agnostic, assertion library.
 
 It extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave, also it returns itself when required with `require`.
 
+### Breaking changes for 4.x
+
+Please check [wiki](https://github.com/shouldjs/should.js/wiki/Breaking-changes-4.x).
+
 ## Example
 ```javascript
 var should = require('should');
