@@ -3,7 +3,6 @@
  */
 
 var should = require('../');
-var util = require('util');
 
 function err(fn, msg) {
   try {
@@ -18,17 +17,17 @@ function err_should_exist(obj) {
   err(function() {
       should.exist(obj);
     },
-      'expected ' + util.inspect(obj) + ' to exist');
+      'expected ' + should.format(obj) + ' to exist');
 }
 
 function err_should_not_exist(obj) {
   err(function() {
       should.not.exist(obj);
     },
-      'expected ' + util.inspect(obj) + ' to not exist');
+      'expected ' + should.format(obj) + ' to not exist');
 }
 
-describe('should.exist', function() {
+describe('exist', function() {
 
   // static should.exist() pass,
   it('test static should.exist() pass w/ bool', function() {

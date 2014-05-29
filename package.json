@@ -10,7 +10,7 @@
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
     "test": "gulp test",
-    "zuul": "zuul -- test/**/*.test.js"
+    "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js"
   },
   "devDependencies": {
     "browserify": "latest",
