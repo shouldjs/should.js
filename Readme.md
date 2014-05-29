@@ -57,12 +57,11 @@ someAsyncTask(foo, function(err, result){
 
 Well, even when browsers by complains of authors has 100% es5 support, it does not mean it has not bugs. Please see [wiki](https://github.com/shouldjs/should.js/wiki/Known-Bugs) for known bugs.
 
-If you want to use _should_ in browser, use the `should.js` file in the root of this repository, or build it yourself. It is built with browserify (see [Makefile](https://github.com/visionmedia/should.js/blob/master/Makefile)). To build a fresh version:
+If you want to use _should_ in browser, use the `should.js` file in the root of this repository, or build it yourself. To build a fresh version:
 
 ```bash
-# you should have browserify
-$ npm install -g browserify
-$ make browser
+$ npm install
+$ gulp script
 ```
 
 The script is exported to `window.Should`. It is the same as using `should` statically:
