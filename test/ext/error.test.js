@@ -103,4 +103,24 @@ describe('error', function() {
       (function(){ throw 'error'; }).should.throw(Error);
     }, "expected [Function] to throw exception of type Error, but got String");
   });
+
+  it('test .throw(err, properties) with matching error', function() {
+    var error = new Error();
+    error.a = 10;
+    (function(){ throw error; }).should.throw(Error, { a: 10 });
+
+    err(function(){
+      (function(){ throw error; }).should.throw(Error, { a: 11 });
+    }, "expected [Function] to throw exception: expected [Error] to match { a: 11 }\n\tnot matched properties: a(10)");
+  });
+
+  it('test .throw(properties) with matching error', function() {
+    var error = new Error();
+    error.a = 10;
+    (function(){ throw error; }).should.throw({ a: 10 });
+
+    err(function(){
+      (function(){ throw error; }).should.throw({ a: 11 });
+    }, "expected [Function] to throw exception: expected [Error] to match { a: 11 }\n\tnot matched properties: a(10)");
+  });
 });

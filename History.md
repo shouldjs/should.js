@@ -8,6 +8,7 @@
  * Breaking change: .containDeep now do not check order for 2 arrays case
  * Added .containDeepOrdered for old .containDeep
  * Added support of array-like objects
+ * Added to .throw matching by error properties with .match
 
 3.3.2 / 2014-05-23
 ==================

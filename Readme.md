@@ -551,12 +551,22 @@ Assert exception message matches string:
 }).should.throw('fail');
 ```
 
-Assert exepection message matches regexp:
+Assert error message matches regexp:
 
 ```js
 (function(){
   throw new Error('failed to foo');
 }).should.throw(/^fail/);
+```
+
+Error properties to match some other properties (used `.match`):
+
+```js
+var error = new Error();
+error.a = 10;
+(function(){ throw error; }).should.throw({ a: 10 });
+
+(function(){ throw error; }).should.throw(Error, { a: 10 });
 ```
 
 If you need to pass arguments and/or context to execute function use `Function#bind(context, arg1, ...)`:
