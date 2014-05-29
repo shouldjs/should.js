@@ -586,44 +586,6 @@ collection.findOne({ _id: 10 }, function(err, res) {
 
 In general, if you need to check that something is executed, you are best using `spies`. A good example is [sinon](http://sinonjs.org/).
 
-## .status(code)
-
-Asserts that `.statusCode` is `code`:
-```javascript
-res.should.have.status(200);
-```
-
-Not included in browser build.
-
-## .header(field[, value])
-
-Asserts that a `.headers` object with `field` and optional `value` are present:
-```javascript
-res.should.have.header('content-length');
-res.should.have.header('Content-Length', '123');
-```
-
-Not included in browser build.
-
-## .json
-
-Assert that Content-Type is "application/json; charset=utf-8"
-
-```javascript
-res.should.be.json
-```
-
-Not included in browser build.
-
-## .html
-
-Assert that Content-Type is "text/html; charset=utf-8"
-```javascript
-res.should.be.html
-```
-
-Not included in browser build.
-
 ## Optional Error description
 
 As it can often be difficult to ascertain exactly where failed assertions are coming from in your tests, an optional description parameter can be passed to several should matchers. The description will follow the failed assertion in the error:
