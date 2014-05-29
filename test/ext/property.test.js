@@ -164,6 +164,8 @@ describe('property', function() {
     ({}).should.have.keys();
     ({}).should.have.keys([]);
 
+    ({ '1': 'cancelled', '3': 'deleted' }).should.have.keys(1, 3);
+
     err(function() {
       ({ foo: 1 }).should.have.keys(['bar']);
     }, "expected { foo: 1 } to have key 'bar'\n\tmissing keys: 'bar'\n\textra keys: 'foo'");
