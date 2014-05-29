@@ -1,4 +1,4 @@
-4.0.0 /
+4.0.0 / 2014-05-29
 ==================
 
  * Breaking change: Move non core assertions out

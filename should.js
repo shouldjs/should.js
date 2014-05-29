@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v3.3.2
+ * @version v4.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -224,27 +224,107 @@ var util = require('../util'),
 module.exports = function(should, Assertion) {
   var i = should.format;
 
-  Assertion.add('include', function(obj, description) {
-    if(!Array.isArray(this.obj) && !util.isString(this.obj)) {
-      this.params = { operator: 'to include an object equal to ' + i(obj), message: description };
-      var cmp = {};
-      for(var key in obj) cmp[key] = this.obj[key];
-      this.assert(eql(cmp, obj));
+  Assertion.add('containEql', function(other) {
+    this.params = { operator: 'to contain ' + i(other) };
+    var obj = this.obj;
+    if(util.isArray(obj)) {
+      this.assert(obj.some(function(item) {
+        return eql(item, other);
+      }));
+    } else if(util.isString(obj)) {
+      // expect obj to be string
+      this.assert(obj.indexOf(String(other)) >= 0);
+    } else if(util.isObject(obj)) {
+      // object contains object case
+      util.forOwn(other, function(value, key) {
+        obj.should.have.property(key, value);
+      });
     } else {
-      this.params = { operator: 'to include ' + i(obj), message: description };
-
-      this.assert(~this.obj.indexOf(obj));
+      //other uncovered cases
+      this.assert(false);
     }
   });
 
-  Assertion.add('includeEql', function(obj, description) {
-    this.params = { operator: 'to include an object equal to ' + i(obj), message: description };
+  Assertion.add('containDeepOrdered', function(other) {
+    this.params = { operator: 'to contain ' + i(other) };
 
-    this.assert(this.obj.some(function(item) {
-      return eql(obj, item);
-    }));
+    var obj = this.obj;
+    if(util.isArray(obj)) {
+      if(util.isArray(other)) {
+        var otherIdx = 0;
+        obj.forEach(function(item) {
+          try {
+            should(item).not.be.Null.and.containDeep(other[otherIdx]);
+            otherIdx++;
+          } catch(e) {
+            if(e instanceof should.AssertionError) {
+              return;
+            }
+            throw e;
+          }
+        }, this);
+
+        this.assert(otherIdx == other.length);
+        //search array contain other as sub sequence
+      } else {
+        this.assert(false);
+      }
+    } else if(util.isString(obj)) {// expect other to be string
+      this.assert(obj.indexOf(String(other)) >= 0);
+    } else if(util.isObject(obj)) {// object contains object case
+      if(util.isObject(other)) {
+        util.forOwn(other, function(value, key) {
+          should(obj[key]).not.be.Null.and.containDeep(value);
+        });
+      } else {//one of the properties contain value
+        this.assert(false);
+      }
+    } else {
+      this.eql(other);
+    }
   });
+
+  Assertion.add('containDeep', function(other) {
+    this.params = { operator: 'to contain ' + i(other) };
+
+    var obj = this.obj;
+    if(util.isArray(obj)) {
+      if(util.isArray(other)) {
+
+        other.forEach(function(otherItem) {
+          this.assert(obj.some(function(item) {
+            try {
+              should(item).not.be.Null.and.containDeep(otherItem);
+              return true;
+            } catch(e) {
+              if(e instanceof should.AssertionError) {
+                return false;
+              }
+              throw e;
+            }
+          }));
+        }, this);
+
+      } else {
+        this.assert(false);
+      }
+    } else if(util.isString(obj)) {// expect other to be string
+      this.assert(obj.indexOf(String(other)) >= 0);
+    } else if(util.isObject(obj)) {// object contains object case
+      if(util.isObject(other)) {
+        util.forOwn(other, function(value, key) {
+          should(obj[key]).not.be.Null.and.containDeep(value);
+        });
+      } else {//one of the properties contain value
+        this.assert(false);
+      }
+    } else {
+      this.eql(other);
+    }
+  });
+
 };
+
 },{"../eql":1,"../util":15}],6:[function(require,module,exports){
 /*!
  * Should
@@ -280,35 +360,59 @@ var util = require('../util');
 module.exports = function(should, Assertion) {
   var i = should.format;
 
-  Assertion.add('throw', function(message) {
+  Assertion.add('throw', function(message, properties) {
     var fn = this.obj
       , err = {}
       , errorInfo = ''
-      , ok = true;
+      , thrown = false;
+
+    var errorMatched = true;
 
     try {
       fn();
-      ok = false;
     } catch(e) {
+      thrown = true;
       err = e;
     }
 
-    if(ok) {
-      if('string' == typeof message) {
-        ok = message == err.message;
-      } else if(message instanceof RegExp) {
-        ok = message.test(err.message);
-      } else if('function' == typeof message) {
-        ok = err instanceof message;
-      }
-
-      if(message && !ok) {
+    if(thrown) {
+      if(message) {
         if('string' == typeof message) {
-          errorInfo = " with a message matching '" + message + "', but got '" + err.message + "'";
+          errorMatched = message == err.message;
         } else if(message instanceof RegExp) {
-          errorInfo = " with a message matching " + message + ", but got '" + err.message + "'";
+          errorMatched = message.test(err.message);
         } else if('function' == typeof message) {
-          errorInfo = " of type " + util.functionName(message) + ", but got " + util.functionName(err.constructor);
+          errorMatched = err instanceof message;
+        } else if(util.isObject(message)) {
+          try {
+            err.should.match(message);
+          } catch(e) {
+            if(e instanceof should.AssertionError) {
+              errorInfo = ": " + e.message;
+              errorMatched = false;
+            } else {
+              throw e;
+            }
+          }
+        }
+
+        if(!errorMatched) {
+          if('string' == typeof message || message instanceof RegExp) {
+            errorInfo = " with a message matching " + i(message) + ", but got '" + err.message + "'";
+          } else if('function' == typeof message) {
+            errorInfo = " of type " + util.functionName(message) + ", but got " + util.functionName(err.constructor);
+          }
+        } else if('function' == typeof message && properties) {
+          try {
+            err.should.match(properties);
+          } catch(e) {
+            if(e instanceof should.AssertionError) {
+              errorInfo = ": " + e.message;
+              errorMatched = false;
+            } else {
+              throw e;
+            }
+          }
         }
       } else {
         errorInfo = " (got " + i(err) + ")";
@@ -317,7 +421,8 @@ module.exports = function(should, Assertion) {
 
     this.params = { operator: 'to throw exception' + errorInfo };
 
-    this.assert(ok);
+    this.assert(thrown);
+    this.assert(errorMatched);
   });
 
   Assertion.alias('throw', 'throwError');
@@ -344,7 +449,7 @@ module.exports = function(should, Assertion) {
         if(util.isString(this.obj)) {
 
           this.assert(other.exec(this.obj));
-        } else if(Array.isArray(this.obj)) {
+        } else if(util.isArray(this.obj)) {
 
           this.obj.forEach(function(item) {
             this.assert(other.exec(item));// should we try to convert to String and exec?
@@ -353,8 +458,8 @@ module.exports = function(should, Assertion) {
 
           var notMatchedProps = [], matchedProps = [];
           util.forOwn(this.obj, function(value, name) {
-            if(other.exec(value)) matchedProps.push(i(name));
-            else notMatchedProps.push(i(name));
+            if(other.exec(value)) matchedProps.push(name);
+            else notMatchedProps.push(name + '(' + i(value) +')');
           }, this);
 
           if(notMatchedProps.length)
@@ -388,11 +493,11 @@ module.exports = function(should, Assertion) {
 
         util.forOwn(other, function(value, key) {
           try {
-            this.obj[key].should.match(value);
+            should(this.obj[key]).match(value);
             matchedProps.push(key);
           } catch(e) {
             if(e instanceof should.AssertionError) {
-              notMatchedProps.push(key);
+              notMatchedProps.push(key + '(' + i(this.obj[key]) + ')');
             } else {
               throw e;
             }
@@ -502,6 +607,8 @@ module.exports = function(should, Assertion) {
   var i = should.format;
 
   Assertion.add('enumerable', function(name, val) {
+    name = String(name);
+
     this.params = {
       operator:"to have enumerable property '"+name+"'"
     };
@@ -515,6 +622,7 @@ module.exports = function(should, Assertion) {
   });
 
   Assertion.add('property', function(name, val) {
+    name = String(name);
     if(arguments.length > 1) {
       var p = {};
       p[name] = val;
@@ -529,7 +637,7 @@ module.exports = function(should, Assertion) {
     var values = {};
     if(arguments.length > 1) {
       names = aSlice.call(arguments);
-    } else if(!Array.isArray(names)) {
+    } else if(!util.isArray(names)) {
       if(util.isString(names)) {
         names = [names];
       } else {
@@ -548,20 +656,20 @@ module.exports = function(should, Assertion) {
     var props = missingProperties;
     if(props.length === 0) {
       props = names.map(i);
-    } else if(this.one) {
+    } else if(this.anyOne) {
       props = names.filter(function(name) {
         return missingProperties.indexOf(i(name)) < 0;
       }).map(i);
     }
 
     var operator = (props.length === 1 ?
-      'to have property ' : 'to have '+(this.one? 'any of ' : '')+'properties ') + props.join(', ');
+      'to have property ' : 'to have '+(this.anyOne? 'any of ' : '')+'properties ') + props.join(', ');
 
     this.params = { operator: operator };
 
     //check that all properties presented
     //or if we request one of them that at least one them presented
-    this.assert(missingProperties.length === 0 || (this.one && missingProperties.length != names.length));
+    this.assert(missingProperties.length === 0 || (this.anyOne && missingProperties.length != names.length));
 
     // check if values in object matched expected
     var valueCheckNames = Object.keys(values);
@@ -579,18 +687,18 @@ module.exports = function(should, Assertion) {
         }
       });
 
-      if((wrongValues.length !== 0 && !this.one) || (this.one && props.length === 0)) {
+      if((wrongValues.length !== 0 && !this.anyOne) || (this.anyOne && props.length === 0)) {
         props = wrongValues;
       }
 
       operator = (props.length === 1 ?
-        'to have property ' : 'to have '+(this.one? 'any of ' : '')+'properties ') + props.join(', ');
+        'to have property ' : 'to have '+(this.anyOne? 'any of ' : '')+'properties ') + props.join(', ');
 
       this.params = { operator: operator };
 
       //if there is no not matched values
       //or there is at least one matched
-      this.assert(wrongValues.length === 0 || (this.one && wrongValues.length != valueCheckNames.length));
+      this.assert(wrongValues.length === 0 || (this.anyOne && wrongValues.length != valueCheckNames.length));
     }
   });
 
@@ -603,6 +711,7 @@ module.exports = function(should, Assertion) {
   var hasOwnProperty = Object.prototype.hasOwnProperty;
 
   Assertion.add('ownProperty', function(name, description) {
+    name = String(name);
     this.params = { operator: 'to have own property ' + i(name), message: description };
 
     this.assert(hasOwnProperty.call(this.obj, name));
@@ -615,7 +724,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('empty', function() {
     this.params = { operator: 'to be empty' };
 
-    if(util.isString(this.obj) || Array.isArray(this.obj) || util.isArguments(this.obj)) {
+    if(util.isString(this.obj) || util.isArray(this.obj) || util.isArguments(this.obj)) {
       this.have.property('length', 0);
     } else {
       var obj = Object(this.obj); // wrap to reference for booleans and numbers
@@ -629,6 +738,8 @@ module.exports = function(should, Assertion) {
     if(arguments.length > 1) keys = aSlice.call(arguments);
     else if(arguments.length === 1 && util.isString(keys)) keys = [ keys ];
     else if(arguments.length === 0) keys = [];
+
+    keys = keys.map(String);
 
     var obj = Object(this.obj);
 
@@ -663,65 +774,30 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias("keys", "key");
 
-  Assertion.add('containEql', function(other) {
-    this.params = { operator: 'to contain ' + i(other) };
-    var obj = this.obj;
-    if(Array.isArray(obj)) {
-      this.assert(obj.some(function(item) {
-        return eql(item, other);
-      }));
-    } else if(util.isString(obj)) {
-      // expect obj to be string
-      this.assert(obj.indexOf(String(other)) >= 0);
-    } else if(util.isObject(obj)) {
-      // object contains object case
-      util.forOwn(other, function(value, key) {
-        obj.should.have.property(key, value);
-      });
-    } else {
-      //other uncovered cases
-      this.assert(false);
+  Assertion.add('propertyByPath', function(properties) {
+    if(arguments.length > 1) properties = aSlice.call(arguments);
+    else if(arguments.length === 1 && util.isString(properties)) properties = [ properties ];
+    else if(arguments.length === 0) properties = [];
+
+    var allProps =  properties.map(i);
+
+    properties = properties.map(String);
+
+    var obj = should(Object(this.obj));
+
+    var foundProperties = [];
+
+    var currentProperty;
+    while(currentProperty = properties.shift()) {
+      this.params = { operator: 'to have property by path ' + allProps + ' - failed on ' + i(currentProperty) };
+      obj = obj.have.property(currentProperty);
+      foundProperties.push(currentProperty);
     }
+
+    this.params = { operator: 'to have property by path ' + allProps };
+
+    this.obj = obj.obj;
   });
-
-  Assertion.add('containDeep', function(other) {
-    this.params = { operator: 'to contain ' + i(other) };
-
-    var obj = this.obj;
-    if(Array.isArray(obj)) {
-      if(Array.isArray(other)) {
-        var otherIdx = 0;
-        obj.forEach(function(item) {
-          try {
-            should(item).not.be.Null.and.containDeep(other[otherIdx]);
-            otherIdx++;
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
-              return;
-            }
-            throw e;
-          }
-        });
-        this.assert(otherIdx == other.length);
-        //search array contain other as sub sequence
-      } else {
-        this.assert(false);
-      }
-    } else if(util.isString(obj)) {// expect other to be string
-      this.assert(obj.indexOf(String(other)) >= 0);
-    } else if(util.isObject(obj)) {// object contains object case
-      if(util.isObject(other)) {
-        util.forOwn(other, function(value, key) {
-          should(obj[key]).not.be.Null.and.containDeep(value);
-        });
-      } else {//one of the properties contain value
-        this.assert(false);
-      }
-    } else {
-      this.eql(other);
-    }
-  });
-
 };
 
 },{"../eql":1,"../util":15}],11:[function(require,module,exports){
@@ -799,7 +875,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('Array', function() {
     this.params = { operator: 'to be an array' };
 
-    this.assert(Array.isArray(this.obj));
+    this.assert(util.isArray(this.obj));
   }, true);
 
   Assertion.add('Boolean', function() {
@@ -858,7 +934,7 @@ var isNull = util.isNull;
 var isRegExp = util.isRegExp;
 var isDate = util.isDate;
 var isError = util.isError;
-var isArray = Array.isArray;
+var isArray = util.isArray;
 
 /**
  * Echos the value of a value. Trys to print the value out
@@ -1007,6 +1083,10 @@ function formatValue(ctx, value, recurseTimes) {
     });
   }
 
+  if (isError(value)) {
+    return formatError(value);
+  }
+
   // Some type of object without properties can be shortcutted.
   if (keys.length === 0) {
     if (isFunction(value)) {
@@ -1018,9 +1098,6 @@ function formatValue(ctx, value, recurseTimes) {
     }
     if (isDate(value)) {
       return ctx.stylize(Date.prototype.toString.call(value), 'date');
-    }
-    if (isError(value)) {
-      return formatError(value);
     }
     // now check the `raw` value to handle boxed primitives
     if (isString(raw)) {
@@ -1309,7 +1386,7 @@ Assertion.add = function(name, f, isGetter) {
   prop[isGetter ? 'get' : 'value'] = function() {
     var context = new Assertion(this.obj);
     context.copy = context.copyIfMissing;
-    context.one = this.one;
+    context.anyOne = this.anyOne;
 
     try {
       f.apply(context, arguments);
@@ -1440,7 +1517,7 @@ Assertion.prototype = {
    * @api public
    */
   get any() {
-    this.one = true;
+    this.anyOne = true;
     return this;
   }
 };
@@ -1456,9 +1533,9 @@ should
   .use(require('./ext/property'))
   .use(require('./ext/error'))
   .use(require('./ext/match'))
-  .use(require('./ext/deprecated'));
+  .use(require('./ext/contain'));
 
-},{"./ext/assert":2,"./ext/bool":3,"./ext/chain":4,"./ext/deprecated":5,"./ext/eql":6,"./ext/error":7,"./ext/match":8,"./ext/number":9,"./ext/property":10,"./ext/string":11,"./ext/type":12,"./util":15}],15:[function(require,module,exports){
+},{"./ext/assert":2,"./ext/bool":3,"./ext/chain":4,"./ext/contain":5,"./ext/eql":6,"./ext/error":7,"./ext/match":8,"./ext/number":9,"./ext/property":10,"./ext/string":11,"./ext/type":12,"./util":15}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1498,6 +1575,12 @@ exports.merge = function(a, b){
   }
   return a;
 };
+
+function isArray(arr) {
+  return isObject(arr) && (arr.__ArrayLike || Array.isArray(arr));
+}
+
+exports.isArray = isArray;
 
 function isNumber(arg) {
   return typeof arg === 'number' || arg instanceof Number;
