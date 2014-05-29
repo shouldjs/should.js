@@ -6,8 +6,12 @@ function err(fn, msg) {
     fn();
     ok = false;
   } catch (err) {
-    if(err.message !== msg)
-      throw new should.AssertionError({ message: 'Expected message does not match', expected: msg, actual: err.message });
+    if(err.message !== msg) {
+      throw new should.AssertionError({
+        message: 'Expected message does not match, \n expected: ' + msg + '\n  actual: ' + err.message,
+        expected: msg,
+        actual: err.message });
+    }
   }
   if(!ok) throw new Error('expected an error');
 }
