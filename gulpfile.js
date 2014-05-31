@@ -31,7 +31,8 @@ gulp.task('script', function () {
     })
       .bundle({
           insertGlobals: false,
-          detectGlobals: false
+          detectGlobals: false,
+          standalone: 'Should'
       });
 
     return bundleStream
