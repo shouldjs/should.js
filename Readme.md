@@ -4,7 +4,7 @@
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/shouldjs.svg)](https://saucelabs.com/u/shouldjs)
 
-_should_ is an expressive, readable, test framework with an agnostic assertion library. The main goals of this library are __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
+_should_ is an expressive, readable, framework-agnostic assertion library. The main goals of this library are __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
 
 _should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
 
@@ -25,11 +25,12 @@ user.should.have.property('name', 'tj');
 user.should.have.property('pets').with.lengthOf(4);
 
 // If the object was created with Object.create(null)
-// then it doesn't inherit `Object` but does have the `should`
-// getter so you can do:
-
+// then it doesn't inherit `Object.prototype`, so it will not have `.should` getter
+// so you can do:
 should(user).have.property('name', 'tj');
-should(true).ok;
+
+// also you can test in that way for null's
+should(null).not.be.ok;
 
 someAsyncTask(foo, function(err, result){
   should.not.exist(err);
@@ -94,7 +95,7 @@ For some rare cases _should_ can be used statically, without `Object.prototype`.
 It can be a replacement for the node assert module:
 
 ```javascript
-assert.fail(actual, expected, message, operator) // expects the assertion to fail
+assert.fail(actual, expected, message, operator) // just write wrong should assertion
 assert(value, message), assert.ok(value, [message]) // should(value).ok
 assert.equal(actual, expected, [message]) // should(actual).eql(expected, [message])
 assert.notEqual(actual, expected, [message]) // should(actual).not.eql(expected, [message])
