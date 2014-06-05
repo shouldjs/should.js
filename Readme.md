@@ -4,9 +4,9 @@
 
 [![Selenium Test Status](https://saucelabs.com/browser-matrix/shouldjs.svg)](https://saucelabs.com/u/shouldjs)
 
-_should_ is an expressive, readable, test framework agnostic, assertion library. Main goals of this library __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
+_should_ is an expressive, readable, test framework with an agnostic assertion library. The main goals of this library are __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
 
-It extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave, also it returns itself when required with `require`.
+_should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
 
 ### Breaking changes for 4.x
 
@@ -24,9 +24,9 @@ var user = {
 user.should.have.property('name', 'tj');
 user.should.have.property('pets').with.lengthOf(4);
 
-// if the object was created with Object.create(null)
-// then it doesn't inherit `Object` and have the `should` getter
-// so you can do:
+// If the object was created with Object.create(null)
+// then it doesn't inherit `Object` but does have the `should`
+// getter so you can do:
 
 should(user).have.property('name', 'tj');
 should(true).ok;
@@ -90,11 +90,11 @@ bower install shouldjs/should.js
 
 ## Static should and assert module
 
-For some rare cases should can be used statically, without `Object.prototype`.
+For some rare cases _should_ can be used statically, without `Object.prototype`.
 It can be a replacement for the node assert module:
 
 ```javascript
-assert.fail(actual, expected, message, operator) // just write wrong should assertion
+assert.fail(actual, expected, message, operator) // expects the assertion to fail
 assert(value, message), assert.ok(value, [message]) // should(value).ok
 assert.equal(actual, expected, [message]) // should(actual).eql(expected, [message])
 assert.notEqual(actual, expected, [message]) // should(actual).not.eql(expected, [message])
@@ -109,11 +109,11 @@ assert.ifError(value) // should(value).Error (to check if it is error) or should
 
 ## .not
 
-`.not` negate current assertion.
+`.not` negates the current assertion.
 
 ## .any
 
-`.any` allow for assertions with multiple parameters to assert on any of parameters (not all)
+`.any` allow for assertions with multiple parameters to assert any of the parameters (but not all). This is similar to the native JavaScript [array.some](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some).
 
 # Assertions
 ## chaining assertions
@@ -129,7 +129,7 @@ Almost all assertions return the same object - so you can easy chain them. But s
 
 ## .ok
 
-Assert if chained object is truthy in javascript (ie: not '', null, undefined, 0 , NaN).
+Assert that a chained object is truthy in javascript (ie: not '', null, undefined, 0 , NaN).
 
 Assert truthfulness:
 
@@ -148,7 +148,7 @@ false.should.not.be.ok;
 (0).should.not.be.ok;
 ```
 
-*Warning:* No assertions can be done on null and undefined.
+*Warning:* No assertions can be performed on null and undefined values.
 e.g.
 ```js
   undefined.should.not.be.ok;
@@ -162,7 +162,7 @@ In order to test for null use
 
 ## .true
 
-Assert if chained object === true:
+Assert if a chained object === true:
 
 ```javascript
 true.should.be.true;
@@ -171,7 +171,7 @@ true.should.be.true;
 
 ## .false
 
-Assert if chained object === false:
+Assert if a chained object === false:
 
 ```javascript
 false.should.be.false;
@@ -180,7 +180,7 @@ false.should.be.false;
 
 ## .eql(otherValue)
 
-Assert if chained object is *equal* to otherValue. The object is compared by its actual content, not just reference equality.
+Assert if a chained object is *equal* to otherValue. The object is compared by its actual content, not just reference equality.
 
 ```javascript
 ({ foo: 'bar' }).should.eql({ foo: 'bar' });
@@ -190,7 +190,7 @@ Assert if chained object is *equal* to otherValue. The object is compared by its
 ```
 ## .equal(otherValue) and .exactly(otherValue)
 
-Assert if chained object is strictly equal to `otherValue` (using `===` - no type conversion for primitive types and reference equivalence for reference types).
+Asserts if a chained object is strictly equal to `otherValue` (using `===` - no type conversion for primitive types and reference equivalence for reference types).
 
 ```javascript
 (4).should.equal(4);
@@ -226,7 +226,7 @@ user.age.should.be.within(5, 50);
 
 ## .approximately(num, delta)
 
-Assert floating point number near `num` within `delta` margin:
+Assert a floating point number is near `num` within the `delta` margin:
 
 ```javascript
 (99.99).should.be.approximately(100, 0.1);
@@ -234,7 +234,7 @@ Assert floating point number near `num` within `delta` margin:
 
 ## .above(num) and .greaterThan(num)
 
-Assert numeric value above the given value (`> num`):
+Assert a numeric value is above the given value (`> num`):
 
 ```javascript
 user.age.should.be.above(5);
@@ -245,7 +245,7 @@ user.age.should.not.be.above(100);
 
 ## .below(num) and .lessThan(num)
 
-Assert numeric value below the given value (`< num`):
+Assert a numeric value is below the given value (`< num`):
 
 ```javascript
 user.age.should.be.below(100);
@@ -256,7 +256,7 @@ user.age.should.not.be.below(5);
 
 ## .NaN
 
-Assert numeric value is NaN:
+Assert a numeric value is NaN:
 
 ```javascript
 (undefined + 0).should.be.NaN;
@@ -264,7 +264,7 @@ Assert numeric value is NaN:
 
 ## .Infinity
 
-Assert numeric value is Infinity:
+Assert a numeric value is Infinity:
 
 ```javascript
 (1/0).should.be.Infinity;
@@ -272,7 +272,7 @@ Assert numeric value is Infinity:
 
 ## .type(str)
 
-Assert given object is of a particular type (using __typeof__ operator):
+Assert a given object is of a particular type (using __typeof__ operator):
 ```javascript
 user.should.be.type('object');
 'test'.should.be.type('string');
@@ -280,7 +280,7 @@ user.should.be.type('object');
 
 ## .instanceof(constructor) and .instanceOf(constructor)
 
-Assert given object is an instance of `constructor` (using __instanceof__ operator):
+Assert a given object is an instance of `constructor` (using __instanceof__ operator):
 
 ```javascript
 user.should.be.an.instanceof(User);
@@ -289,7 +289,7 @@ user.should.be.an.instanceof(User);
 
 ## .arguments
 
-Assert given object is an `Arguments`:
+Assert a given object is an `Arguments`:
 
 ```javascript
 var args = (function(){ return arguments; })(1,2,3);
@@ -299,7 +299,7 @@ args.should.be.arguments;
 
 ## .Object, .Number, .Array, .Boolean, .Function, .String, .Error
 
-Assert given object is instance of the given constructor (shortcut for `.instanceof` assertion).
+Assert a given object is instance of the given constructor (shortcut for `.instanceof` assertion).
 
 ```javascript
 ({}).should.be.an.Object;
@@ -310,7 +310,7 @@ Assert given object is instance of the given constructor (shortcut for `.instanc
 ```
 ## .enumerable(name[, value])
 
-Assert a property exists, is enumerable, and has optional value (compare using `.eql`):
+Assert a property exists, is enumerable, and has an optional value (compare using `.eql`):
 ```javascript
 'asd'.should.not.have.enumerable('0');
 user.should.have.enumerable('name');
@@ -322,7 +322,7 @@ user.should.not.have.enumerable('age', 0);
 
 ## .property(name[, value])
 
-Assert property exists and has optional value (compare using `.eql`):
+Assert property exists and has an optional value (compare using `.eql`):
 ```javascript
 user.should.have.property('name');
 user.should.have.property('age', 15);
