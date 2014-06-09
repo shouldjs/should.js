@@ -1,3 +1,8 @@
+4.0.2 / 2014-06-09
+==================
+
+ * Fix wrong/strange behaviour of .containDeep with equal keys. Now it check to contain element once.
+
 4.0.1 / 2014-06-04
 ==================
 

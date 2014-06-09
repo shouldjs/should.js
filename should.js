@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.0.1
+ * @version v4.0.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -290,11 +290,14 @@ module.exports = function(should, Assertion) {
     var obj = this.obj;
     if(util.isArray(obj)) {
       if(util.isArray(other)) {
-
+        var usedKeys = {};
         other.forEach(function(otherItem) {
-          this.assert(obj.some(function(item) {
+          this.assert(obj.some(function(item, index) {
+            if(index in usedKeys) return false;
+
             try {
               should(item).not.be.Null.and.containDeep(otherItem);
+              usedKeys[index] = true;
               return true;
             } catch(e) {
               if(e instanceof should.AssertionError) {
