@@ -37,7 +37,7 @@ describe('match', function() {
     // negative true
     err(function() {
       ({ a: 'foo', c: 'barfoo' }).should.match(/^foo$/);
-    }, "expected { a: 'foo', c: 'barfoo' } to match /^foo$/\n\tnot matched properties: c('barfoo')\n\tmatched properties: a");
+    }, "expected { a: 'foo', c: 'barfoo' } to match /^foo$/\n\tnot matched properties: c ('barfoo')\n\tmatched properties: a");
   });
 
   it('test array match(regexp)', function() {
@@ -116,7 +116,7 @@ describe('match', function() {
         .match({ a: 11, b: /c$/, c: function(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } to match { a: 11, b: /c$/, c: [Function] }\n\tnot matched properties: a(10)\n\tmatched properties: b, c");
+    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } to match { a: 11, b: /c$/, c: [Function] }\n\tnot matched properties: a (10)\n\tmatched properties: b, c");
 
     err(function() {
       ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should.not

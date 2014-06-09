@@ -8,7 +8,7 @@ describe('property', function() {
 
     err(function() {
       'asd'.should.have.enumerable('length');
-    }, "expected 'asd' to have enumerable property 'length'");
+    }, "expected 'asd' to have enumerable property length");
   });
 
   it('test enumerable(name,  it(val)', function() {
@@ -16,7 +16,7 @@ describe('property', function() {
 
     err(function() {
       ({'length': 3}).should.have.enumerable('length', 5);
-    }, "expected { length: 3 } to have enumerable property 'length' equal to '5'");
+    }, "expected { length: 3 } to have enumerable property length equal to 5");
   });
 
   it('test property(name)', function() {
@@ -25,7 +25,7 @@ describe('property', function() {
 
     err(function() {
       'asd'.should.have.property('foo');
-    }, "expected 'asd' to have property 'foo'");
+    }, "expected 'asd' to have property foo");
   });
 
   it('test property(name,  it(val)', function() {
@@ -34,32 +34,32 @@ describe('property', function() {
 
     err(function() {
       'asd'.should.have.property('length', 4);
-    }, "expected 'asd' to have property 'length' of 4 (got 3)");
+    }, "expected 'asd' to have property length of 4 (got 3)");
 
     err(function() {
       'asd'.should.not.have.property('length', 3);
-    }, "expected 'asd' not to have property 'length' of 3");
+    }, "expected 'asd' not to have property length of 3");
 
     err(function() {
       var obj = { f: function() {} };
       var f1 = function() {};
       obj.should.have.property('f', f1);
-    }, "expected { f: [Function] } to have property 'f' of [Function] (got [Function])");
+    }, "expected { f: [Function] } to have property f of [Function] (got [Function])");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')
         .and.have.property('b', 100);
-    }, "expected { b: 1 } to have property 'b' of 100 (got 1)");
+    }, "expected { b: 1 } to have property b of 100 (got 1)");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')
         .and.have.property('c', 100);
-    }, "expected { b: 1 } to have property 'c'");
+    }, "expected { b: 1 } to have property c");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')
         .and.have.property('c');
-    }, "expected { b: 1 } to have property 'c'");
+    }, "expected { b: 1 } to have property c");
 
   });
 
@@ -72,11 +72,11 @@ describe('property', function() {
 
     err(function() {
       (4).should.have.length(3);
-    }, "expected 4 to have property 'length'");
+    }, "expected 4 to have property length");
 
     err(function() {
       'asd'.should.not.have.length(3);
-    }, "expected 'asd' not to have property 'length' of 3");
+    }, "expected 'asd' not to have property length of 3");
 
   });
 
@@ -86,7 +86,7 @@ describe('property', function() {
 
     err(function() {
       ({ length: 12 }).should.not.have.ownProperty('length');
-    }, "expected { length: 12 } not to have own property 'length'");
+    }, "expected { length: 12 } not to have own property length");
 
     err(function() {
       ({ length: 12 }).should.not.have.ownProperty('length', 'foo');
@@ -107,11 +107,11 @@ describe('property', function() {
 
     err(function() {
       'asd'.should.have.properties('foo');
-    }, "expected 'asd' to have property 'foo'");
+    }, "expected 'asd' to have property foo");
 
     err(function() {
       'asd'.should.not.have.properties('length', 'indexOf');
-    }, "expected 'asd' not to have properties 'length', 'indexOf'");
+    }, "expected 'asd' not to have properties length, indexOf");
   });
 
   it('test properties([names])', function() {
@@ -120,7 +120,7 @@ describe('property', function() {
 
     err(function() {
       'asd'.should.have.properties(['foo']);
-    }, "expected 'asd' to have property 'foo'");
+    }, "expected 'asd' to have property foo");
   });
 
   it('test any of properties', function() {
@@ -138,23 +138,23 @@ describe('property', function() {
 
     err(function() {
       ({ a: 10 }).should.not.have.any.of.properties(['a', 'b']);
-    }, "expected { a: 10 } not to have property 'a'");
+    }, "expected { a: 10 } not to have property a");
 
     err(function() {
       ({ a: 10, b: 10 }).should.not.have.any.of.properties(['a', 'b']);
-    }, "expected { a: 10, b: 10 } not to have any of properties 'a', 'b'");
+    }, "expected { a: 10, b: 10 } not to have any of properties a, b");
 
     err(function() {
       ({ a: 10, b: 10 }).should.not.have.any.of.properties({ a: 10, b: 12 });
-    }, "expected { a: 10, b: 10 } not to have property 'a' of 10");
+    }, "expected { a: 10, b: 10 } not to have property a of 10");
 
     err(function() {
       ({ a: 10, b: 10 }).should.not.have.any.of.properties({ a: 10, b: 10 });
-    }, "expected { a: 10, b: 10 } not to have any of properties 'a' of 10, 'b' of 10");
+    }, "expected { a: 10, b: 10 } not to have any of properties a of 10, b of 10");
 
     err(function() {
       ({ a: 11, b: 11 }).should.have.any.of.properties({ a: 10, b: 10 });
-    }, "expected { a: 11, b: 11 } to have any of properties 'a' of 10 (got 11), 'b' of 10 (got 11)");
+    }, "expected { a: 11, b: 11 } to have any of properties a of 10 (got 11), b of 10 (got 11)");
   });
 
   it('test keys(array)', function() {
@@ -168,23 +168,23 @@ describe('property', function() {
 
     err(function() {
       ({ foo: 1 }).should.have.keys(['bar']);
-    }, "expected { foo: 1 } to have key 'bar'\n\tmissing keys: 'bar'\n\textra keys: 'foo'");
+    }, "expected { foo: 1 } to have key bar\n\tmissing keys: bar\n\textra keys: foo");
 
     err(function() {
       ({ foo: 1 }).should.have.keys(['bar', 'baz']);
-    }, "expected { foo: 1 } to have keys 'bar', 'baz'\n\tmissing keys: 'bar', 'baz'\n\textra keys: 'foo'");
+    }, "expected { foo: 1 } to have keys bar, baz\n\tmissing keys: bar, baz\n\textra keys: foo");
 
     err(function() {
       ({ foo: 1 }).should.not.have.keys('foo');
-    }, "expected { foo: 1 } not to have key 'foo'");
+    }, "expected { foo: 1 } not to have key foo");
 
     err(function() {
       ({ foo: 1 }).should.not.have.keys(['foo']);
-    }, "expected { foo: 1 } not to have key 'foo'");
+    }, "expected { foo: 1 } not to have key foo");
 
     err(function() {
       ({ foo: 1, bar: 2 }).should.not.have.keys(['foo', 'bar']);
-    }, "expected { foo: 1, bar: 2 } not to have keys 'foo', 'bar'");
+    }, "expected { foo: 1, bar: 2 } not to have keys foo, bar");
   });
 
   it('test empty', function() {
@@ -223,11 +223,11 @@ describe('property', function() {
     // true fail
     err(function() {
       ({ a: { b: 10}}).should.have.propertyByPath('a', 'b', 'c');
-    }, "expected { a: { b: 10 } } to have property by path 'a','b','c' - failed on 'c'");
+    }, "expected { a: { b: 10 } } to have property by path a, b, c - failed on c");
 
     // false positive
     err(function() {
       ({ a: { b: 10}}).should.not.have.propertyByPath('a', 'b');
-    }, "expected { a: { b: 10 } } not to have property by path 'a','b'");
+    }, "expected { a: { b: 10 } } not to have property by path a, b");
   })
 });
