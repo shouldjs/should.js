@@ -87,6 +87,9 @@ describe('property', function() {
         [1]
       ]);
 
+    [1,2,3].should.not.containDeep([3,3,3]);
+    [1,2,3].should.containDeep([3]);
+
     [
       {a: 'a'},
       {b: 'b', c: 'c'}
