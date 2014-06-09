@@ -1,7 +1,8 @@
-4.0.2 / 2014-06-09
+4.0.3 / 2014-06-09
 ==================
 
  * Fix wrong/strange behaviour of .containDeep with equal keys. Now it check to contain element once.
+ * Added util.formatProp to format properties more accurate
 
 4.0.1 / 2014-06-04
 ==================

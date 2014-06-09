@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.0.2
+ * @version v4.0.3
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -461,8 +461,8 @@ module.exports = function(should, Assertion) {
 
           var notMatchedProps = [], matchedProps = [];
           util.forOwn(this.obj, function(value, name) {
-            if(other.exec(value)) matchedProps.push(name);
-            else notMatchedProps.push(name + '(' + i(value) +')');
+            if(other.exec(value)) matchedProps.push(util.formatProp(name));
+            else notMatchedProps.push(util.formatProp(name) + ' (' + i(value) +')');
           }, this);
 
           if(notMatchedProps.length)
@@ -497,10 +497,10 @@ module.exports = function(should, Assertion) {
         util.forOwn(other, function(value, key) {
           try {
             should(this.obj[key]).match(value);
-            matchedProps.push(key);
+            matchedProps.push(util.formatProp(key));
           } catch(e) {
             if(e instanceof should.AssertionError) {
-              notMatchedProps.push(key + '(' + i(this.obj[key]) + ')');
+              notMatchedProps.push(util.formatProp(key) + ' (' + i(this.obj[key]) + ')');
             } else {
               throw e;
             }
@@ -613,13 +613,13 @@ module.exports = function(should, Assertion) {
     name = String(name);
 
     this.params = {
-      operator:"to have enumerable property '"+name+"'"
+      operator:"to have enumerable property " + util.formatProp(name)
     };
 
     this.assert(this.obj.propertyIsEnumerable(name));
 
     if(arguments.length > 1){
-      this.params.operator += " equal to '"+val+"'";
+      this.params.operator += " equal to "+i(val);
       this.assert(eql(val, this.obj[name]));
     }
   });
@@ -653,16 +653,16 @@ module.exports = function(should, Assertion) {
 
     //just enumerate properties and check if they all present
     names.forEach(function(name) {
-      if(!(name in obj)) missingProperties.push(i(name));
+      if(!(name in obj)) missingProperties.push(util.formatProp(name));
     });
 
     var props = missingProperties;
     if(props.length === 0) {
-      props = names.map(i);
+      props = names.map(util.formatProp);
     } else if(this.anyOne) {
       props = names.filter(function(name) {
-        return missingProperties.indexOf(i(name)) < 0;
-      }).map(i);
+        return missingProperties.indexOf(util.formatProp(name)) < 0;
+      }).map(util.formatProp);
     }
 
     var operator = (props.length === 1 ?
@@ -684,9 +684,9 @@ module.exports = function(should, Assertion) {
       valueCheckNames.forEach(function(name) {
         var value = values[name];
         if(!eql(obj[name], value)) {
-          wrongValues.push(i(name) + ' of ' + i(value) + ' (got ' + i(obj[name]) + ')');
+          wrongValues.push(util.formatProp(name) + ' of ' + i(value) + ' (got ' + i(obj[name]) + ')');
         } else {
-          props.push(i(name) + ' of ' + i(value));
+          props.push(util.formatProp(name) + ' of ' + i(value));
         }
       });
 
@@ -715,7 +715,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.add('ownProperty', function(name, description) {
     name = String(name);
-    this.params = { operator: 'to have own property ' + i(name), message: description };
+    this.params = { operator: 'to have own property ' + util.formatProp(name), message: description };
 
     this.assert(hasOwnProperty.call(this.obj, name));
 
@@ -750,21 +750,21 @@ module.exports = function(should, Assertion) {
     var missingKeys = [];
     keys.forEach(function(key) {
       if(!hasOwnProperty.call(this.obj, key))
-        missingKeys.push(i(key));
+        missingKeys.push(util.formatProp(key));
     }, this);
 
     // second check for extra keys
     var extraKeys = [];
     Object.keys(obj).forEach(function(key) {
       if(keys.indexOf(key) < 0) {
-        extraKeys.push(i(key));
+        extraKeys.push(util.formatProp(key));
       }
     });
 
     var verb = keys.length === 0 ? 'to be empty' :
       'to have ' + (keys.length === 1 ? 'key ' : 'keys ');
 
-    this.params = { operator: verb + keys.map(i).join(', ')};
+    this.params = { operator: verb + keys.map(util.formatProp).join(', ')};
 
     if(missingKeys.length > 0)
       this.params.operator += '\n\tmissing keys: ' + missingKeys.join(', ');
@@ -782,7 +782,7 @@ module.exports = function(should, Assertion) {
     else if(arguments.length === 1 && util.isString(properties)) properties = [ properties ];
     else if(arguments.length === 0) properties = [];
 
-    var allProps =  properties.map(i);
+    var allProps =  properties.map(util.formatProp);
 
     properties = properties.map(String);
 
@@ -792,12 +792,12 @@ module.exports = function(should, Assertion) {
 
     var currentProperty;
     while(currentProperty = properties.shift()) {
-      this.params = { operator: 'to have property by path ' + allProps + ' - failed on ' + i(currentProperty) };
+      this.params = { operator: 'to have property by path ' + allProps.join(', ') + ' - failed on ' + util.formatProp(currentProperty) };
       obj = obj.have.property(currentProperty);
       foundProperties.push(currentProperty);
     }
 
-    this.params = { operator: 'to have property by path ' + allProps };
+    this.params = { operator: 'to have property by path ' + allProps.join(', ') };
 
     this.obj = obj.obj;
   });
@@ -1685,6 +1685,19 @@ exports.functionName = function(f) {
   var name = f.toString().match(functionNameRE)[1];
   return name;
 };
+
+exports.formatProp = function(name) {
+  name = JSON.stringify('' + name);
+  if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+    name = name.substr(1, name.length - 2);
+  } else {
+    name = name.replace(/'/g, "\\'")
+      .replace(/\\"/g, '"')
+      .replace(/(^"|"$)/g, "'")
+      .replace(/\\\\/g, '\\');
+  }
+  return name;
+}
 },{"./inspect":13,"assert":16}],16:[function(_dereq_,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
