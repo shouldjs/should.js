@@ -1,3 +1,8 @@
+4.0.4 / 2014-06-09
+==================
+
+ * Make all assertions enumerable in Assertion.prototype
+
 4.0.3 / 2014-06-09
 ==================
 

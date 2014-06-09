@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.0.3
+ * @version v4.0.4
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -205,7 +205,8 @@ module.exports = function(should, Assertion) {
     Object.defineProperty(Assertion.prototype, name, {
       get: function() {
         return this;
-      }
+      },
+      enumerable: true
     });
   }
 
@@ -1385,7 +1386,7 @@ var Assertion = should.Assertion = function Assertion(obj) {
  Potentially we can add some more modifiers that does not depends from state of assertion.
  */
 Assertion.add = function(name, f, isGetter) {
-  var prop = {};
+  var prop = { enumerable: true };
   prop[isGetter ? 'get' : 'value'] = function() {
     var context = new Assertion(this.obj);
     context.copy = context.copyIfMissing;
@@ -1468,7 +1469,7 @@ Assertion.prototype = {
   constructor: Assertion,
 
   assert: function(expr) {
-    if(expr) return;
+    if(expr) return this;
 
     var params = this.params;
 
