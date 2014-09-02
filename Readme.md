@@ -181,7 +181,7 @@ false.should.be.false;
 
 ## .eql(otherValue)
 
-Assert if a chained object is *equal* to otherValue. The object is compared by its actual content, not just reference equality.
+Asserts if a chained object is *equal* to otherValue. The object is compared by its actual content, not just reference equality.
 
 ```javascript
 ({ foo: 'bar' }).should.eql({ foo: 'bar' });
@@ -191,7 +191,7 @@ Assert if a chained object is *equal* to otherValue. The object is compared by i
 ```
 ## .equal(otherValue) and .exactly(otherValue)
 
-Asserts if a chained object is strictly equal to `otherValue` (using `===` - no type conversion for primitive types and reference equivalence for reference types).
+Asserts if a chained object is strictly equal to `otherValue` (using `===`). It means primitive values compared as is (there is no any type conversion) and reference values compared by references.
 
 ```javascript
 (4).should.equal(4);
