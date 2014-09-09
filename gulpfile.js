@@ -27,13 +27,12 @@ gulp.task('test', function() {
 gulp.task('script', function () {
     var bundleStream = browserify({
         entries: './lib/should.js',
-        builtins: ['util', 'assert']
+        builtins: ['util', 'assert'],
+	insertGlobals: false,
+        detectGlobals: false,
+        standalone: 'Should'
     })
-      .bundle({
-          insertGlobals: false,
-          detectGlobals: false,
-          standalone: 'Should'
-      });
+      .bundle();
 
     return bundleStream
       .pipe(source('should.js'))
