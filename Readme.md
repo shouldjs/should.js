@@ -621,7 +621,7 @@ As it can often be difficult to ascertain exactly where failed assertions are co
       at Object.eql (/Users/swift/code/should.js/node_modules/should/lib/should.js:280:10)
       ...
 
-The methods that support this optional description are: `eql`, `equal`, `within`, `instanceof`, `above`, `below`, `match`, `length`, `property`, `ownProperty`.
+The methods that support this optional description are: `eql`, `equal`, `within`, `instanceof`, `above`, `below`, `match`, `length`, `ownProperty`.
 
 ## Mocha example
 
