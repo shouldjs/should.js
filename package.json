@@ -32,5 +32,8 @@
     "assert"
   ],
   "main": "./lib/should.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "should-equal": "0.0.1"
+  }
 }
