@@ -10,7 +10,9 @@ function err(fn, msg) {
       throw new should.AssertionError({
         message: 'Expected message does not match',
         expected: msg,
-        actual: err.message });
+        actual: err.message,
+        stackStartFunction: err
+      });
     }
   }
   if(!ok) throw new Error('expected an error');
