@@ -1,5 +1,10 @@
 Before contribute something:
 
+Follow simple rules:
+
+- Not violate [DRY](http://programmer.97things.oreilly.com/wiki/index.php/Don%27t_Repeat_Yourself).
+- [Boy Scout Rule](http://programmer.97things.oreilly.com/wiki/index.php/The_Boy_Scout_Rule) needs to have been applied.
+
 1. Your code should look like all the other code - this project should look like it was written by one man, always.
 2. If you want to propose something - just create an issue and describe your question with as much description as you can.
 3. Please never send issues or pull requests about code style, jshint violations etc - I do not accept it (and you will spend your time for free).
