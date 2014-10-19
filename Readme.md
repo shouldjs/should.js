@@ -639,6 +639,69 @@ describe('mylib', function() {
 });
 ```
 
+## Adding own assertions
+
+To add own assertion you need to call `should.Assertion.add` function. It accept 3 arguments:
+
+1. name of assertion method (string)
+2. assertion function (function)
+3. optional boolean value to mark if this assertion should be getter
+
+What assertion function should do. It should check only positive case. `should` will handle `.not` itself.
+`this` in assertion function will be instance of `should.Assertion` and you **must** define in any way this.params object
+ in your assertion function call before assertion check happen.
+
+`params` object can contain several fields:
+
+- `operator` - it is string which describe your assertion
+- `obj` it is string representation of this.obj if you need to define you own
+- `expected` it is any value that expected to be matched this.obj
+
+You can assume its usage in generating AssertionError message like: expected `obj`? || this.obj not? `operator` `expected`?
+
+In `should` sources appeared 2 kinds of usage of this method.
+
+First not preferred and used **only** for shortcuts to other assertions, e.g how `.should.be.true` defined:
+
+```javascript
+Assertion.add('true', function() {
+    this.is.exactly(true);
+}, true);
+```
+There you can see that assertion function do not define own `this.params` and instead call within the same assertion `.exactly`
+that will fill `this.params`. **You should use this way very carefully, but you can use it**.
+
+Second way preferred and i assume you will use it instead of first.
+
+```javascript
+Assertion.add('true', function() {
+    this.params = { operator: 'to be true', expected: true };
+
+    this.obj.should.be.exactly(true);
+}, true);
+```
+in this case this.params defined and then used new assertion context (because called `.should`). Internally this way does not
+ create any edge cases as first.
+
+```javascript
+Assertion.add('asset', function() {
+    this.params = { operator: 'to be asset' };
+
+    this.obj.should.have.property('id').which.is.a.Number;
+    this.obj.should.have.property('path');
+})
+
+//then
+> ({ id: '10' }).should.be.an.asset();
+AssertionError: expected { id: '10' } to be asset
+    expected '10' to be a number
+
+> ({ id: 10 }).should.be.an.asset();
+AssertionError: expected { id: 10 } to be asset
+    expected { id: 10 } to have property path
+```
+
+
 ## Contributions
 
 [Actual list of contributors](https://github.com/visionmedia/should.js/graphs/contributors) if you want to show it your friends.

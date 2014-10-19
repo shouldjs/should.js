@@ -1,3 +1,12 @@
+4.1.0 / 2014-10-19
+==================
+
+ * As inspect function was moved to repo, refine how it show Dates (added millis via custom format)
+ * Added warnings for potential shoot in the leg: eql non strict and should unwrapping primitive wrappers
+ * Added possibility to disable any warnings via environment variable SHOULDJS_WARN and should.warn = false
+ * Added new deep equality check function
+ * Nested assertions can contribute to parent assertions own messages
+
 4.0.4 / 2014-06-09
 ==================
 
