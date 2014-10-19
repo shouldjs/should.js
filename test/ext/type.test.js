@@ -32,7 +32,7 @@ describe('type', function() {
 
     err(function(){
       (10).should.have.type('string');
-    }, "expected 10 to have type string");
+    }, "expected 10 to have type string\n    expected 'number' to be 'string'");
 
     (5).should.have.type('number');
 
@@ -82,7 +82,7 @@ describe('type', function() {
     }, "expected {} not to be an instance of Object");
   });
 
-  it('test instanceOf (non-  it(reserved)', function() {
+  it('test instanceOf (non-reserved)', function() {
     function Foo(){}
     new Foo().should.be.an.instanceOf(Foo);
 

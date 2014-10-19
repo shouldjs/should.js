@@ -34,14 +34,14 @@ describe('number', function() {
 
     err(function(){
       NaN.should.be.Infinity;
-    }, "expected NaN to be Infinity")
+    }, "expected NaN to be Infinity\n    expected NaN not to be NaN")
 
     err(function(){
       Infinity.should.not.be.Infinity;
     }, "expected Infinity not to be Infinity")
   });
 
-  it('test within(start,  it(finish)', function() {
+  it('test within(start, finish)', function() {
     (5).should.be.within(5, 10);
     (5).should.be.within(3,6);
     (5).should.be.within(3,5);
@@ -64,7 +64,7 @@ describe('number', function() {
     }, "foo");
   });
 
-  it('test approximately(number,  it(delta)', function() {
+  it('test approximately(number, delta)', function() {
     (1.5).should.be.approximately(1.4, 0.2);
     (1.5).should.be.approximately(1.5, 10E-10);
     (1.5).should.not.be.approximately(1.4, 1E-2);

@@ -11,7 +11,7 @@ describe('property', function() {
     }, "expected 'asd' to have enumerable property length");
   });
 
-  it('test enumerable(name,  it(val)', function() {
+  it('test enumerable(name, val)', function() {
     ({'length': 5}).should.have.enumerable('length', 5);
 
     err(function() {
@@ -28,7 +28,7 @@ describe('property', function() {
     }, "expected 'asd' to have property foo");
   });
 
-  it('test property(name,  it(val)', function() {
+  it('test property(name, val)', function() {
     'test'.should.have.property('length', 4);
     'asd'.should.have.property('constructor', String);
 
@@ -101,7 +101,7 @@ describe('property', function() {
     ({length: 10}).should.have.ownProperty('length').equal(10);
   });
 
-  it('test properties(name1, name2,  it(...)', function() {
+  it('test properties(name1, name2, ...)', function() {
     'test'.should.have.properties('length', 'indexOf');
     (4).should.not.have.properties('length');
 
@@ -203,11 +203,11 @@ describe('property', function() {
 
     err(function() {
       ({ length: 10 }).should.be.empty;
-    }, 'expected { length: 10 } to be empty');
+    }, 'expected { length: 10 } to be empty\n    expected { length: 10 } not to have own property length');
 
     err(function() {
       'asd'.should.be.empty;
-    }, "expected 'asd' to be empty");
+    }, "expected 'asd' to be empty\n    expected 'asd' to have property length of 0 (got 3)");
 
     err(function() {
       ''.should.not.be.empty;
@@ -223,7 +223,7 @@ describe('property', function() {
     // true fail
     err(function() {
       ({ a: { b: 10}}).should.have.propertyByPath('a', 'b', 'c');
-    }, "expected { a: { b: 10 } } to have property by path a, b, c - failed on c");
+    }, "expected { a: { b: 10 } } to have property by path a, b, c - failed on c\n    expected 10 to have property c");
 
     // false positive
     err(function() {
