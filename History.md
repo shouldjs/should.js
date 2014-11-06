@@ -1,3 +1,8 @@
+4.2.0 / 2014-11-06
+==================
+
+ * Remove node util.inspect and use instead own inspection module with type detection and browser types compatibility
+
 4.1.0 / 2014-10-19
 ==================
 

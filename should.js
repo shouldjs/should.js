@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.1.0
+ * @version v4.2.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -14,7 +14,7 @@
 
 
 var util = require('./util');
-var inspect = require('./inspect').inspect;
+var inspect = require('should-format');
 var warn = require('./warn');
 
 /**
@@ -36,9 +36,7 @@ should.warn = typeof envVarResult == 'undefined' ? true: envVarResult;
 should.AssertionError = require('./assertion-error');
 should.Assertion = require('./assertion');
 
-should.format = function(value) {
-  return inspect(value, {depth: null});
-};
+should.format = inspect;
 
 /**
  * Expose should to external world.
@@ -84,10 +82,10 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./inspect":16,"./util":17,"./warn":18}],2:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"./warn":17,"should-format":24}],2:[function(require,module,exports){
 // copy that inside
 module.exports = require('./util').AssertionError;
-},{"./util":17}],3:[function(require,module,exports){
+},{"./util":16}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
 
 function Assertion(obj, format) {
@@ -341,7 +339,7 @@ function objEquiv (a, b) {
   return true;
 }
 
-},{"./util":17}],5:[function(require,module,exports){
+},{"./util":16}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -398,7 +396,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../util":17,"assert":19}],6:[function(require,module,exports){
+},{"../util":16,"assert":18}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -561,7 +559,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../eql":4,"../util":17}],9:[function(require,module,exports){
+},{"../eql":4,"../util":16}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -599,7 +597,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../eql":4,"../warn":18,"should-equal":23}],10:[function(require,module,exports){
+},{"../eql":4,"../warn":17,"should-equal":22}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -677,7 +675,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{"../util":17}],11:[function(require,module,exports){
+},{"../util":16}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -785,7 +783,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../eql":4,"../util":17}],12:[function(require,module,exports){
+},{"../eql":4,"../util":16}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1049,7 +1047,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../eql":4,"../util":17}],14:[function(require,module,exports){
+},{"../eql":4,"../util":16}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1150,464 +1148,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('instanceof', 'instanceOf');
 };
 
-},{"../util":17}],16:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-var util = require('./util');
-var isBoolean = util.isBoolean;
-var isObject = util.isObject;
-var isUndefined = util.isUndefined;
-var isFunction = util.isFunction;
-var isString = util.isString;
-var isNumber = util.isNumber;
-var isNull = util.isNull;
-var isRegExp = util.isRegExp;
-var isDate = util.isDate;
-var isError = util.isError;
-var isArray = util.isArray;
-
-/**
- * Echos the value of a value. Trys to print the value out
- * in the best way possible given the different types.
- *
- * @param {Object} obj The object to print out.
- * @param {Object} opts Optional options object that alters the output.
- */
-/* legacy: obj, showHidden, depth, colors*/
-function inspect(obj, opts) {
-  // default options
-  var ctx = {
-    seen: [],
-    stylize: stylizeNoColor
-  };
-  // legacy...
-  if (arguments.length >= 3) ctx.depth = arguments[2];
-  if (arguments.length >= 4) ctx.colors = arguments[3];
-  if (isBoolean(opts)) {
-    // legacy...
-    ctx.showHidden = opts;
-  } else if (opts) {
-    // got an "options" object
-    exports._extend(ctx, opts);
-  }
-  // set default options
-  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
-  if (isUndefined(ctx.depth)) ctx.depth = 2;
-  if (isUndefined(ctx.colors)) ctx.colors = false;
-  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
-  if (ctx.colors) ctx.stylize = stylizeWithColor;
-  return formatValue(ctx, obj, ctx.depth);
-}
-exports.inspect = inspect;
-
-
-// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-inspect.colors = {
-  'bold' : [1, 22],
-  'italic' : [3, 23],
-  'underline' : [4, 24],
-  'inverse' : [7, 27],
-  'white' : [37, 39],
-  'grey' : [90, 39],
-  'black' : [30, 39],
-  'blue' : [34, 39],
-  'cyan' : [36, 39],
-  'green' : [32, 39],
-  'magenta' : [35, 39],
-  'red' : [31, 39],
-  'yellow' : [33, 39]
-};
-
-// Don't use 'blue' not visible on cmd.exe
-inspect.styles = {
-  'special': 'cyan',
-  'number': 'yellow',
-  'boolean': 'yellow',
-  'undefined': 'grey',
-  'null': 'bold',
-  'string': 'green',
-  'date': 'magenta',
-  // "name": intentionally not styling
-  'regexp': 'red'
-};
-
-
-function stylizeWithColor(str, styleType) {
-  var style = inspect.styles[styleType];
-
-  if (style) {
-    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
-      '\u001b[' + inspect.colors[style][1] + 'm';
-  } else {
-    return str;
-  }
-}
-
-
-function stylizeNoColor(str, styleType) {
-  return str;
-}
-
-
-function arrayToHash(array) {
-  var hash = {};
-
-  array.forEach(function(val, idx) {
-    hash[val] = true;
-  });
-
-  return hash;
-}
-
-
-function formatValue(ctx, value, recurseTimes) {
-  // Provide a hook for user-specified inspect functions.
-  // Check that value is an object with an inspect function on it
-  if (ctx.customInspect &&
-    value &&
-    isFunction(value.inspect) &&
-    // Filter out the util module, it's inspect function is special
-    value.inspect !== exports.inspect &&
-    // Also filter out any prototype objects using the circular check.
-    !(value.constructor && value.constructor.prototype === value)) {
-    var ret = value.inspect(recurseTimes, ctx);
-    if (!isString(ret)) {
-      ret = formatValue(ctx, ret, recurseTimes);
-    }
-    return ret;
-  }
-
-  // Primitive types cannot have properties
-  var primitive = formatPrimitive(ctx, value);
-  if (primitive) {
-    return primitive;
-  }
-
-  // Look up the keys of the object.
-  var keys = Object.keys(value);
-  var visibleKeys = arrayToHash(keys);
-
-  if (ctx.showHidden) {
-    keys = Object.getOwnPropertyNames(value);
-  }
-
-  // This could be a boxed primitive (new String(), etc.), check valueOf()
-  // NOTE: Avoid calling `valueOf` on `Date` instance because it will return
-  // a number which, when object has some additional user-stored `keys`,
-  // will be printed out.
-  var formatted;
-  var raw = value;
-  try {
-    // the .valueOf() call can fail for a multitude of reasons
-    if (!isDate(value))
-      raw = value.valueOf();
-  } catch (e) {
-    // ignore...
-  }
-
-  if (isString(raw)) {
-    // for boxed Strings, we have to remove the 0-n indexed entries,
-    // since they just noisey up the output and are redundant
-    keys = keys.filter(function(key) {
-      return !(key >= 0 && key < raw.length);
-    });
-  }
-
-  if (isError(value)) {
-    return formatError(value);
-  }
-
-  // Some type of object without properties can be shortcutted.
-  if (keys.length === 0) {
-    if (isFunction(value)) {
-      var name = value.name ? ': ' + value.name : '';
-      return ctx.stylize('[Function' + name + ']', 'special');
-    }
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    }
-    if (isDate(value)) {
-      return ctx.stylize(formatDate(value), 'date');
-    }
-    // now check the `raw` value to handle boxed primitives
-    if (isString(raw)) {
-      formatted = formatPrimitiveNoColor(ctx, raw);
-      return ctx.stylize('[String: ' + formatted + ']', 'string');
-    }
-    if (isNumber(raw)) {
-      formatted = formatPrimitiveNoColor(ctx, raw);
-      return ctx.stylize('[Number: ' + formatted + ']', 'number');
-    }
-    if (isBoolean(raw)) {
-      formatted = formatPrimitiveNoColor(ctx, raw);
-      return ctx.stylize('[Boolean: ' + formatted + ']', 'boolean');
-    }
-  }
-
-  var base = '', array = false, braces = ['{', '}'];
-
-  // Make Array say that they are Array
-  if (isArray(value)) {
-    array = true;
-    braces = ['[', ']'];
-  }
-
-  // Make functions say that they are functions
-  if (isFunction(value)) {
-    var n = value.name ? ': ' + value.name : '';
-    base = ' [Function' + n + ']';
-  }
-
-  // Make RegExps say that they are RegExps
-  if (isRegExp(value)) {
-    base = ' ' + RegExp.prototype.toString.call(value);
-  }
-
-  // Make dates with properties first say the date
-  if (isDate(value)) {
-    base = ' ' + formatDate(value);
-  }
-
-  // Make error with message first say the error
-  if (isError(value)) {
-    base = ' ' + formatError(value);
-  }
-
-  // Make boxed primitive Strings look like such
-  if (isString(raw)) {
-    formatted = formatPrimitiveNoColor(ctx, raw);
-    base = ' ' + '[String: ' + formatted + ']';
-  }
-
-  // Make boxed primitive Numbers look like such
-  if (isNumber(raw)) {
-    formatted = formatPrimitiveNoColor(ctx, raw);
-    base = ' ' + '[Number: ' + formatted + ']';
-  }
-
-  // Make boxed primitive Booleans look like such
-  if (isBoolean(raw)) {
-    formatted = formatPrimitiveNoColor(ctx, raw);
-    base = ' ' + '[Boolean: ' + formatted + ']';
-  }
-
-  if (keys.length === 0 && (!array || value.length === 0)) {
-    return braces[0] + base + braces[1];
-  }
-
-  if (recurseTimes < 0) {
-    if (isRegExp(value)) {
-      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-    } else {
-      return ctx.stylize('[Object]', 'special');
-    }
-  }
-
-  ctx.seen.push(value);
-
-  var output;
-  if (array) {
-    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-  } else {
-    output = keys.map(function(key) {
-      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-    });
-  }
-
-  ctx.seen.pop();
-
-  return reduceToSingleString(output, base, braces);
-}
-
-
-function formatPrimitive(ctx, value) {
-  if (isUndefined(value))
-    return ctx.stylize('undefined', 'undefined');
-  if (isString(value)) {
-    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-      .replace(/'/g, "\\'")
-      .replace(/\\"/g, '"') + '\'';
-    return ctx.stylize(simple, 'string');
-  }
-  if (isNumber(value)) {
-    // Format -0 as '-0'. Strict equality won't distinguish 0 from -0,
-    // so instead we use the fact that 1 / -0 < 0 whereas 1 / 0 > 0 .
-    if (value === 0 && 1 / value < 0)
-      return ctx.stylize('-0', 'number');
-    return ctx.stylize('' + value, 'number');
-  }
-  if (isBoolean(value))
-    return ctx.stylize('' + value, 'boolean');
-  // For some reason typeof null is "object", so special case here.
-  if (isNull(value))
-    return ctx.stylize('null', 'null');
-}
-
-
-function formatPrimitiveNoColor(ctx, value) {
-  var stylize = ctx.stylize;
-  ctx.stylize = stylizeNoColor;
-  var str = formatPrimitive(ctx, value);
-  ctx.stylize = stylize;
-  return str;
-}
-
-
-function formatError(value) {
-  return '[' + Error.prototype.toString.call(value) + ']';
-}
-
-
-function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-  var output = [];
-  for (var i = 0, l = value.length; i < l; ++i) {
-    if (hasOwnProperty(value, String(i))) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-        String(i), true));
-    } else {
-      output.push('');
-    }
-  }
-  keys.forEach(function(key) {
-    if (!key.match(/^\d+$/)) {
-      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
-        key, true));
-    }
-  });
-  return output;
-}
-
-function pad2Zero(n) {
-  return n < 10 ? '0'+n: ''+n;
-}
-
-function pad3Zero(n) {
-  return n < 100 ? '0' + pad2Zero(n): '' + n;
-}
-
-function formatDate( value) {
-  var to = value.getTimezoneOffset();
-  var absTo = Math.abs(to);
-  var hours = Math.floor(absTo / 60);
-  var minutes = absTo - hours * 60;
-  var tzFormat = 'GMT' + (to < 0 ? '+': '-') + pad2Zero(hours) + pad2Zero(minutes);
-  return value.toLocaleDateString() + ' ' + value.toLocaleTimeString() + '.' + pad3Zero(value.getMilliseconds()) + ' ' + tzFormat;
-}
-
-
-function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-  var name, str, desc;
-  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
-  if (desc.get) {
-    if (desc.set) {
-      str = ctx.stylize('[Getter/Setter]', 'special');
-    } else {
-      str = ctx.stylize('[Getter]', 'special');
-    }
-  } else {
-    if (desc.set) {
-      str = ctx.stylize('[Setter]', 'special');
-    }
-  }
-  if (!hasOwnProperty(visibleKeys, key)) {
-    name = '[' + key + ']';
-  }
-  if (!str) {
-    if (ctx.seen.indexOf(desc.value) < 0) {
-      if (isNull(recurseTimes)) {
-        str = formatValue(ctx, desc.value, null);
-      } else {
-        str = formatValue(ctx, desc.value, recurseTimes - 1);
-      }
-      if (str.indexOf('\n') > -1) {
-        if (array) {
-          str = str.split('\n').map(function(line) {
-            return ' ' + line;
-          }).join('\n').substr(2);
-        } else {
-          str = '\n' + str.split('\n').map(function(line) {
-            return ' ' + line;
-          }).join('\n');
-        }
-      }
-    } else {
-      str = ctx.stylize('[Circular]', 'special');
-    }
-  }
-  if (isUndefined(name)) {
-    if (array && key.match(/^\d+$/)) {
-      return str;
-    }
-    name = JSON.stringify('' + key);
-    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-      name = name.substr(1, name.length - 2);
-      name = ctx.stylize(name, 'name');
-    } else {
-      name = name.replace(/'/g, "\\'")
-        .replace(/\\"/g, '"')
-        .replace(/(^"|"$)/g, "'")
-        .replace(/\\\\/g, '\\');
-      name = ctx.stylize(name, 'string');
-    }
-  }
-
-  return name + ': ' + str;
-}
-
-
-function reduceToSingleString(output, base, braces) {
-  var length = output.reduce(function(prev, cur) {
-    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-  }, 0);
-
-  if (length > 60) {
-    return braces[0] +
-      (base === '' ? '' : base + '\n ') +
-      ' ' +
-      output.join(',\n ') +
-      ' ' +
-      braces[1];
-  }
-
-  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-}
-
-exports._extend = function _extend(origin, add) {
-  // Don't do anything if add isn't an object
-  if (!add || !isObject(add)) return origin;
-
-  var keys = Object.keys(add);
-  var i = keys.length;
-  while (i--) {
-    origin[keys[i]] = add[keys[i]];
-  }
-  return origin;
-};
-
-function hasOwnProperty(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-},{"./util":17}],17:[function(require,module,exports){
+},{"../util":16}],16:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1753,19 +1294,12 @@ exports.functionName = function(f) {
   return name;
 };
 
-exports.formatProp = function(name) {
-  name = JSON.stringify('' + name);
-  if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-    name = name.substr(1, name.length - 2);
-  } else {
-    name = name.replace(/'/g, "\\'")
-      .replace(/\\"/g, '"')
-      .replace(/(^"|"$)/g, "'")
-      .replace(/\\\\/g, '\\');
-  }
-  return name;
-}
-},{"assert":19}],18:[function(require,module,exports){
+var formatPropertyName = require('should-format').formatPropertyName;
+
+exports.formatProp = function(value) {
+  return formatPropertyName(String(value));
+};
+},{"assert":18,"should-format":24}],17:[function(require,module,exports){
 var WARN = '\u001b[33mWARN\u001b[39m';
 
 function generateDeprecated(lines) {
@@ -1793,7 +1327,7 @@ exports.nonStrictEql = generateDeprecated([
   'Strict version of eql return different result for this comparison',
   'it means that e.g { a: 10 } is equal to { a: "10" }, make sure it is expected'
 ]);
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -2155,7 +1689,7 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":22}],20:[function(require,module,exports){
+},{"util/":21}],19:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -2180,14 +1714,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],22:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2775,141 +2309,10 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":21,"inherits":20}],23:[function(require,module,exports){
-var toString = Object.prototype.toString;
+},{"./support/isBuffer":20,"inherits":19}],22:[function(require,module,exports){
+var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-var isPromiseExist = typeof Promise !== 'undefined';
-var isBufferExist = typeof Buffer !== 'undefined';
-
-var NUMBER = 'number';
-var UNDEFINED = 'undefined';
-var STRING = 'string';
-var BOOLEAN = 'boolean';
-var OBJECT = 'object';
-var FUNCTION = 'function';
-var NULL = 'null';
-var ARRAY = 'array';
-var REGEXP = 'regexp';
-var DATE = 'date';
-var ERROR = 'error';
-var ARGUMENTS = 'arguments';
-var SYMBOL = 'symbol';
-var ARRAY_BUFFER = 'array-buffer';
-var TYPED_ARRAY = 'typed-array';
-var DATA_VIEW = 'data-view';
-var MAP = 'map';
-var SET = 'set';
-var WEAK_SET = 'weak-set';
-var WEAK_MAP = 'weak-map';
-var PROMISE = 'promise';
-
-// node buffer
-var BUFFER = 'buffer';
-
-// dom html element
-var HTML_ELEMENT = 'html-element';
-var DOCUMENT = 'document';
-var WINDOW = 'window';
-var FILE = 'file';
-var FILE_LIST = 'file-list';
-var BLOB = 'blob';
-
-function getType(instance) {
-    var type = typeof instance;
-
-    switch (type) {
-        case NUMBER:
-            return NUMBER;
-        case UNDEFINED:
-            return UNDEFINED;
-        case STRING:
-            return STRING;
-        case BOOLEAN:
-            return BOOLEAN;
-        case FUNCTION:
-            return FUNCTION;
-        case SYMBOL:
-            return SYMBOL;
-        case OBJECT:
-            if (instance === null) return NULL;
-
-            var clazz = toString.call(instance);
-
-            switch (clazz) {
-                case '[object String]':
-                    return STRING;
-                case '[object Boolean]':
-                    return BOOLEAN;
-                case '[object Number]':
-                    return NUMBER;
-                case '[object Array]':
-                    return ARRAY;
-                case '[object RegExp]':
-                    return REGEXP;
-                case '[object Error]':
-                    return ERROR;
-                case '[object Date]':
-                    return DATE;
-                case '[object Arguments]':
-                    return ARGUMENTS;
-                case '[object Math]':
-                    return OBJECT;
-                case '[object JSON]':
-                    return OBJECT;
-                case '[object ArrayBuffer]':
-                    return ARRAY_BUFFER;
-                case '[object Int8Array]':
-                    return TYPED_ARRAY;
-                case '[object Uint8Array]':
-                    return TYPED_ARRAY;
-                case '[object Uint8ClampedArray]':
-                    return TYPED_ARRAY;
-                case '[object Int16Array]':
-                    return TYPED_ARRAY;
-                case '[object Uint16Array]':
-                    return TYPED_ARRAY;
-                case '[object Int32Array]':
-                    return TYPED_ARRAY;
-                case '[object Uint32Array]':
-                    return TYPED_ARRAY;
-                case '[object Float32Array]':
-                    return TYPED_ARRAY;
-                case '[object Float64Array]':
-                    return TYPED_ARRAY;
-                case '[object DataView]':
-                    return DATA_VIEW;
-                case '[object Map]':
-                    return MAP;
-                case '[object WeakMap]':
-                    return WEAK_MAP;
-                case '[object Set]':
-                    return SET;
-                case '[object WeakSet]':
-                    return WEAK_SET;
-                case '[object Promise]':
-                    return PROMISE;
-                case '[object Window]':
-                    return WINDOW;
-                case '[object HTMLDocument]':
-                    return DOCUMENT;
-                case '[object Blob]':
-                    return BLOB;
-                case '[object File]':
-                    return FILE;
-                case '[object FileList]':
-                    return FILE_LIST;
-                default:
-                    if (isPromiseExist && instance instanceof Promise) return PROMISE;
-
-                    if (isBufferExist && instance instanceof Buffer) return BUFFER;
-
-                    if (/^\[object HTML\w+Element\]$/.test(clazz)) return HTML_ELEMENT;
-
-                    if (clazz === '[object Object]') return OBJECT;
-            }
-    }
-}
 
 function eq(a, b, stackA, stackB) {
     // equal a and b exit early
@@ -2925,22 +2328,29 @@ function eq(a, b, stackA, stackB) {
     if (typeA !== typeB) return false;
 
     switch (typeA) {
-        case NUMBER:
+        case 'number':
             return (a !== a) ? b !== b
                 // but treat `+0` vs. `-0` as not equal
                 : (a === 0 ? (1 / a === 1 / b) : a === b);
 
-        case REGEXP:
+        case 'regexp':
             return String(a) === String(b);
 
-        case BOOLEAN:
-        case STRING:
+        case 'boolean':
+        case 'string':
             return a === b;
 
-        case DATE:
+        case 'date':
             return +a === +b;
 
-        case BUFFER:
+        case 'object-number':
+        case 'object-boolean':
+        case 'object-string':
+            var isValueEqual = eq(a.valueOf(), b.valueOf(), stackA, stackB);
+            if(isValueEqual) break;
+            return false;
+
+        case 'buffer':
             if(a.length !== b.length) return false;
 
             var l = a.length;
@@ -2948,13 +2358,13 @@ function eq(a, b, stackA, stackB) {
 
             return true;
 
-        case ERROR:
+        case 'error':
             //only check not enumerable properties, and check arrays later
             if(a.name !== b.name || a.message !== b.message) return false;
 
             break;
 
-        case ARRAY_BUFFER:
+        case 'array-buffer':
             if(a.byteLength !== b.byteLength) return false;
 
             if(typeof Int8Array !== 'undefined') {
@@ -2990,11 +2400,11 @@ function eq(a, b, stackA, stackB) {
         result = true,
         key;
 
-    if (typeA === ARRAY || typeA === ARGUMENTS) {
+    if (typeA === 'array' || typeA === 'arguments') {
         if (a.length !== b.length) return false;
     }
 
-    if (typeB === FUNCTION) {
+    if (typeB === 'function') {
         if (a.toString() !== b.toString()) return false;
     }
 
@@ -3018,7 +2428,7 @@ function eq(a, b, stackA, stackB) {
     stackA.pop();
     stackB.pop();
 
-    if(typeB === FUNCTION) {
+    if(typeB === 'function') {
         result = result && eq(a.prototype, b.prototype);
     }
 
@@ -3028,5 +2438,406 @@ function eq(a, b, stackA, stackB) {
 
 module.exports = eq;
 
-},{}]},{},[1])(1)
+},{"should-type":23}],23:[function(require,module,exports){
+var toString = Object.prototype.toString;
+
+var isPromiseExist = typeof Promise !== 'undefined';
+var isBufferExist = typeof Buffer !== 'undefined';
+
+var NUMBER = 'number';//
+var UNDEFINED = 'undefined';//
+var STRING = 'string';//
+var BOOLEAN = 'boolean';//
+var OBJECT = 'object';
+var FUNCTION = 'function';//
+var NULL = 'null';//
+var ARRAY = 'array';
+var REGEXP = 'regexp';//
+var DATE = 'date';//
+var ERROR = 'error';//
+var ARGUMENTS = 'arguments';//
+var SYMBOL = 'symbol';
+var ARRAY_BUFFER = 'array-buffer';//
+var TYPED_ARRAY = 'typed-array';//
+var DATA_VIEW = 'data-view';
+var MAP = 'map';
+var SET = 'set';
+var WEAK_SET = 'weak-set';
+var WEAK_MAP = 'weak-map';
+var PROMISE = 'promise';//
+
+var WRAPPER_NUMBER = 'object-number';//
+var WRAPPER_BOOLEAN = 'object-boolean';//
+var WRAPPER_STRING = 'object-string';//
+
+// node buffer
+var BUFFER = 'buffer';//
+
+// dom html element
+var HTML_ELEMENT = 'html-element';//
+var HTML_ELEMENT_TEXT = 'html-element-text';//
+var DOCUMENT = 'document';//
+var WINDOW = 'window';//
+var FILE = 'file';
+var FILE_LIST = 'file-list';
+var BLOB = 'blob';
+
+var XHR = 'xhr';//
+
+module.exports = function getType(instance) {
+  var type = typeof instance;
+
+  switch (type) {
+    case NUMBER:
+      return NUMBER;
+    case UNDEFINED:
+      return UNDEFINED;
+    case STRING:
+      return STRING;
+    case BOOLEAN:
+      return BOOLEAN;
+    case FUNCTION:
+      return FUNCTION;
+    case SYMBOL:
+      return SYMBOL;
+    case OBJECT:
+      if (instance === null) return NULL;
+
+      var clazz = toString.call(instance);
+
+      switch (clazz) {
+        case '[object String]':
+          return WRAPPER_STRING;
+        case '[object Boolean]':
+          return WRAPPER_BOOLEAN;
+        case '[object Number]':
+          return WRAPPER_NUMBER;
+        case '[object Array]':
+          return ARRAY;
+        case '[object RegExp]':
+          return REGEXP;
+        case '[object Error]':
+          return ERROR;
+        case '[object Date]':
+          return DATE;
+        case '[object Arguments]':
+          return ARGUMENTS;
+        case '[object Math]':
+          return OBJECT;
+        case '[object JSON]':
+          return OBJECT;
+        case '[object ArrayBuffer]':
+          return ARRAY_BUFFER;
+        case '[object Int8Array]':
+          return TYPED_ARRAY;
+        case '[object Uint8Array]':
+          return TYPED_ARRAY;
+        case '[object Uint8ClampedArray]':
+          return TYPED_ARRAY;
+        case '[object Int16Array]':
+          return TYPED_ARRAY;
+        case '[object Uint16Array]':
+          return TYPED_ARRAY;
+        case '[object Int32Array]':
+          return TYPED_ARRAY;
+        case '[object Uint32Array]':
+          return TYPED_ARRAY;
+        case '[object Float32Array]':
+          return TYPED_ARRAY;
+        case '[object Float64Array]':
+          return TYPED_ARRAY;
+        case '[object DataView]':
+          return DATA_VIEW;
+        case '[object Map]':
+          return MAP;
+        case '[object WeakMap]':
+          return WEAK_MAP;
+        case '[object Set]':
+          return SET;
+        case '[object WeakSet]':
+          return WEAK_SET;
+        case '[object Promise]':
+          return PROMISE;
+        case '[object Window]':
+          return WINDOW;
+        case '[object HTMLDocument]':
+          return DOCUMENT;
+        case '[object Blob]':
+          return BLOB;
+        case '[object File]':
+          return FILE;
+        case '[object FileList]':
+          return FILE_LIST;
+        case '[object XMLHttpRequest]':
+          return XHR;
+        case '[object Text]':
+          return HTML_ELEMENT_TEXT;
+        default:
+          if (isPromiseExist && instance instanceof Promise) return PROMISE;
+
+          if (isBufferExist && instance instanceof Buffer) return BUFFER;
+
+          if (/^\[object HTML\w+Element\]$/.test(clazz)) return HTML_ELEMENT;
+
+          if (clazz === '[object Object]') return OBJECT;
+      }
+  }
+};
+
+},{}],24:[function(require,module,exports){
+var getType = require('should-type');
+
+function genKeysFunc(f) {
+  return function(value) {
+    var k = f(value);
+    k.sort();
+    return k;
+  }
+}
+
+//XXX add ability to only inspect some paths
+var format = function(value, opts) {
+  opts = opts || {};
+
+  if(!('seen' in opts)) opts.seen = [];
+  opts.keys = genKeysFunc('keys' in opts && opts.keys === false ? Object.getOwnPropertyNames : Object.keys);
+
+  if(!('maxLineLength' in opts)) opts.maxLineLength = 60;
+  if(!('propSep' in opts)) opts.propSep = ',';
+
+  var type = getType(value);
+  return (format.formats[type] || format.formats['object'])(value, opts);
+};
+
+module.exports = format;
+
+format.formats = {};
+
+function add(t, f) {
+  format.formats[t] = f;
+}
+
+[ 'undefined',  'boolean',  'null'].forEach(function(name) {
+  add(name, String);
+});
+
+['number', 'boolean'].forEach(function(name) {
+  var capName = name.substring(0, 1).toUpperCase() + name.substring(1);
+  add('object-' + name, formatObjectWithPrefix(function(value) {
+    return '[' + capName + ': ' + format(value.valueOf()) + ']';
+  }));
+});
+
+add('object-string', function(value, opts) {
+  var realValue = value.valueOf();
+  var prefix = '[String: ' + format(realValue) + ']';
+  var props = opts.keys(value);
+  props = props.filter(function(p) {
+    return !(p.match(/\d+/) && parseInt(p, 10) < realValue.length);
+  });
+
+  if(props.length == 0) return prefix;
+  else return formatObject(value, opts, prefix, props);
+});
+
+add('regexp', formatObjectWithPrefix(String));
+
+add('number', function(value) {
+  if(value === 0 && 1 / value < 0) return '-0';
+  return String(value);
+});
+
+add('string', function(value) {
+  return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+      .replace(/'/g, "\\'")
+      .replace(/\\"/g, '"') + '\'';
+});
+
+add('object', formatObject);
+
+add('array', function(value, opts) {
+  var keys = opts.keys(value);
+  var len = 0;
+
+  opts.seen.push(value);
+
+  var props = keys.map(function(prop) {
+    var desc;
+    try {
+      desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
+    } catch(e) {
+      desc = {value: e};
+    }
+
+    var f;
+    if(prop.match(/\d+/)) {
+      f = format(desc.value, opts);
+    } else {
+      f = formatProperty(desc.value, opts, prop)
+    }
+    len += f.length;
+    return f;
+  });
+
+  opts.seen.pop();
+
+  if(props.length === 0) return '[]';
+
+  if(len <= opts.maxLineLength) {
+    return '[ ' + props.join(opts.propSep + ' ') + ' ]';
+  } else {
+    return '[' + '\n' + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + ']';
+  }
+});
+
+function addSpaces(v) {
+  return '  ' + v;
+}
+
+function formatObject(value, opts, prefix, props) {
+  props = props || opts.keys(value);
+
+  var len = 0;
+
+  opts.seen.push(value);
+  props = props.map(function(prop) {
+    var f = formatProperty(value, opts, prop);
+    len += f.length;
+    return f;
+  });
+  opts.seen.pop();
+
+  if(props.length === 0) return '{}';
+
+  if(len <= opts.maxLineLength) {
+    return '{ ' + (prefix ? prefix + ' ' : '') + props.join(opts.propSep + ' ') + ' }';
+  } else {
+    return '{' + '\n' + (prefix ? prefix + '\n' : '') + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + '}';
+  }
+}
+
+format.formatPropertyName = function(name, opts) {
+  return name.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/) ? name : format(name, opts)
+};
+
+
+function formatProperty(value, opts, prop) {
+  var desc;
+  try {
+    desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
+  } catch(e) {
+    desc = {value: e};
+  }
+
+  var propName = format.formatPropertyName(prop, opts);
+
+  var propValue = desc.get && desc.set ?
+    '[Getter/Setter]' : desc.get ?
+    '[Getter]' : desc.set ?
+    '[Setter]' : opts.seen.indexOf(desc.value) >= 0 ?
+    '[Circular]' :
+    format(desc.value, opts);
+
+  return propName + ': ' + propValue;
+}
+
+
+function pad2Zero(n) {
+  return n < 10 ? '0' + n : '' + n;
+}
+
+function pad3Zero(n) {
+  return n < 100 ? '0' + pad2Zero(n) : '' + n;
+}
+
+function formatDate(value) {
+  var to = value.getTimezoneOffset();
+  var absTo = Math.abs(to);
+  var hours = Math.floor(absTo / 60);
+  var minutes = absTo - hours * 60;
+  var tzFormat = 'GMT' + (to < 0 ? '+' : '-') + pad2Zero(hours) + pad2Zero(minutes);
+  return value.toLocaleDateString() + ' ' + value.toLocaleTimeString() + '.' + pad3Zero(value.getMilliseconds()) + ' ' + tzFormat;
+}
+
+function formatObjectWithPrefix(f) {
+  return function(value, opts) {
+    var prefix = f(value);
+    var props = opts.keys(value);
+    if(props.length == 0) return prefix;
+    else return formatObject(value, opts, prefix, props);
+  }
+}
+
+add('date', formatObjectWithPrefix(formatDate));
+
+var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
+
+function functionName(f) {
+  if(f.name) {
+    return f.name;
+  }
+  var name = f.toString().match(functionNameRE)[1];
+  return name;
+}
+
+add('function', formatObjectWithPrefix(function(value) {
+  var name = functionName(value);
+  return '[Function' + (name ? ': ' + name : '') + ']';
+}));
+
+add('error', formatObjectWithPrefix(function(value) {
+  var name = value.name;
+  var message = value.message;
+  return '[' + name + (message ? ': ' + message : '') + ']';
+}));
+
+function generateFunctionForIndexedArray(lengthProp, name) {
+  return function(value) {
+    var str = '';
+    var max = 50;
+    var len = value[lengthProp];
+    if(len > 0) {
+      for(var i = 0; i < max && i < len; i++) {
+        var b = value[i] || 0;
+        str += ' ' + pad2Zero(b.toString(16));
+      }
+      if(len > max)
+        str += ' ... ';
+    }
+    return '[' + (value.constructor.name || name) + (str ? ':' + str : '') + ']';
+  }
+}
+
+add('buffer', generateFunctionForIndexedArray('length', 'Buffer'));
+
+add('array-buffer', generateFunctionForIndexedArray('byteLength'));
+
+add('typed-array', generateFunctionForIndexedArray('byteLength'));
+
+add('promise', function(value) {
+  return '[Promise]';
+});
+
+add('xhr', function(value) {
+  return '[XMLHttpRequest]';
+});
+
+add('html-element', function(value) {
+  return value.outerHTML;
+});
+
+add('html-element-text', function(value) {
+  return value.nodeValue;
+});
+
+add('document', function(value) {
+  return value.documentElement.outerHTML;
+});
+
+add('window', function(value) {
+  return '[Window]';
+});
+},{"should-type":25}],25:[function(require,module,exports){
+module.exports=require(23)
+},{"/Users/den/Projects/shouldjs/should/should.js/node_modules/should-equal/node_modules/should-type/index.js":23}]},{},[1])(1)
 });
