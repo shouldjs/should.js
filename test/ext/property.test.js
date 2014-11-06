@@ -184,7 +184,7 @@ describe('property', function() {
 
     err(function() {
       ({ foo: 1, bar: 2 }).should.not.have.keys(['foo', 'bar']);
-    }, "expected { foo: 1, bar: 2 } not to have keys foo, bar");
+    }, "expected { bar: 2, foo: 1 } not to have keys foo, bar");
   });
 
   it('test empty', function() {

@@ -111,7 +111,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw(Error, { a: 11 });
-    }, "expected [Function] to throw exception: expected [Error] to match { a: 11 }\n    not matched properties: a (10)");
+    }, "expected [Function] to throw exception: expected { [Error] a: 10 } to match { a: 11 }\n    not matched properties: a (10)");
   });
 
   it('test .throw(properties) with matching error', function() {
@@ -121,6 +121,6 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw({ a: 11 });
-    }, "expected [Function] to throw exception: expected [Error] to match { a: 11 }\n    not matched properties: a (10)");
+    }, "expected [Function] to throw exception: expected { [Error] a: 10 } to match { a: 11 }\n    not matched properties: a (10)");
   });
 });

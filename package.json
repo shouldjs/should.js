@@ -15,26 +15,28 @@
   },
   "devDependencies": {
     "browserify": "latest",
-    "mocha-better-spec-reporter": "1.1.0",
+    "mocha-better-spec-reporter": "1.1.1",
     "gulp-mocha": "1.1.1",
     "gulp-uglify": "1.0.1",
     "gulp-util": "^2.2.14",
-    "gulp": "^3.6.2",
+    "gulp": "^3.8.10",
     "vinyl-source-stream2": "^0.1.1",
     "gulp-load-plugins": "^0.5.1",
     "gulp-rename": "^1.2.0",
-    "gulp-header": "^1.0.2",
+    "gulp-header": "^1.2.2",
     "mocha": "latest",
     "zuul": "latest"
   },
   "keywords": [
     "test",
     "bdd",
-    "assert"
+    "assert",
+    "should"
   ],
   "main": "./lib/should.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "0.0.1"
+    "should-equal": "0.0.2",
+    "should-format": "0.0.2"
   }
 }
