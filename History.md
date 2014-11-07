@@ -1,3 +1,8 @@
+4.2.1 / 2014-11-07
+==================
+
+ * Move inspection from .formattedObj to be in .getMessage - to make inspection as late as possible.
+
 4.2.0 / 2014-11-06
 ==================
 

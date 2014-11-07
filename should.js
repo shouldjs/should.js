@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.2.0
+ * @version v4.2.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -87,11 +87,12 @@ should
 module.exports = require('./util').AssertionError;
 },{"./util":16}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
+var util = require('./util');
 
 function Assertion(obj, format) {
   this.obj = obj;
   this.format = format;
-};
+}
 
 /**
  Way to extend Assertion function. It uses some logic
@@ -200,12 +201,8 @@ Assertion.prototype = {
     return this.assert(false);
   },
 
-  formattedObj: function() {
-    return this.format(this.obj);
-  },
-
   getMessage: function() {
-    var actual = 'obj' in this.params ? this.params.obj : this.formattedObj();
+    var actual = 'obj' in this.params ? this.format(this.params.obj) : this.format(this.obj);
     var expected = 'expected' in this.params ? ' ' + this.format(this.params.expected) : '';
 
     return 'expected ' + actual + (this.negate ? ' not ' : ' ') + this.params.operator + (expected);
@@ -235,7 +232,7 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2}],4:[function(require,module,exports){
+},{"./assertion-error":2,"./util":16}],4:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -908,7 +905,7 @@ module.exports = function(should, Assertion) {
     var operator = (props.length === 1 ?
         'to have property ' : 'to have ' + (this.anyOne ? 'any of ' : '') + 'properties ') + props.join(', ');
 
-    this.params = {obj: this.formattedObj(), operator: operator};
+    this.params = {obj: this.obj, operator: operator};
 
     //check that all properties presented
     //or if we request one of them that at least one them presented
@@ -937,7 +934,7 @@ module.exports = function(should, Assertion) {
       operator = (props.length === 1 ?
         'to have property ' : 'to have ' + (this.anyOne ? 'any of ' : '') + 'properties ') + props.join(', ');
 
-      this.params = {obj: this.formattedObj(), operator: operator};
+      this.params = {obj: this.obj, operator: operator};
 
       //if there is no not matched values
       //or there is at least one matched
@@ -956,7 +953,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('ownProperty', function(name, description) {
     name = String(name);
     this.params = {
-      obj: this.formattedObj(),
+      obj: this.obj,
       operator: 'to have own property ' + util.formatProp(name),
       message: description
     };
@@ -1041,7 +1038,7 @@ module.exports = function(should, Assertion) {
       foundProperties.push(currentProperty);
     }
 
-    this.params = {obj: this.formattedObj(), operator: 'to have property by path ' + allProps.join(', ')};
+    this.params = {obj: this.obj, operator: 'to have property by path ' + allProps.join(', ')};
 
     this.obj = obj.obj;
   });
