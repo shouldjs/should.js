@@ -16,7 +16,7 @@ describe('eql', function() {
 
     err(function(){
       (4).should.eql(3);
-    }, 'expected 4 to equal 3 (A is not equal to B)');
+    }, 'expected 4 to equal 3');
   });
 
   it('test equal(val)', function() {
