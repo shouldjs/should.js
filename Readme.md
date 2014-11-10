@@ -654,7 +654,7 @@ What assertion function should do. It should check only positive case. `should` 
 `params` object can contain several fields:
 
 - `operator` - it is string which describe your assertion
-- `obj` it is string representation of this.obj if you need to define you own
+- `obj` it is actual value, you can assume it is your own this.obj if you need to define you own
 - `expected` it is any value that expected to be matched this.obj
 
 You can assume its usage in generating AssertionError message like: expected `obj`? || this.obj not? `operator` `expected`?
