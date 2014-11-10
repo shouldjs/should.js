@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.2.1
+ * @version v4.3.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -82,10 +82,10 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"./warn":17,"should-format":24}],2:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./ext/assert":4,"./ext/bool":5,"./ext/chain":6,"./ext/contain":7,"./ext/eql":8,"./ext/error":9,"./ext/match":10,"./ext/number":11,"./ext/property":12,"./ext/string":13,"./ext/type":14,"./util":15,"./warn":16,"should-format":23}],2:[function(require,module,exports){
 // copy that inside
 module.exports = require('./util').AssertionError;
-},{"./util":16}],3:[function(require,module,exports){
+},{"./util":15}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
 var util = require('./util');
 
@@ -204,8 +204,9 @@ Assertion.prototype = {
   getMessage: function() {
     var actual = 'obj' in this.params ? this.format(this.params.obj) : this.format(this.obj);
     var expected = 'expected' in this.params ? ' ' + this.format(this.params.expected) : '';
+    var details = 'details' in this.params && this.params.details ? ' (' + this.params.details + ')': '';
 
-    return 'expected ' + actual + (this.negate ? ' not ' : ' ') + this.params.operator + (expected);
+    return 'expected ' + actual + (this.negate ? ' not ' : ' ') + this.params.operator + expected + details;
   },
 
 
@@ -232,111 +233,7 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":16}],4:[function(require,module,exports){
-/*!
- * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
- * MIT Licensed
- */
-
-// Taken from node's assert module, because it sucks
-// and exposes next to nothing useful.
-var util = require('./util');
-
-module.exports = _deepEqual;
-
-var pSlice = Array.prototype.slice;
-
-function _deepEqual(actual, expected) {
-  // 7.1. All identical values are equivalent, as determined by ===.
-  if (actual === expected) {
-    return true;
-
-  } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
-    if (actual.length != expected.length) return false;
-
-    for (var i = 0; i < actual.length; i++) {
-      if (actual[i] !== expected[i]) return false;
-    }
-
-    return true;
-
-  // 7.2. If the expected value is a Date object, the actual value is
-  // equivalent if it is also a Date object that refers to the same time.
-  } else if (util.isDate(actual) && util.isDate(expected)) {
-    return actual.getTime() === expected.getTime();
-
-  // 7.3 If the expected value is a RegExp object, the actual value is
-  // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
-    return actual.source === expected.source &&
-           actual.global === expected.global &&
-           actual.multiline === expected.multiline &&
-           actual.lastIndex === expected.lastIndex &&
-           actual.ignoreCase === expected.ignoreCase;
-
-  // 7.4. Other pairs that do not both pass typeof value == 'object',
-  // equivalence is determined by ==.
-  } else if (!util.isObject(actual) && !util.isObject(expected)) {
-    return actual == expected;
-
-  // 7.5 For all other Object pairs, including Array objects, equivalence is
-  // determined by having the same number of owned properties (as verified
-  // with Object.prototype.hasOwnProperty.call), the same set of keys
-  // (although not necessarily the same order), equivalent values for every
-  // corresponding key, and an identical 'prototype' property. Note: this
-  // accounts for both named and indexed properties on Arrays.
-  } else {
-    return objEquiv(actual, expected);
-  }
-}
-
-
-function objEquiv (a, b) {
-  if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
-    return false;
-  // an identical 'prototype' property.
-  if (a.prototype !== b.prototype) return false;
-  //~~~I've managed to break Object.keys through screwy arguments passing.
-  //   Converting to array solves the problem.
-  if (util.isArguments(a)) {
-    if (!util.isArguments(b)) {
-      return false;
-    }
-    a = pSlice.call(a);
-    b = pSlice.call(b);
-    return _deepEqual(a, b);
-  }
-  try{
-    var ka = Object.keys(a),
-      kb = Object.keys(b),
-      key, i;
-  } catch (e) {//happens when one is a string literal and the other isn't
-    return false;
-  }
-  // having the same number of owned properties (keys incorporates
-  // hasOwnProperty)
-  if (ka.length != kb.length)
-    return false;
-  //the same set of keys (although not necessarily the same order),
-  ka.sort();
-  kb.sort();
-  //~~~cheap key test
-  for (i = ka.length - 1; i >= 0; i--) {
-    if (ka[i] != kb[i])
-      return false;
-  }
-  //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
-  for (i = ka.length - 1; i >= 0; i--) {
-    key = ka[i];
-    if (!_deepEqual(a[key], b[key])) return false;
-  }
-  return true;
-}
-
-},{"./util":16}],5:[function(require,module,exports){
+},{"./assertion-error":2,"./util":15}],4:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -393,7 +290,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../util":16,"assert":18}],6:[function(require,module,exports){
+},{"../util":15,"assert":17}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -419,7 +316,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj);
   }, true);
 };
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -439,7 +336,7 @@ module.exports = function(should, Assertion) {
 
   ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
 };
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -447,7 +344,7 @@ module.exports = function(should, Assertion) {
  */
 
 var util = require('../util'),
-  eql = require('../eql');
+  eql = require('should-equal');
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -457,7 +354,7 @@ module.exports = function(should, Assertion) {
     var obj = this.obj;
     if(util.isArray(obj)) {
       this.assert(obj.some(function(item) {
-        return eql(item, other);
+        return eql(item, other).result;
       }));
     } else if(util.isString(obj)) {
       // expect obj to be string
@@ -556,45 +453,40 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../eql":4,"../util":16}],9:[function(require,module,exports){
+},{"../util":15,"should-equal":21}],8:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
-var eql = require('../eql');
-var strictEql = require('should-equal');
+var eql = require('should-equal');
 var warn = require('../warn');
+
+var util = require('../util');
 
 module.exports = function(should, Assertion) {
   Assertion.add('eql', function(val, description) {
-    this.params = { operator: 'to equal', expected: val, showDiff: true, message: description };
+    this.params = {operator: 'to equal', expected: val, showDiff: true, message: description};
 
-    var nonStrictResult = eql(val, this.obj);
+    var strictResult = eql(this.obj, val);
 
-    warn.nonStrictEql(should.warn && nonStrictResult !== strictEql(val, this.obj));
+    if(!strictResult.result) {
+      this.params.details = util.formatEqlResult(strictResult, this.obj, val, should.format);
+    }
 
-    this.assert(nonStrictResult);
+    this.assert(strictResult.result);
   });
 
   Assertion.add('equal', function(val, description) {
-    this.params = { operator: 'to be', expected: val, showDiff: true, message: description };
+    this.params = {operator: 'to be', expected: val, showDiff: true, message: description};
 
     this.assert(val === this.obj);
   });
 
-  /*
-  Assertion.add('strictEql', function(val, description) {
-    this.params = { operator: 'to equal', expected: val, showDiff: true, message: description };
-
-    this.assert(strictEql(val, this.obj));
-  });
-  */
-
   Assertion.alias('equal', 'exactly');
 };
-},{"../eql":4,"../warn":17,"should-equal":22}],10:[function(require,module,exports){
+},{"../util":15,"../warn":16,"should-equal":21}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -672,7 +564,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{"../util":16}],11:[function(require,module,exports){
+},{"../util":15}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -680,7 +572,7 @@ module.exports = function(should, Assertion) {
  */
 
 var util = require('../util'),
-  eql = require('../eql');
+  eql = require('should-equal');
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -688,7 +580,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('match', function(other, description) {
     this.params = {operator: 'to match ' + i(other), message: description};
 
-    if(!eql(this.obj, other)) {
+    if(!eql(this.obj, other).result) {
       if(util.isRegExp(other)) { // something - regex
 
         if(util.isString(this.obj)) {
@@ -767,7 +659,7 @@ module.exports = function(should, Assertion) {
       };
     else if(!util.isFunction(other))
       f = function(it) {
-        return eql(it, other);
+        return eql(it, other).result;
       };
 
     util.forOwn(this.obj, function(value, key) {
@@ -780,7 +672,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../eql":4,"../util":16}],12:[function(require,module,exports){
+},{"../util":15,"should-equal":21}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -831,7 +723,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -839,7 +731,7 @@ module.exports = function(should, Assertion) {
  */
 
 var util = require('../util'),
-  eql = require('../eql');
+  eql = require('should-equal');
 
 var aSlice = Array.prototype.slice;
 
@@ -857,7 +749,7 @@ module.exports = function(should, Assertion) {
 
     if(arguments.length > 1) {
       this.params.operator += " equal to " + i(val);
-      this.assert(eql(val, this.obj[name]));
+      this.assert(eql(val, this.obj[name]).result);
     }
   });
 
@@ -920,7 +812,7 @@ module.exports = function(should, Assertion) {
       // now check values, as there we have all properties
       valueCheckNames.forEach(function(name) {
         var value = values[name];
-        if(!eql(obj[name], value)) {
+        if(!eql(obj[name], value).result) {
           wrongValues.push(util.formatProp(name) + ' of ' + i(value) + ' (got ' + i(obj[name]) + ')');
         } else {
           props.push(util.formatProp(name) + ' of ' + i(value));
@@ -1044,7 +936,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../eql":4,"../util":16}],14:[function(require,module,exports){
+},{"../util":15,"should-equal":21}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1064,7 +956,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1145,7 +1037,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('instanceof', 'instanceOf');
 };
 
-},{"../util":16}],16:[function(require,module,exports){
+},{"../util":15}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1159,7 +1051,7 @@ module.exports = function(should, Assertion) {
  * @api private
  */
 exports.isWrapperType = function(obj) {
-    return obj instanceof Number || obj instanceof String || obj instanceof Boolean;
+  return obj instanceof Number || obj instanceof String || obj instanceof Boolean;
 };
 
 /**
@@ -1177,9 +1069,9 @@ exports.isWrapperType = function(obj) {
  * @api private
  */
 
-exports.merge = function(a, b){
-  if (a && b) {
-    for (var key in b) {
+exports.merge = function(a, b) {
+  if(a && b) {
+    for(var key in b) {
       a[key] = b[key];
     }
   }
@@ -1296,7 +1188,13 @@ var formatPropertyName = require('should-format').formatPropertyName;
 exports.formatProp = function(value) {
   return formatPropertyName(String(value));
 };
-},{"assert":18,"should-format":24}],17:[function(require,module,exports){
+
+exports.formatEqlResult = function(r, a, b, format) {
+  return (r.path.length > 0 ? 'at ' + r.path.map(exports.formatProp).join(' -> ') : '') +
+    (r.a === a ? '' : ', A has ' + format(r.a)) +
+    (r.b === b ? '' : ' and B has ' + format(r.b));
+};
+},{"assert":17,"should-format":23}],16:[function(require,module,exports){
 var WARN = '\u001b[33mWARN\u001b[39m';
 
 function generateDeprecated(lines) {
@@ -1320,11 +1218,7 @@ exports.staticShouldUnWrap = generateDeprecated([
   'but that will be changed in future versions, make sure you know what are you doing'
 ]);
 
-exports.nonStrictEql = generateDeprecated([
-  'Strict version of eql return different result for this comparison',
-  'it means that e.g { a: 10 } is equal to { a: "10" }, make sure it is expected'
-]);
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -1686,7 +1580,7 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":21}],19:[function(require,module,exports){
+},{"util/":20}],18:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1711,14 +1605,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2306,136 +2200,175 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":20,"inherits":19}],22:[function(require,module,exports){
+},{"./support/isBuffer":19,"inherits":18}],21:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
+function makeResult(r, path, reason, a, b) {
+  var o = {result: r};
+  if(!r) {
+    o.path = path;
+    o.reason = reason;
+    o.a = a;
+    o.b = b;
+  }
+  return o;
+}
 
-function eq(a, b, stackA, stackB) {
-    // equal a and b exit early
-    if (a === b) {
-        // check for +0 !== -0;
-        return a !== 0 || (1 / a == 1 / b);
+var EQUALS = makeResult(true);
+
+function format(msg) {
+  var args = arguments;
+  for(var i = 1, l = args.length; i < l; i++) {
+    msg = msg.replace(/%s/, args[i]);
+  }
+  return msg;
+}
+
+var REASON = {
+  PLUS_0_AND_MINUS_0: '+0 is not equal to -0',
+  DIFFERENT_TYPES: 'A has type %s and B has type %s',
+  NAN_NUMBER: 'NaN is not equal to any number',
+  EQUALITY: 'A is not equal to B',
+  WRAPPED_VALUE: 'A wrapped value is not equal to B wrapped value',
+  FUNCTION_SOURCES: 'function A is not equal to B by source code value (via .toString call)',
+  MISSING_KEY: '%s does not have key %s',
+  CIRCULAR_VALUES: 'A has circular reference that was visited not in the same time as B'
+};
+
+var LENGTH = ['length'];
+var NAME = ['name'];
+var MESSAGE = ['message'];
+var BYTE_LENGTH = ['byteLength'];
+var PROTOTYPE = ['prototype'];
+
+function eq(a, b, stackA, stackB, path) {
+  path = path || [];
+  // equal a and b exit early
+  if(a === b) {
+    // check for +0 !== -0;
+    return makeResult(a !== 0 || (1 / a == 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b);
+  }
+
+  var l;
+
+  var typeA = getType(a),
+    typeB = getType(b);
+
+  // if objects has different types they are not equals
+  if(typeA !== typeB) return makeResult(false, path, format(REASON.DIFFERENT_TYPES, typeA, typeB), a, b);
+
+  switch(typeA) {
+    case 'number':
+      return (a !== a) ? makeResult(b !== b, path, REASON.NAN_NUMBER, a, b)
+        // but treat `+0` vs. `-0` as not equal
+        : (a === 0 ? makeResult((1 / a === 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b) : makeResult(a === b, path, REASON.EQUALITY, a, b));
+
+    case 'regexp':
+      return makeResult(String(a) === String(b), path, REASON.EQUALITY, a, b);
+
+    case 'boolean':
+    case 'string':
+      return makeResult(a === b, path, REASON.EQUALITY, a, b);
+
+    case 'date':
+      return makeResult(+a === +b, path, REASON.EQUALITY, a, b);
+
+    case 'object-number':
+    case 'object-boolean':
+    case 'object-string':
+      var isValueEqual = a.valueOf() === b.valueOf();
+      if(isValueEqual) break;
+      return makeResult(false, path, REASON.WRAPPED_VALUE, a.valueOf(), b.valueOf());
+
+    case 'buffer':
+      if(a.length !== b.length) return makeResult(false, path.concat(LENGTH), REASON.EQUALITY, a.length, b.length);
+
+      l = a.length;
+      while(l--) if(a[l] !== b[l]) return makeResult(false, path.concat([l]), REASON.EQUALITY, a[l], b[l]);
+
+      return EQUALS;
+
+    case 'error':
+      //only check not enumerable properties, and check arrays later
+      if(a.name !== b.name) return makeResult(false, path.concat(NAME), REASON.EQUALITY, a.name, b.name);
+      if(a.message !== b.message) return makeResult(false, path.concat(MESSAGE), REASON.EQUALITY, a.message, b.message);
+
+      break;
+
+    //XXX check more in browsers
+    case 'array-buffer':
+      if(a.byteLength !== b.byteLength) return makeResult(false, path.concat(BYTE_LENGTH), REASON.EQUALITY, a.byteLength, b.byteLength);
+
+      l = a.byteLength;
+      while(l--) if(a[l] !== b[l]) return makeResult(false, path.concat([l]), REASON.EQUALITY, a[l], b[l]);
+
+      return EQUALS;
+
+  }
+
+  // compare deep objects and arrays
+  // stacks contain references only
+  stackA || (stackA = []);
+  stackB || (stackB = []);
+
+  l = stackA.length;
+  while(l--) {
+    if(stackA[l] == a) {
+      return makeResult(stackB[l] == b, path, REASON.CIRCULAR_VALUES, a, b);
     }
+  }
 
-    var typeA = getType(a),
-        typeB = getType(b);
+  // add `a` and `b` to the stack of traversed objects
+  stackA.push(a);
+  stackB.push(b);
 
-    // if objects has different types they are not equals
-    if (typeA !== typeB) return false;
+  var hasProperty,
+    keysComparison,
+    key;
 
-    switch (typeA) {
-        case 'number':
-            return (a !== a) ? b !== b
-                // but treat `+0` vs. `-0` as not equal
-                : (a === 0 ? (1 / a === 1 / b) : a === b);
+  if(typeA === 'array' || typeA === 'arguments') {
+    if(a.length !== b.length) return makeResult(false, path.concat(LENGTH), REASON.EQUALITY, a.length, b.length);
+  }
 
-        case 'regexp':
-            return String(a) === String(b);
+  if(typeB === 'function') {
+    var fA = a.toString(), fB = b.toString();
+    if(fA !== fB) return makeResult(false, path, REASON.FUNCTION_SOURCES, fA, fB);
+  }
 
-        case 'boolean':
-        case 'string':
-            return a === b;
+  for(key in b) {
+    if(hasOwnProperty.call(b, key)) {
+      hasProperty = hasOwnProperty.call(a, key);
+      if(!hasProperty) return makeResult(false, path, format(REASON.MISSING_KEY, 'A', key), a, b);
 
-        case 'date':
-            return +a === +b;
-
-        case 'object-number':
-        case 'object-boolean':
-        case 'object-string':
-            var isValueEqual = eq(a.valueOf(), b.valueOf(), stackA, stackB);
-            if(isValueEqual) break;
-            return false;
-
-        case 'buffer':
-            if(a.length !== b.length) return false;
-
-            var l = a.length;
-            while(l--) if(a[l] !== b[l]) return false;
-
-            return true;
-
-        case 'error':
-            //only check not enumerable properties, and check arrays later
-            if(a.name !== b.name || a.message !== b.message) return false;
-
-            break;
-
-        case 'array-buffer':
-            if(a.byteLength !== b.byteLength) return false;
-
-            if(typeof Int8Array !== 'undefined') {
-                var viewA = new Int8Array(a);
-                var viewB = new Int8Array(b);
-
-                var l = a.byteLength;
-                while(l--) if(a[l] !== b[l]) return false;
-
-                return true;
-            } else {
-                return false;
-            }
-
+      keysComparison = eq(a[key], b[key], stackA, stackB, path.concat([key]));
+      if(!keysComparison.result) return keysComparison;
     }
+  }
 
-    // compare deep objects and arrays
-    stackA || (stackA = []);
-    stackB || (stackB = []);
-
-    var length = stackA.length;
-    while (length--) {
-        if (stackA[length] == a) {
-            return stackB[length] == b;
-        }
+  // ensure both objects have the same number of properties
+  for(key in a) {
+    if(hasOwnProperty.call(a, key)) {
+      hasProperty = hasOwnProperty.call(b, key);
+      if(!hasProperty) return makeResult(false, path, format(REASON.MISSING_KEY, 'B', key), a, b);
     }
+  }
 
-    // add `a` and `b` to the stack of traversed objects
-    stackA.push(a);
-    stackB.push(b);
+  stackA.pop();
+  stackB.pop();
 
-    var size = 0,
-        result = true,
-        key;
+  if(typeB === 'function') {
+    keysComparison = eq(a.prototype, b.prototype, stackA, stackB, path.concat(PROTOTYPE));
+    if(!keysComparison.result) return keysComparison;
+  }
 
-    if (typeA === 'array' || typeA === 'arguments') {
-        if (a.length !== b.length) return false;
-    }
-
-    if (typeB === 'function') {
-        if (a.toString() !== b.toString()) return false;
-    }
-
-    for (key in b) {
-        if (hasOwnProperty.call(b, key)) {
-            size++;
-
-            result = result && hasOwnProperty.call(a, key) && eq(a[key], b[key], stackA, stackB);
-            if(!result) return result;
-        }
-    }
-
-    // ensure both objects have the same number of properties
-    for (key in a) {
-        if (hasOwnProperty.call(a, key)) {
-            result = result && (--size > -1);
-            if(!result) return result;
-        }
-    }
-
-    stackA.pop();
-    stackB.pop();
-
-    if(typeB === 'function') {
-        result = result && eq(a.prototype, b.prototype);
-    }
-
-    return result;
+  return EQUALS;
 }
 
 
 module.exports = eq;
 
-},{"should-type":23}],23:[function(require,module,exports){
+},{"should-type":22}],22:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var isPromiseExist = typeof Promise !== 'undefined';
@@ -2581,7 +2514,7 @@ module.exports = function getType(instance) {
   }
 };
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var getType = require('should-type');
 
 function genKeysFunc(f) {
@@ -2834,7 +2767,7 @@ add('document', function(value) {
 add('window', function(value) {
   return '[Window]';
 });
-},{"should-type":25}],25:[function(require,module,exports){
-module.exports=require(23)
-},{"/Users/den/Projects/shouldjs/should/should.js/node_modules/should-equal/node_modules/should-type/index.js":23}]},{},[1])(1)
+},{"should-type":24}],24:[function(require,module,exports){
+module.exports=require(22)
+},{"/Users/den/Projects/shouldjs/should/should.js/node_modules/should-equal/node_modules/should-type/index.js":22}]},{},[1])(1)
 });

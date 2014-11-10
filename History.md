@@ -1,3 +1,9 @@
+4.3.0 / 2014-11-10
+==================
+
+ * Remove node's version of .eql
+ * Added reason why .eql failed
+
 4.2.1 / 2014-11-07
 ==================
 
