@@ -9,14 +9,13 @@
   },
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
-    "test": "gulp test",
+    "test": "mocha -R mocha-better-spec-reporter ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/[!error]*.test.js ./test/*.test.js",
     "browser": "gulp script"
   },
   "devDependencies": {
     "browserify": "latest",
     "mocha-better-spec-reporter": "1.1.1",
-    "gulp-mocha": "1.1.1",
     "gulp-uglify": "1.0.1",
     "gulp-util": "^2.2.14",
     "gulp": "^3.8.10",
@@ -36,7 +35,7 @@
   "main": "./lib/should.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "0.0.2",
+    "should-equal": "0.1.0",
     "should-format": "0.0.2"
   }
 }

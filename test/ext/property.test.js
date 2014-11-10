@@ -43,8 +43,9 @@ describe('property', function() {
     err(function() {
       var obj = { f: function() {} };
       var f1 = function() {};
+      f1.a = 1;
       obj.should.have.property('f', f1);
-    }, "expected { f: [Function] } to have property f of [Function] (got [Function])");
+    }, "expected { f: [Function] } to have property f of { [Function] a: 1 } (got [Function])");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')
