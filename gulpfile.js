@@ -17,13 +17,6 @@ var banner = ['/**',
   ' */',
   ''].join('\n');
 
-gulp.task('test', function() {
-  return gulp.src('test/**/*.test.js', {read: false})
-    .pipe($.mocha({
-      reporter: 'mocha-better-spec-reporter'
-    }));
-});
-
 gulp.task('script', function() {
   var bundleStream = browserify({
     entries: './lib/should.js',
