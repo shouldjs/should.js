@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.3.0
+ * @version v4.3.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -502,6 +502,8 @@ module.exports = function(should, Assertion) {
       , err = {}
       , errorInfo = ''
       , thrown = false;
+
+    this.is.a.Function;
 
     var errorMatched = true;
 
