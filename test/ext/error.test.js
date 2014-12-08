@@ -3,6 +3,10 @@ var err = require('../util').err,
 
 describe('error', function() {
   it('test throw()', function() {
+    err(function() {
+      'a'.should.throw();
+    }, "expected 'a' to be a function");
+
     (function(){}).should.not.throw();
     (function(){ throw new Error('fail') }).should.throw();
 
