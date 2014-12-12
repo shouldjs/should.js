@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.3.1
+ * @version v4.4.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -26,7 +26,7 @@ var should = function should(obj) {
   warn.staticShouldUnWrap(util.isWrapperType(obj) && should.warn);
 
   var unwrappedObj = util.isWrapperType(obj) ? obj.valueOf() : obj;
-  return new should.Assertion(unwrappedObj, should.format);
+  return new should.Assertion(unwrappedObj);
 };
 
 var envVarName = 'SHOULDJS_WARN';
@@ -82,16 +82,56 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./ext/assert":4,"./ext/bool":5,"./ext/chain":6,"./ext/contain":7,"./ext/eql":8,"./ext/error":9,"./ext/match":10,"./ext/number":11,"./ext/property":12,"./ext/string":13,"./ext/type":14,"./util":15,"./warn":16,"should-format":23}],2:[function(require,module,exports){
-// copy that inside
-module.exports = require('./util').AssertionError;
-},{"./util":15}],3:[function(require,module,exports){
-var AssertionError = require('./assertion-error');
+},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"./warn":17,"should-format":24}],2:[function(require,module,exports){
 var util = require('./util');
 
-function Assertion(obj, format) {
+var AssertionError = function AssertionError(options) {
+  this.name = 'AssertionError';
+  this.actual = options.actual;
+  this.expected = options.expected;
+  this.operator = options.operator;
+
+  this.message = options.message;
+
+  var stackStartFunction = options.stackStartFunction;
+
+  if(Error.captureStackTrace) {
+    Error.captureStackTrace(this, stackStartFunction);
+  }
+  else {
+    // non v8 browsers so we can have a stacktrace
+    var err = new Error();
+    if(err.stack) {
+      var out = err.stack;
+
+      if(stackStartFunction) {
+        // try to strip useless frames
+        var fn_name = util.functionName(stackStartFunction);
+        var idx = out.indexOf('\n' + fn_name);
+        if(idx >= 0) {
+          // once we have located the function frame
+          // we need to strip out everything before it (and its line)
+          var next_line = out.indexOf('\n', idx + 1);
+          out = out.substring(next_line + 1);
+        }
+      }
+
+      this.stack = out;
+    }
+  }
+};
+
+// assert.AssertionError instanceof Error
+AssertionError.prototype = Object.create(Error.prototype);
+
+module.exports = AssertionError;
+},{"./util":16}],3:[function(require,module,exports){
+var AssertionError = require('./assertion-error');
+var util = require('./util');
+var format = require('should-format');
+
+function Assertion(obj) {
   this.obj = obj;
-  this.format = format;
 }
 
 /**
@@ -104,7 +144,7 @@ function Assertion(obj, format) {
 Assertion.add = function(name, f, isGetter) {
   var prop = {enumerable: true};
   prop[isGetter ? 'get' : 'value'] = function() {
-    var context = new Assertion(this.obj, this.format);
+    var context = new Assertion(this.obj, format);
     context.anyOne = this.anyOne;
 
     try {
@@ -187,7 +227,7 @@ Assertion.prototype = {
       message: msg,
       actual: this.obj,
       expected: params.expected,
-      stackStartFunction: this.assert
+      stackStartFunction: params.stackStartFunction || this.assert
     });
 
     err.showDiff = params.showDiff;
@@ -202,8 +242,8 @@ Assertion.prototype = {
   },
 
   getMessage: function() {
-    var actual = 'obj' in this.params ? this.format(this.params.obj) : this.format(this.obj);
-    var expected = 'expected' in this.params ? ' ' + this.format(this.params.expected) : '';
+    var actual = 'obj' in this.params ? format(this.params.obj) : format(this.obj);
+    var expected = 'expected' in this.params ? ' ' + format(this.params.expected) : '';
     var details = 'details' in this.params && this.params.details ? ' (' + this.params.details + ')': '';
 
     return 'expected ' + actual + (this.negate ? ' not ' : ' ') + this.params.operator + expected + details;
@@ -233,7 +273,201 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":15}],4:[function(require,module,exports){
+},{"./assertion-error":2,"./util":16,"should-format":24}],4:[function(require,module,exports){
+// implement assert interface using already written peaces of should.js
+
+// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
+//
+// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
+//
+// Originally from narwhal.js (http://narwhaljs.org)
+// Copyright (c) 2009 Thomas Robinson <280north.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the 'Software'), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// when used in node, this will actually load the util module we depend on
+// versus loading the builtin util module as happens otherwise
+// this is a bug in node module loading as far as I am concerned
+var util = require('./../util');
+var Assertion = require('./../assertion');
+
+var _deepEqual = require('should-equal');
+
+var pSlice = Array.prototype.slice;
+
+// 1. The assert module provides functions that throw
+// AssertionError's when particular conditions are not met. The
+// assert module must conform to the following interface.
+
+var assert = module.exports = ok;
+
+// 3. All of the following functions must throw an AssertionError
+// when a corresponding condition is not met, with a message that
+// may be undefined if not provided.  All assertion methods provide
+// both the actual and expected values to the assertion error for
+// display purposes.
+
+function fail(actual, expected, message, operator, stackStartFunction) {
+  var a = new Assertion(actual);
+  a.params = {
+    operator: operator,
+    expected: expected,
+    message: message,
+    stackStartFunction: stackStartFunction || fail
+  };
+
+  a.fail();
+}
+
+// EXTENSION! allows for well behaved errors defined elsewhere.
+assert.fail = fail;
+
+// 4. Pure assertion tests whether a value is truthy, as determined
+// by !!guard.
+// assert.ok(guard, message_opt);
+// This statement is equivalent to assert.equal(true, !!guard,
+// message_opt);. To test strictly for the value true, use
+// assert.strictEqual(true, guard, message_opt);.
+
+function ok(value, message) {
+  if(!value) fail(value, true, message, '==', assert.ok);
+}
+assert.ok = ok;
+
+// 5. The equality assertion tests shallow, coercive equality with
+// ==.
+// assert.equal(actual, expected, message_opt);
+
+assert.equal = function equal(actual, expected, message) {
+  if(actual != expected) fail(actual, expected, message, '==', assert.equal);
+};
+
+// 6. The non-equality assertion tests for whether two objects are not equal
+// with != assert.notEqual(actual, expected, message_opt);
+
+assert.notEqual = function notEqual(actual, expected, message) {
+  if(actual == expected) {
+    fail(actual, expected, message, '!=', assert.notEqual);
+  }
+};
+
+// 7. The equivalence assertion tests a deep equality relation.
+// assert.deepEqual(actual, expected, message_opt);
+
+assert.deepEqual = function deepEqual(actual, expected, message) {
+  if(!_deepEqual(actual, expected).result) {
+    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+  }
+};
+
+
+// 8. The non-equivalence assertion tests for any deep inequality.
+// assert.notDeepEqual(actual, expected, message_opt);
+
+assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
+  if(_deepEqual(actual, expected).result) {
+    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+  }
+};
+
+// 9. The strict equality assertion tests strict equality, as determined by ===.
+// assert.strictEqual(actual, expected, message_opt);
+
+assert.strictEqual = function strictEqual(actual, expected, message) {
+  if(actual !== expected) {
+    fail(actual, expected, message, '===', assert.strictEqual);
+  }
+};
+
+// 10. The strict non-equality assertion tests for strict inequality, as
+// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
+
+assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
+  if(actual === expected) {
+    fail(actual, expected, message, '!==', assert.notStrictEqual);
+  }
+};
+
+function expectedException(actual, expected) {
+  if(!actual || !expected) {
+    return false;
+  }
+
+  if(Object.prototype.toString.call(expected) == '[object RegExp]') {
+    return expected.test(actual);
+  } else if(actual instanceof expected) {
+    return true;
+  } else if(expected.call({}, actual) === true) {
+    return true;
+  }
+
+  return false;
+}
+
+function _throws(shouldThrow, block, expected, message) {
+  var actual;
+
+  if(util.isString(expected)) {
+    message = expected;
+    expected = null;
+  }
+
+  try {
+    block();
+  } catch(e) {
+    actual = e;
+  }
+
+  message = (expected && expected.name ? ' (' + expected.name + ')' : '.') +
+  (message ? ' ' + message : '.');
+
+  if(shouldThrow && !actual) {
+    fail(actual, expected, 'Missing expected exception' + message);
+  }
+
+  if(!shouldThrow && expectedException(actual, expected)) {
+    fail(actual, expected, 'Got unwanted exception' + message);
+  }
+
+  if((shouldThrow && actual && expected && !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+    throw actual;
+  }
+}
+
+// 11. Expected to throw an error:
+// assert.throws(block, Error_opt, message_opt);
+
+assert.throws = function(block, /*optional*/error, /*optional*/message) {
+  _throws.apply(this, [true].concat(pSlice.call(arguments)));
+};
+
+// EXTENSION! This is annoying to write outside this module.
+assert.doesNotThrow = function(block, /*optional*/message) {
+  _throws.apply(this, [false].concat(pSlice.call(arguments)));
+};
+
+assert.ifError = function(err) {
+  if(err) {
+    throw err;
+  }
+};
+
+},{"./../assertion":3,"./../util":16,"should-equal":22}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -241,8 +475,8 @@ module.exports = Assertion;
  */
 
 var util = require('../util')
-  , assert = require('assert')
-  , AssertionError = assert.AssertionError;
+  , assert = require('./_assert')
+  , AssertionError = require('../assertion-error');
 
 module.exports = function(should) {
   var i = should.format;
@@ -290,7 +524,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../util":15,"assert":17}],5:[function(require,module,exports){
+},{"../assertion-error":2,"../util":16,"./_assert":4}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -316,7 +550,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj);
   }, true);
 };
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -336,7 +570,7 @@ module.exports = function(should, Assertion) {
 
   ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
 };
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -453,7 +687,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":15,"should-equal":21}],8:[function(require,module,exports){
+},{"../util":16,"should-equal":22}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -486,7 +720,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../util":15,"../warn":16,"should-equal":21}],9:[function(require,module,exports){
+},{"../util":16,"../warn":17,"should-equal":22}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -566,7 +800,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{"../util":15}],10:[function(require,module,exports){
+},{"../util":16}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -674,7 +908,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../util":15,"should-equal":21}],11:[function(require,module,exports){
+},{"../util":16,"should-equal":22}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -725,7 +959,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -938,7 +1172,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":15,"should-equal":21}],13:[function(require,module,exports){
+},{"../util":16,"should-equal":22}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -958,7 +1192,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1039,7 +1273,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('instanceof', 'instanceOf');
 };
 
-},{"../util":15}],15:[function(require,module,exports){
+},{"../util":16}],16:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1196,7 +1430,7 @@ exports.formatEqlResult = function(r, a, b, format) {
     (r.a === a ? '' : ', A has ' + format(r.a)) +
     (r.b === b ? '' : ' and B has ' + format(r.b));
 };
-},{"assert":17,"should-format":23}],16:[function(require,module,exports){
+},{"assert":18,"should-format":24}],17:[function(require,module,exports){
 var WARN = '\u001b[33mWARN\u001b[39m';
 
 function generateDeprecated(lines) {
@@ -1220,7 +1454,7 @@ exports.staticShouldUnWrap = generateDeprecated([
   'but that will be changed in future versions, make sure you know what are you doing'
 ]);
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -1582,7 +1816,7 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":20}],18:[function(require,module,exports){
+},{"util/":21}],19:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1607,14 +1841,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2202,7 +2436,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":19,"inherits":18}],21:[function(require,module,exports){
+},{"./support/isBuffer":20,"inherits":19}],22:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -2232,6 +2466,7 @@ var REASON = {
   DIFFERENT_TYPES: 'A has type %s and B has type %s',
   NAN_NUMBER: 'NaN is not equal to any number',
   EQUALITY: 'A is not equal to B',
+  EQUALITY_PROTOTYPE: 'A and B have different prototypes',
   WRAPPED_VALUE: 'A wrapped value is not equal to B wrapped value',
   FUNCTION_SOURCES: 'function A is not equal to B by source code value (via .toString call)',
   MISSING_KEY: '%s does not have key %s',
@@ -2252,7 +2487,7 @@ function eq(a, b, stackA, stackB, path) {
     return makeResult(a !== 0 || (1 / a == 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b);
   }
 
-  var l;
+  var l, isValueEqual;
 
   var typeA = getType(a),
     typeB = getType(b);
@@ -2267,19 +2502,27 @@ function eq(a, b, stackA, stackB, path) {
         : (a === 0 ? makeResult((1 / a === 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b) : makeResult(a === b, path, REASON.EQUALITY, a, b));
 
     case 'regexp':
-      return makeResult(String(a) === String(b), path, REASON.EQUALITY, a, b);
+      isValueEqual = a.source === b.source &&
+        a.global === b.global &&
+        a.multiline === b.multiline &&
+        a.lastIndex === b.lastIndex &&
+        a.ignoreCase === b.ignoreCase;
+      if(isValueEqual) break;
+      return makeResult(false, path, REASON.EQUALITY, a, b);
 
     case 'boolean':
     case 'string':
       return makeResult(a === b, path, REASON.EQUALITY, a, b);
 
     case 'date':
-      return makeResult(+a === +b, path, REASON.EQUALITY, a, b);
+      isValueEqual = +a === +b;
+      if(isValueEqual) break;
+      return makeResult(false, path, REASON.EQUALITY, a, b);
 
     case 'object-number':
     case 'object-boolean':
     case 'object-string':
-      var isValueEqual = a.valueOf() === b.valueOf();
+      isValueEqual = a.valueOf() === b.valueOf();
       if(isValueEqual) break;
       return makeResult(false, path, REASON.WRAPPED_VALUE, a.valueOf(), b.valueOf());
 
@@ -2356,6 +2599,20 @@ function eq(a, b, stackA, stackB, path) {
     }
   }
 
+  var prototypesEquals = false, canComparePrototypes = false;
+
+  if(Object.getPrototypeOf) {
+    prototypesEquals = Object.getPrototypeOf(a) === Object.getPrototypeOf(b);
+    canComparePrototypes = true;
+  } else if(a.__proto__ && b.__proto__) {
+    prototypesEquals = a.__proto__ === b.__proto__;
+    canComparePrototypes = true;
+  }
+
+  if(canComparePrototypes && !prototypesEquals) {
+    return makeResult(false, path, REASON.EQUALITY_PROTOTYPE, a, b);
+  }
+
   stackA.pop();
   stackB.pop();
 
@@ -2370,153 +2627,157 @@ function eq(a, b, stackA, stackB, path) {
 
 module.exports = eq;
 
-},{"should-type":22}],22:[function(require,module,exports){
+},{"should-type":23}],23:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var isPromiseExist = typeof Promise !== 'undefined';
 var isBufferExist = typeof Buffer !== 'undefined';
 
-var NUMBER = 'number';//
-var UNDEFINED = 'undefined';//
-var STRING = 'string';//
-var BOOLEAN = 'boolean';//
-var OBJECT = 'object';
-var FUNCTION = 'function';//
-var NULL = 'null';//
-var ARRAY = 'array';
-var REGEXP = 'regexp';//
-var DATE = 'date';//
-var ERROR = 'error';//
-var ARGUMENTS = 'arguments';//
-var SYMBOL = 'symbol';
-var ARRAY_BUFFER = 'array-buffer';//
-var TYPED_ARRAY = 'typed-array';//
-var DATA_VIEW = 'data-view';
-var MAP = 'map';
-var SET = 'set';
-var WEAK_SET = 'weak-set';
-var WEAK_MAP = 'weak-map';
-var PROMISE = 'promise';//
+var types = {
+  NUMBER: 'number',
+  UNDEFINED: 'undefined',
+  STRING: 'string',
+  BOOLEAN: 'boolean',
+  OBJECT: 'object',
+  FUNCTION: 'function',
+  NULL: 'null',
+  ARRAY: 'array',
+  REGEXP: 'regexp',
+  DATE: 'date',
+  ERROR: 'error',
+  ARGUMENTS: 'arguments',
+  SYMBOL: 'symbol',
+  ARRAY_BUFFER: 'array-buffer',
+  TYPED_ARRAY: 'typed-array',
+  DATA_VIEW: 'data-view',
+  MAP: 'map',
+  SET: 'set',
+  WEAK_SET: 'weak-set',
+  WEAK_MAP: 'weak-map',
+  PROMISE: 'promise',
 
-var WRAPPER_NUMBER = 'object-number';//
-var WRAPPER_BOOLEAN = 'object-boolean';//
-var WRAPPER_STRING = 'object-string';//
+  WRAPPER_NUMBER: 'object-number',
+  WRAPPER_BOOLEAN: 'object-boolean',
+  WRAPPER_STRING: 'object-string',
 
 // node buffer
-var BUFFER = 'buffer';//
+  BUFFER: 'buffer',
 
 // dom html element
-var HTML_ELEMENT = 'html-element';//
-var HTML_ELEMENT_TEXT = 'html-element-text';//
-var DOCUMENT = 'document';//
-var WINDOW = 'window';//
-var FILE = 'file';
-var FILE_LIST = 'file-list';
-var BLOB = 'blob';
+  HTML_ELEMENT: 'html-element',
+  HTML_ELEMENT_TEXT: 'html-element-text',
+  DOCUMENT: 'document',
+  WINDOW: 'window',
+  FILE: 'file',
+  FILE_LIST: 'file-list',
+  BLOB: 'blob',
 
-var XHR = 'xhr';//
+  XHR: 'xhr'
+};
 
 module.exports = function getType(instance) {
   var type = typeof instance;
 
-  switch (type) {
-    case NUMBER:
-      return NUMBER;
-    case UNDEFINED:
-      return UNDEFINED;
-    case STRING:
-      return STRING;
-    case BOOLEAN:
-      return BOOLEAN;
-    case FUNCTION:
-      return FUNCTION;
-    case SYMBOL:
-      return SYMBOL;
-    case OBJECT:
-      if (instance === null) return NULL;
+  switch(type) {
+    case types.NUMBER:
+      return types.NUMBER;
+    case types.UNDEFINED:
+      return types.UNDEFINED;
+    case types.STRING:
+      return types.STRING;
+    case types.BOOLEAN:
+      return types.BOOLEAN;
+    case types.FUNCTION:
+      return types.FUNCTION;
+    case types.SYMBOL:
+      return types.SYMBOL;
+    case types.OBJECT:
+      if(instance === null) return types.NULL;
 
       var clazz = toString.call(instance);
 
-      switch (clazz) {
+      switch(clazz) {
         case '[object String]':
-          return WRAPPER_STRING;
+          return types.WRAPPER_STRING;
         case '[object Boolean]':
-          return WRAPPER_BOOLEAN;
+          return types.WRAPPER_BOOLEAN;
         case '[object Number]':
-          return WRAPPER_NUMBER;
+          return types.WRAPPER_NUMBER;
         case '[object Array]':
-          return ARRAY;
+          return types.ARRAY;
         case '[object RegExp]':
-          return REGEXP;
+          return types.REGEXP;
         case '[object Error]':
-          return ERROR;
+          return types.ERROR;
         case '[object Date]':
-          return DATE;
+          return types.DATE;
         case '[object Arguments]':
-          return ARGUMENTS;
+          return types.ARGUMENTS;
         case '[object Math]':
-          return OBJECT;
+          return types.OBJECT;
         case '[object JSON]':
-          return OBJECT;
+          return types.OBJECT;
         case '[object ArrayBuffer]':
-          return ARRAY_BUFFER;
+          return types.ARRAY_BUFFER;
         case '[object Int8Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Uint8Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Uint8ClampedArray]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Int16Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Uint16Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Int32Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Uint32Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Float32Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object Float64Array]':
-          return TYPED_ARRAY;
+          return types.TYPED_ARRAY;
         case '[object DataView]':
-          return DATA_VIEW;
+          return types.DATA_VIEW;
         case '[object Map]':
-          return MAP;
+          return types.MAP;
         case '[object WeakMap]':
-          return WEAK_MAP;
+          return types.WEAK_MAP;
         case '[object Set]':
-          return SET;
+          return types.SET;
         case '[object WeakSet]':
-          return WEAK_SET;
+          return types.WEAK_SET;
         case '[object Promise]':
-          return PROMISE;
+          return types.PROMISE;
         case '[object Window]':
-          return WINDOW;
+          return types.WINDOW;
         case '[object HTMLDocument]':
-          return DOCUMENT;
+          return types.DOCUMENT;
         case '[object Blob]':
-          return BLOB;
+          return types.BLOB;
         case '[object File]':
-          return FILE;
+          return types.FILE;
         case '[object FileList]':
-          return FILE_LIST;
+          return types.FILE_LIST;
         case '[object XMLHttpRequest]':
-          return XHR;
+          return types.XHR;
         case '[object Text]':
-          return HTML_ELEMENT_TEXT;
+          return types.HTML_ELEMENT_TEXT;
         default:
-          if (isPromiseExist && instance instanceof Promise) return PROMISE;
+          if(isPromiseExist && instance instanceof Promise && getType(instance.then) === FUNCTION && instance.then.length >= 2) return types.PROMISE;
 
-          if (isBufferExist && instance instanceof Buffer) return BUFFER;
+          if(isBufferExist && instance instanceof Buffer) return types.BUFFER;
 
-          if (/^\[object HTML\w+Element\]$/.test(clazz)) return HTML_ELEMENT;
+          if(/^\[object HTML\w+Element\]$/.test(clazz)) return types.HTML_ELEMENT;
 
-          if (clazz === '[object Object]') return OBJECT;
+          if(clazz === '[object Object]') return types.OBJECT;
       }
   }
 };
 
-},{}],23:[function(require,module,exports){
+module.exports.type = types;
+
+},{}],24:[function(require,module,exports){
 var getType = require('should-type');
 
 function genKeysFunc(f) {
@@ -2769,7 +3030,7 @@ add('document', function(value) {
 add('window', function(value) {
   return '[Window]';
 });
-},{"should-type":24}],24:[function(require,module,exports){
-module.exports=require(22)
-},{"/Users/den/Projects/shouldjs/should/should.js/node_modules/should-equal/node_modules/should-type/index.js":22}]},{},[1])(1)
+},{"should-type":25}],25:[function(require,module,exports){
+module.exports=require(23)
+},{"/Users/den/Projects/shouldjs/should.js/node_modules/should-equal/node_modules/should-type/index.js":23}]},{},[1])(1)
 });

@@ -1,3 +1,9 @@
+4.4.0 / 2014-12-12
+==================
+
+ * assert methods reimplemented via assertion, deepEqual done via should-equal. To avoid possible confusion between should.deepEqual and a.should.eql(b)
+ * Possible fix for error tests
+
 4.3.1 / 2014-12-08
 ==================
 
