@@ -18,7 +18,7 @@ describe('error', function() {
       (function(){
         throw new Error('fail');
       }).should.not.throw();
-    }, 'expected [Function] not to throw exception (got [Error: fail])');
+    }, /expected \[Function\] not to throw exception \(got [\s\S]*\[Error: fail\][\s\S]*\)/);
   });
 
   it('test throw() with regex message', function() {
@@ -69,7 +69,7 @@ describe('error', function() {
       (function(){
         throw new Error('fail');
       }).should.not.throwError();
-    }, 'expected [Function] not to throw exception (got [Error: fail])');
+    }, /expected \[Function\] not to throw exception \(got [\s\S]*\[Error: fail\][\s\S]*\)/);
   });
 
   it('test throwError() with regex message', function() {
@@ -115,7 +115,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw(Error, { a: 11 });
-    }, "expected [Function] to throw exception: expected { [Error] a: 10 } to match { a: 11 }\n    not matched properties: a (10)");
+    }, /expected \[Function\] to throw exception: expected \{[\s\S]*\[Error\][\s\S]* a: 10[\s\S]*\} to match \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 
   it('test .throw(properties) with matching error', function() {
@@ -125,6 +125,6 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw({ a: 11 });
-    }, "expected [Function] to throw exception: expected { [Error] a: 10 } to match { a: 11 }\n    not matched properties: a (10)");
+    }, /expected \[Function\] to throw exception: expected \{[\s\S]*\[Error\][\s\S]* a: 10[\s\S]*\} to match \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 });
