@@ -1,6 +1,6 @@
 /**
  * should - test framework agnostic BDD-style assertions
- * @version v4.4.0
+ * @version v4.4.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -15,7 +15,6 @@
 
 var util = require('./util');
 var inspect = require('should-format');
-var warn = require('./warn');
 
 /**
  * Our function should
@@ -23,20 +22,17 @@ var warn = require('./warn');
  * @returns {should.Assertion}
  */
 var should = function should(obj) {
-  warn.staticShouldUnWrap(util.isWrapperType(obj) && should.warn);
-
-  var unwrappedObj = util.isWrapperType(obj) ? obj.valueOf() : obj;
-  return new should.Assertion(unwrappedObj);
+  return new should.Assertion(obj);
 };
-
-var envVarName = 'SHOULDJS_WARN';
-var envVarResult = typeof process !== 'undefined' && process.env[envVarName] && process.env[envVarName] === 'true';
-should.warn = typeof envVarResult == 'undefined' ? true: envVarResult;
 
 should.AssertionError = require('./assertion-error');
 should.Assertion = require('./assertion');
 
 should.format = inspect;
+
+should.config = {
+  checkProtoEql: false
+};
 
 /**
  * Expose should to external world.
@@ -82,7 +78,7 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"./warn":17,"should-format":24}],2:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"should-format":23}],2:[function(require,module,exports){
 var util = require('./util');
 
 var AssertionError = function AssertionError(options) {
@@ -273,7 +269,7 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":16,"should-format":24}],4:[function(require,module,exports){
+},{"./assertion-error":2,"./util":16,"should-format":23}],4:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -467,7 +463,7 @@ assert.ifError = function(err) {
   }
 };
 
-},{"./../assertion":3,"./../util":16,"should-equal":22}],5:[function(require,module,exports){
+},{"./../assertion":3,"./../util":16,"should-equal":21}],5:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -687,7 +683,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":16,"should-equal":22}],9:[function(require,module,exports){
+},{"../util":16,"should-equal":21}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -695,7 +691,6 @@ module.exports = function(should, Assertion) {
  */
 
 var eql = require('should-equal');
-var warn = require('../warn');
 
 var util = require('../util');
 
@@ -703,7 +698,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('eql', function(val, description) {
     this.params = {operator: 'to equal', expected: val, showDiff: true, message: description};
 
-    var strictResult = eql(this.obj, val);
+    var strictResult = eql(this.obj, val, should.config);
 
     if(!strictResult.result) {
       this.params.details = util.formatEqlResult(strictResult, this.obj, val, should.format);
@@ -720,7 +715,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../util":16,"../warn":17,"should-equal":22}],10:[function(require,module,exports){
+},{"../util":16,"should-equal":21}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -908,7 +903,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../util":16,"should-equal":22}],12:[function(require,module,exports){
+},{"../util":16,"should-equal":21}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1172,7 +1167,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":16,"should-equal":22}],14:[function(require,module,exports){
+},{"../util":16,"should-equal":21}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1426,35 +1421,12 @@ exports.formatProp = function(value) {
 };
 
 exports.formatEqlResult = function(r, a, b, format) {
-  return (r.path.length > 0 ? 'at ' + r.path.map(exports.formatProp).join(' -> ') : '') +
-    (r.a === a ? '' : ', A has ' + format(r.a)) +
-    (r.b === b ? '' : ' and B has ' + format(r.b));
+  return ((r.path.length > 0 ? 'at ' + r.path.map(exports.formatProp).join(' -> ') : '') +
+          (r.a === a ? '' : ', A has ' + format(r.a)) +
+          (r.b === b ? '' : ' and B has ' + format(r.b)) +
+          (r.showReason ? ' because ' + r.reason: '')).trim();
 };
-},{"assert":18,"should-format":24}],17:[function(require,module,exports){
-var WARN = '\u001b[33mWARN\u001b[39m';
-
-function generateDeprecated(lines) {
-  return function(show) {
-    if(!show) return;
-
-    lines.concat(sharedPart).forEach(function(line) {
-      console.warn(WARN, line);
-    });
-  }
-}
-
-var sharedPart = [
-  'To disable any warnings add \u001b[33mshould.warn = false\u001b[39m',
-  'If you think that is not right, raise issue on github https://github.com/shouldjs/should.js/issues'
-];
-
-exports.staticShouldUnWrap = generateDeprecated([
-  'Static version of should was called with primitive type wrapper like should(new Number(10))',
-  'current version will unwrap it to assert on primitive value for you',
-  'but that will be changed in future versions, make sure you know what are you doing'
-]);
-
-},{}],18:[function(require,module,exports){
+},{"assert":17,"should-format":23}],17:[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -1816,7 +1788,7 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":21}],19:[function(require,module,exports){
+},{"util/":20}],18:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1841,14 +1813,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2436,17 +2408,18 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":20,"inherits":19}],22:[function(require,module,exports){
+},{"./support/isBuffer":19,"inherits":18}],21:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function makeResult(r, path, reason, a, b) {
+function makeResult(r, path, reason, a, b, showReason) {
   var o = {result: r};
   if(!r) {
     o.path = path;
     o.reason = reason;
     o.a = a;
     o.b = b;
+    o.showReason = showReason;
   }
   return o;
 }
@@ -2479,8 +2452,10 @@ var MESSAGE = ['message'];
 var BYTE_LENGTH = ['byteLength'];
 var PROTOTYPE = ['prototype'];
 
-function eq(a, b, stackA, stackB, path) {
+function eq(a, b, opts, stackA, stackB, path) {
   path = path || [];
+  opts = opts || { checkProtoEql: true };
+
   // equal a and b exit early
   if(a === b) {
     // check for +0 !== -0;
@@ -2586,7 +2561,7 @@ function eq(a, b, stackA, stackB, path) {
       hasProperty = hasOwnProperty.call(a, key);
       if(!hasProperty) return makeResult(false, path, format(REASON.MISSING_KEY, 'A', key), a, b);
 
-      keysComparison = eq(a[key], b[key], stackA, stackB, path.concat([key]));
+      keysComparison = eq(a[key], b[key], opts, stackA, stackB, path.concat([key]));
       if(!keysComparison.result) return keysComparison;
     }
   }
@@ -2601,23 +2576,26 @@ function eq(a, b, stackA, stackB, path) {
 
   var prototypesEquals = false, canComparePrototypes = false;
 
-  if(Object.getPrototypeOf) {
-    prototypesEquals = Object.getPrototypeOf(a) === Object.getPrototypeOf(b);
-    canComparePrototypes = true;
-  } else if(a.__proto__ && b.__proto__) {
-    prototypesEquals = a.__proto__ === b.__proto__;
-    canComparePrototypes = true;
-  }
+  if(opts.checkProtoEql) {
 
-  if(canComparePrototypes && !prototypesEquals) {
-    return makeResult(false, path, REASON.EQUALITY_PROTOTYPE, a, b);
+    if(Object.getPrototypeOf) {
+      prototypesEquals = Object.getPrototypeOf(a) === Object.getPrototypeOf(b);
+      canComparePrototypes = true;
+    } else if(a.__proto__ && b.__proto__) {
+      prototypesEquals = a.__proto__ === b.__proto__;
+      canComparePrototypes = true;
+    }
+
+    if(canComparePrototypes && !prototypesEquals) {
+      return makeResult(false, path, REASON.EQUALITY_PROTOTYPE, a, b, true);
+    }
   }
 
   stackA.pop();
   stackB.pop();
 
   if(typeB === 'function') {
-    keysComparison = eq(a.prototype, b.prototype, stackA, stackB, path.concat(PROTOTYPE));
+    keysComparison = eq(a.prototype, b.prototype, opts, stackA, stackB, path.concat(PROTOTYPE));
     if(!keysComparison.result) return keysComparison;
   }
 
@@ -2627,7 +2605,7 @@ function eq(a, b, stackA, stackB, path) {
 
 module.exports = eq;
 
-},{"should-type":23}],23:[function(require,module,exports){
+},{"should-type":22}],22:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var isPromiseExist = typeof Promise !== 'undefined';
@@ -2777,7 +2755,7 @@ module.exports = function getType(instance) {
 
 module.exports.type = types;
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var getType = require('should-type');
 
 function genKeysFunc(f) {
@@ -3030,7 +3008,7 @@ add('document', function(value) {
 add('window', function(value) {
   return '[Window]';
 });
-},{"should-type":25}],25:[function(require,module,exports){
-module.exports=require(23)
-},{"/Users/den/Projects/shouldjs/should.js/node_modules/should-equal/node_modules/should-type/index.js":23}]},{},[1])(1)
+},{"should-type":24}],24:[function(require,module,exports){
+arguments[4][22][0].apply(exports,arguments)
+},{"dup":22}]},{},[1])(1)
 });

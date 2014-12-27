@@ -1,3 +1,8 @@
+4.4.2 / 2014-12-27
+==================
+
+ * Remove breaking change with should-equal that check also object prototypes. Instead document how get both behaviours in .eql docs.
+
 4.4.1 / 2014-12-13
 ==================
 

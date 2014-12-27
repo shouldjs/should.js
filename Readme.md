@@ -189,6 +189,23 @@ Asserts if a chained object is *equal* to otherValue. The object is compared by 
 // see next example it is correct, even if it is different types, but actual content the same
 [1, 2, 3].should.eql({ '0': 1, '1': 2, '2': 3 });
 ```
+
+By default for now `.eql` does not check object prototypes, so such test will pass:
+
+```js
+var b = {a: 2};
+var a = Object.create(null);
+a.a = 2;
+
+b.should.be.eql(a);
+```
+If you do not want such behaviour you can do:
+
+```js
+should.config.checkProtoEql = true;
+```
+somewhere at the beginning of tests (or in tests where you need to test prototypes) and test upper will fail.
+
 ## .equal(otherValue) and .exactly(otherValue)
 
 Asserts if a chained object is strictly equal to `otherValue` (using `===`). It means primitive values compared as is (there is no any type conversion) and reference values compared by references.
