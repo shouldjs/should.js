@@ -651,7 +651,7 @@ var mylib = require('mylib');
 
 describe('mylib', function() {
   it('should have a version with the format #.#.#', function() {
-    lib.version.should.match(/^\d+\.\d+\.\d+$/);
+    mylib.version.should.match(/^\d+\.\d+\.\d+$/);
   });
 });
 ```
