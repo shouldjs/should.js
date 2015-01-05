@@ -4,8 +4,8 @@ var should = require('../../');
 describe('match', function() {
 
   it('test string match(regexp)', function() {
-    'foobar'.should.match(/^foo/)
-    'foobar'.should.not.match(/^bar/)
+    'foobar'.should.match(/^foo/);
+    'foobar'.should.not.match(/^bar/);
 
     err(function() {
       'foobar'.should.match(/^bar/i)

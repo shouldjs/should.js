@@ -9,7 +9,7 @@ var path = require('path');
 var pkg = require('./package.json');
 
 var banner = [
-  '/**',
+  '/*',
   ' * <%= pkg.name %> - <%= pkg.description %>',
   ' * @version v<%= pkg.version %>',
   ' * @author <%= pkg.author %>',
