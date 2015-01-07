@@ -41,6 +41,18 @@ describe('property', function() {
     }, "expected [ 1, 2, 3 ] to contain 4");
   });
 
+  it('test containKeys', function() {
+    ({ a: 1, b: 2 }).should.containKeys(['a', 'b']);
+    ({ a: 1, b: 2 }).should.containKeys('a', 'b');
+
+    ({ a: 1, b: 2 }).should.containKeys(['a']);
+    ({ a: 1, b: 2 }).should.containKeys('a');
+
+    err(function() {
+      ({ a: 1, b: 2 }).should.not.containKeys('a');
+    }, "expected { a: 1, b: 2 } not to contain keys 'a'");
+  });
+
   it('test containDeep', function() {
     'hello boy'.should.containDeep('boy');
 
