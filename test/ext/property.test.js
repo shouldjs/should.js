@@ -19,6 +19,12 @@ describe('property', function() {
     }, "expected { length: 3 } to have enumerable property length equal to 5");
   });
 
+  it('test enumerables(names)', function() {
+    var obj = { a: 'a', b: 'b', c: 'c'};
+    obj.should.have.enumerables('a', 'b');
+    obj.should.have.enumerables(['a', 'b']);
+  });
+
   it('test property(name)', function() {
     'test'.should.have.property('length');
     (4).should.not.have.property('length');
