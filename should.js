@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.4.3
+ * @version v4.4.4
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1574,6 +1574,38 @@ module.exports = function(should, Assertion) {
       this.params.operator += " equal to " + i(val);
       this.assert(eql(val, this.obj[name]).result);
     }
+  });
+
+  /**
+   * Asserts given object has enumerable properties
+   *
+   * @name enumerables
+   * @memberOf Assertion
+   * @category assertion property
+   * @param {Array|...string|Object} names Names of property
+   * @example
+   *
+   * ({ a: 10, b: 10 }).should.have.enumerables('a');
+   */
+  Assertion.add('enumerables', function(names) {
+    if(arguments.length > 1) {
+      names = aSlice.call(arguments);
+    } else if(!util.isArray(names)) {
+      if(util.isString(names)) {
+        names = [names];
+      } else {
+        values = names;
+        names = Object.keys(names);
+      }
+    }
+
+    this.params = {
+      operator: "to have enumerables " + names.map(util.formatProp)
+    };
+
+    names.forEach(function(name) {
+      this.assert(this.obj.propertyIsEnumerable(name));
+    }, this);
   });
 
   /**
