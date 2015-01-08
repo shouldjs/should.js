@@ -1,3 +1,9 @@
+4.4.3 / 2015-01-08
+==================
+
+ * Bump dependencies to get more accurate format of promise
+ * Added a lot of jsdocs
+
 4.4.2 / 2014-12-27
 ==================
 

@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.4.2
+ * @version v4.4.3
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -2400,9 +2400,6 @@ module.exports = eq;
 },{"should-type":18}],18:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
-var isPromiseExist = typeof Promise !== 'undefined';
-var isBufferExist = typeof Buffer !== 'undefined';
-
 var types = {
   NUMBER: 'number',
   UNDEFINED: 'undefined',
@@ -2534,18 +2531,28 @@ module.exports = function getType(instance) {
         case '[object Text]':
           return types.HTML_ELEMENT_TEXT;
         default:
-          if(isPromiseExist && instance instanceof Promise && getType(instance.then) === FUNCTION && instance.then.length >= 2) return types.PROMISE;
+          if((typeof Promise === types.FUNCTION && instance instanceof Promise) || (getType(instance.then) === types.FUNCTION && instance.then.length >= 2)) {
+            return types.PROMISE;
+          }
 
-          if(isBufferExist && instance instanceof Buffer) return types.BUFFER;
+          if(typeof Buffer !== 'undefined' && instance instanceof Buffer) {
+            return types.BUFFER;
+          }
 
-          if(/^\[object HTML\w+Element\]$/.test(clazz)) return types.HTML_ELEMENT;
+          if(/^\[object HTML\w+Element\]$/.test(clazz)) {
+            return types.HTML_ELEMENT;
+          }
 
-          if(clazz === '[object Object]') return types.OBJECT;
+          if(clazz === '[object Object]') {
+            return types.OBJECT;
+          }
       }
   }
 };
 
-module.exports.type = types;
+Object.keys(types).forEach(function(typeName) {
+  module.exports[typeName] = types[typeName];
+});
 
 },{}],19:[function(require,module,exports){
 var getType = require('should-type');
