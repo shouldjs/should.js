@@ -53,6 +53,21 @@ describe('eql', function() {
 
     err(function() {
       b.should.be.eql(a);
-    }, 'expected { a: 2 } to equal { a: 2 } (because A and B have different prototypes)')
-  })
+    }, 'expected { a: 2 } to equal { a: 2 } (because A and B have different prototypes)');
+
+    should.config.checkProtoEql = false;
+  });
+
+  it('should allow to use old equal function', function() {
+    var a = { a: 10};
+    var b = { a: '10'};
+
+    a.should.be.not.eql(b);
+
+    should.config.useOldDeepEqual = true;
+
+    a.should.be.eql(b);
+
+    should.config.useOldDeepEqual = false;
+  });
 });
