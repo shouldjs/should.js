@@ -1,3 +1,8 @@
+4.5.0 / 2015-01-11
+==================
+
+ * Added config flag .useOldDeepEqual to use old .eql implementation
+
 4.4.4 / 2015-01-08
 ==================
 

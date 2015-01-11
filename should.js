@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.4.4
+ * @version v4.5.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -39,6 +39,7 @@ should.format = inspect;
  * Object with configuration.
  * It contains such properties:
  * * `checkProtoEql` boolean - Affect if `.eql` will check objects prototypes
+ * * `useOldDeepEqual` boolean - Use old deepEqual implementation, that was copied from node's assert.deepEqual (will be removed in 5.x)
  *
  * @type {Object}
  * @memberOf should
@@ -55,9 +56,7 @@ should.format = inspect;
  * a.should.be.eql(b);
  * //throws AssertionError: expected { a: 10 } to equal { a: 10 } (because A and B have different prototypes)
  */
-should.config = {
-  checkProtoEql: false
-};
+should.config = require('./config');
 
 //Expose should to external world.
 exports = module.exports = should;
@@ -169,7 +168,7 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":16,"should-format":19}],2:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/property":15,"./ext/string":16,"./ext/type":17,"./util":19,"should-format":22}],2:[function(require,module,exports){
 var util = require('./util');
 
 /**
@@ -219,7 +218,7 @@ var AssertionError = function AssertionError(options) {
 AssertionError.prototype = Object.create(Error.prototype);
 
 module.exports = AssertionError;
-},{"./util":16}],3:[function(require,module,exports){
+},{"./util":19}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
 var util = require('./util');
 var format = require('should-format');
@@ -441,7 +440,24 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":16,"should-format":19}],4:[function(require,module,exports){
+},{"./assertion-error":2,"./util":19,"should-format":22}],4:[function(require,module,exports){
+var config = {
+  checkProtoEql: false,
+
+  useOldDeepEqual: false
+};
+
+module.exports = config;
+},{}],5:[function(require,module,exports){
+var config = require('./config');
+
+var nodeEqual = require('./node-equal');
+var shouldEqual = require('should-equal');
+
+module.exports = function() {
+  return config.useOldDeepEqual ? nodeEqual: shouldEqual;
+};
+},{"./config":4,"./node-equal":18,"should-equal":20}],6:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -723,7 +739,7 @@ assert.ifError = function(err) {
   }
 };
 
-},{"./../assertion":3,"./../util":16,"should-equal":17}],5:[function(require,module,exports){
+},{"./../assertion":3,"./../util":19,"should-equal":20}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -794,7 +810,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../assertion-error":2,"../util":16,"./_assert":4}],6:[function(require,module,exports){
+},{"../assertion-error":2,"../util":19,"./_assert":6}],8:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -862,7 +878,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj);
   }, true);
 };
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -898,15 +914,15 @@ module.exports = function(should, Assertion) {
    */
   ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
 };
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
-var util = require('../util'),
-  eql = require('should-equal');
+var util = require('../util');
+  _eql = require('../eql');
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -936,6 +952,7 @@ module.exports = function(should, Assertion) {
    * //            expected { a: 10, c: { d: 10 } } to have property b
    */
   Assertion.add('containEql', function(other) {
+    var eql = _eql();
     this.params = { operator: 'to contain ' + i(other) };
     var obj = this.obj;
     if(util.isArray(obj)) {
@@ -979,6 +996,7 @@ module.exports = function(should, Assertion) {
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({b: {d: [1, 3]}});
    */
   Assertion.add('containDeepOrdered', function(other) {
+    var eql = _eql();
     this.params = { operator: 'to contain ' + i(other) };
 
     var obj = this.obj;
@@ -1030,6 +1048,7 @@ module.exports = function(should, Assertion) {
    * [ 1, 2, [ 1, 2, 3 ]].should.containDeep([ 1, [ 3, 1 ]]);
    */
   Assertion.add('containDeep', function(other) {
+    var eql = _eql();
     this.params = { operator: 'to contain ' + i(other) };
 
     var obj = this.obj;
@@ -1073,14 +1092,16 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":16,"should-equal":17}],9:[function(require,module,exports){
+},{"../eql":5,"../util":19}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
-var eql = require('should-equal');
+var _eql = require('../eql');
+
+var config = require('../config');
 
 var util = require('../util');
 
@@ -1106,15 +1127,18 @@ module.exports = function(should, Assertion) {
    * [ 'a' ].should.not.be.eql({ '0': 'a' });
    */
   Assertion.add('eql', function(val, description) {
+    var eql = _eql();
     this.params = {operator: 'to equal', expected: val, showDiff: true, message: description};
 
     var strictResult = eql(this.obj, val, should.config);
 
-    if(!strictResult.result) {
+    var result = config.useOldDeepEqual ? strictResult: strictResult.result;
+
+    if(!config.useOldDeepEqual && !strictResult.result) {
       this.params.details = util.formatEqlResult(strictResult, this.obj, val, should.format);
     }
 
-    this.assert(strictResult.result);
+    this.assert(result);
   });
 
   /**
@@ -1141,7 +1165,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../util":16,"should-equal":17}],10:[function(require,module,exports){
+},{"../config":4,"../eql":5,"../util":19}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1242,7 +1266,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
-},{"../util":16}],11:[function(require,module,exports){
+},{"../util":19}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1250,7 +1274,7 @@ module.exports = function(should, Assertion) {
  */
 
 var util = require('../util'),
-  eql = require('should-equal');
+  _eql = require('../eql');
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -1295,6 +1319,7 @@ module.exports = function(should, Assertion) {
    * }});
    */
   Assertion.add('match', function(other, description) {
+    var eql = _eql();
     this.params = {operator: 'to match ' + i(other), message: description};
 
     if(!eql(this.obj, other).result) {
@@ -1386,6 +1411,7 @@ module.exports = function(should, Assertion) {
    * { a: 'a', b: 'a', c: 'a' }.should.matchEach(function(value) { value.should.be.eql('a') });
    */
   Assertion.add('matchEach', function(other, description) {
+    var eql = _eql();
     this.params = {operator: 'to match each ' + i(other), message: description};
 
     var f = other;
@@ -1409,7 +1435,7 @@ module.exports = function(should, Assertion) {
     }, this);
   });
 };
-},{"../util":16,"should-equal":17}],12:[function(require,module,exports){
+},{"../eql":5,"../util":19}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1534,7 +1560,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],13:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1542,7 +1568,7 @@ module.exports = function(should, Assertion) {
  */
 
 var util = require('../util'),
-  eql = require('should-equal');
+  _eql = require('../eql');
 
 var aSlice = Array.prototype.slice;
 
@@ -1563,6 +1589,8 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('enumerable', function(name, val) {
     name = String(name);
+
+    var eql = _eql();
 
     this.params = {
       operator: "to have enumerable property " + util.formatProp(name)
@@ -1645,6 +1673,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('properties', function(names) {
     var values = {};
+    var eql = _eql();
     if(arguments.length > 1) {
       names = aSlice.call(arguments);
     } else if(!util.isArray(names)) {
@@ -1876,7 +1905,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":16,"should-equal":17}],14:[function(require,module,exports){
+},{"../eql":5,"../util":19}],16:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1918,7 +1947,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2076,7 +2105,110 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":16}],16:[function(require,module,exports){
+},{"../util":19}],18:[function(require,module,exports){
+/*!
+ * Should
+ * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
+// Taken from node's assert module, because it sucks
+// and exposes next to nothing useful.
+var util = require('./util');
+
+module.exports = _deepEqual;
+
+var pSlice = Array.prototype.slice;
+
+function _deepEqual(actual, expected) {
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (actual === expected) {
+    return true;
+
+  } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
+    if (actual.length != expected.length) return false;
+
+    for (var i = 0; i < actual.length; i++) {
+      if (actual[i] !== expected[i]) return false;
+    }
+
+    return true;
+
+    // 7.2. If the expected value is a Date object, the actual value is
+    // equivalent if it is also a Date object that refers to the same time.
+  } else if (util.isDate(actual) && util.isDate(expected)) {
+    return actual.getTime() === expected.getTime();
+
+    // 7.3 If the expected value is a RegExp object, the actual value is
+    // equivalent if it is also a RegExp object with the same source and
+    // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+    return actual.source === expected.source &&
+      actual.global === expected.global &&
+      actual.multiline === expected.multiline &&
+      actual.lastIndex === expected.lastIndex &&
+      actual.ignoreCase === expected.ignoreCase;
+
+    // 7.4. Other pairs that do not both pass typeof value == 'object',
+    // equivalence is determined by ==.
+  } else if (!util.isObject(actual) && !util.isObject(expected)) {
+    return actual == expected;
+
+    // 7.5 For all other Object pairs, including Array objects, equivalence is
+    // determined by having the same number of owned properties (as verified
+    // with Object.prototype.hasOwnProperty.call), the same set of keys
+    // (although not necessarily the same order), equivalent values for every
+    // corresponding key, and an identical 'prototype' property. Note: this
+    // accounts for both named and indexed properties on Arrays.
+  } else {
+    return objEquiv(actual, expected);
+  }
+}
+
+
+function objEquiv (a, b) {
+  if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
+    return false;
+  // an identical 'prototype' property.
+  if (a.prototype !== b.prototype) return false;
+  //~~~I've managed to break Object.keys through screwy arguments passing.
+  //   Converting to array solves the problem.
+  if (util.isArguments(a)) {
+    if (!util.isArguments(b)) {
+      return false;
+    }
+    a = pSlice.call(a);
+    b = pSlice.call(b);
+    return _deepEqual(a, b);
+  }
+  try{
+    var ka = Object.keys(a),
+      kb = Object.keys(b),
+      key, i;
+  } catch (e) {//happens when one is a string literal and the other isn't
+    return false;
+  }
+  // having the same number of owned properties (keys incorporates
+  // hasOwnProperty)
+  if (ka.length != kb.length)
+    return false;
+  //the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  //~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] != kb[i])
+      return false;
+  }
+  //equivalent values for every corresponding key, and
+  //~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!_deepEqual(a[key], b[key])) return false;
+  }
+  return true;
+}
+},{"./util":19}],19:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2232,7 +2364,7 @@ exports.formatEqlResult = function(r, a, b, format) {
           (r.b === b ? '' : ' and B has ' + format(r.b)) +
           (r.showReason ? ' because ' + r.reason: '')).trim();
 };
-},{"should-format":19}],17:[function(require,module,exports){
+},{"should-format":22}],20:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -2429,7 +2561,7 @@ function eq(a, b, opts, stackA, stackB, path) {
 
 module.exports = eq;
 
-},{"should-type":18}],18:[function(require,module,exports){
+},{"should-type":21}],21:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var types = {
@@ -2586,7 +2718,7 @@ Object.keys(types).forEach(function(typeName) {
   module.exports[typeName] = types[typeName];
 });
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var getType = require('should-type');
 
 function genKeysFunc(f) {
@@ -2839,7 +2971,7 @@ add('document', function(value) {
 add('window', function(value) {
   return '[Window]';
 });
-},{"should-type":20}],20:[function(require,module,exports){
-arguments[4][18][0].apply(exports,arguments)
-},{"dup":18}]},{},[1])(1)
+},{"should-type":23}],23:[function(require,module,exports){
+arguments[4][21][0].apply(exports,arguments)
+},{"dup":21}]},{},[1])(1)
 });
