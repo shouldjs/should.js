@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.5.0
+ * @version v4.5.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -921,7 +921,7 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var util = require('../util');
+var util = require('../util'),
   _eql = require('../eql');
 
 module.exports = function(should, Assertion) {
@@ -1939,7 +1939,7 @@ module.exports = function(should, Assertion) {
    * @param {string} [description] Optional message
    * @example
    *
-   * 'abc'.should.startWith('a');
+   * 'abca'.should.endWith('a');
    */
   Assertion.add('endWith', function(str, description) {
     this.params = { operator: 'to end with ' + should.format(str), message: description };
