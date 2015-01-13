@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.5.2
+ * @version v4.6.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -27,7 +27,7 @@ var inspect = require('should-format');
  * should('abc').be.a.string;
  */
 var should = function should(obj) {
-  return new should.Assertion(obj);
+  return (new should.Assertion(obj)).proxied();
 };
 
 should.AssertionError = require('./assertion-error');
@@ -232,6 +232,9 @@ var format = require('should-format');
  */
 function Assertion(obj) {
   this.obj = obj;
+  this.anyOne = false;
+  this.negate = false;
+  this.nestedErrorMessage = null;
 }
 
 /**
@@ -259,7 +262,7 @@ Assertion.add = function(name, func, isGetter) {
   var prop = {enumerable: true};
   if(typeof isGetter == 'undefined') isGetter = false;
   prop[isGetter ? 'get' : 'value'] = function() {
-    var context = new Assertion(this.obj, format);
+    var context = new Assertion(this.obj);
     context.anyOne = this.anyOne;
 
     try {
@@ -274,7 +277,7 @@ Assertion.add = function(name, func, isGetter) {
         if(this.negate) {
           this.obj = context.obj;
           this.negate = false;
-          return this;
+          return this.proxied();
         }
 
         this.nestedErrorMessage = e.message;
@@ -289,7 +292,6 @@ Assertion.add = function(name, func, isGetter) {
 
     //negative pass
     if(this.negate) {
-
       context.negate = true;
       this.nestedErrorMessage = context.params.message ? context.params.message : context.getMessage();
       this.fail();
@@ -299,10 +301,21 @@ Assertion.add = function(name, func, isGetter) {
     this.negate = false;
 
     //positive pass
-    return this;
+    return this.proxied();
   };
 
   Object.defineProperty(Assertion.prototype, name, prop);
+};
+
+Assertion.addChain = function(name, onCall){
+  onCall = onCall || function() {};
+  Object.defineProperty(Assertion.prototype, name, {
+    get: function() {
+      onCall();
+      return this.proxied();
+    },
+    enumerable: true
+  });
 };
 
 /**
@@ -359,7 +372,7 @@ Assertion.prototype = {
    * //throws AssertionError: expected 42 to be magic number
    */
   assert: function(expr) {
-    if(expr) return this;
+    if(expr) return this.proxied();
 
     var params = this.params;
 
@@ -424,7 +437,7 @@ Assertion.prototype = {
    */
   get not() {
     this.negate = !this.negate;
-    return this;
+    return this.proxied();
   },
 
   /**
@@ -435,6 +448,21 @@ Assertion.prototype = {
    */
   get any() {
     this.anyOne = true;
+    return this.proxied();
+  },
+
+  proxied: function() {
+    if(typeof Proxy == 'function') {
+      return new Proxy(this, {
+        get: function(target, name) {
+          if(name in target) {
+            return target[name];
+          } else {
+            throw new Error('Assertion has no property ' + util.formatProp(name));
+          }
+        }
+      })
+    }
     return this;
   }
 };
@@ -886,16 +914,6 @@ module.exports = function(should, Assertion) {
  */
 
 module.exports = function(should, Assertion) {
-
-  function addLink(name) {
-    Object.defineProperty(Assertion.prototype, name, {
-      get: function() {
-        return this;
-      },
-      enumerable: true
-    });
-  }
-
   /**
    * Simple chaining. It actually do nothing.
    *
@@ -912,7 +930,9 @@ module.exports = function(should, Assertion) {
    * @alias Assertion#the
    * @category assertion chaining
    */
-  ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(addLink);
+  ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(function(name) {
+    Assertion.addChain(name);
+  });
 };
 },{}],10:[function(require,module,exports){
 /*!

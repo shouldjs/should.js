@@ -1,3 +1,8 @@
+4.6.0 / 2015-01-13
+==================
+
+ * Wrap everywhere returned assertion with Proxy if available.
+
 4.5.2 / 2015-01-13
 ==================
 
