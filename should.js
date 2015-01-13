@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.5.1
+ * @version v4.5.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1005,7 +1005,7 @@ module.exports = function(should, Assertion) {
         var otherIdx = 0;
         obj.forEach(function(item) {
           try {
-            should(item).not.be.Null.and.containDeepOrdered(other[otherIdx]);
+            should(item).containDeepOrdered(other[otherIdx]);
             otherIdx++;
           } catch(e) {
             if(e instanceof should.AssertionError) {
@@ -1025,7 +1025,7 @@ module.exports = function(should, Assertion) {
     } else if(util.isObject(obj)) {// object contains object case
       if(util.isObject(other)) {
         util.forOwn(other, function(value, key) {
-          should(obj[key]).not.be.Null.and.containDeepOrdered(value);
+          should(obj[key]).containDeepOrdered(value);
         });
       } else {//one of the properties contain value
         this.assert(false);
@@ -1060,7 +1060,7 @@ module.exports = function(should, Assertion) {
             if(index in usedKeys) return false;
 
             try {
-              should(item).not.be.Null.and.containDeep(otherItem);
+              should(item).containDeep(otherItem);
               usedKeys[index] = true;
               return true;
             } catch(e) {
@@ -1080,7 +1080,7 @@ module.exports = function(should, Assertion) {
     } else if(util.isObject(obj)) {// object contains object case
       if(util.isObject(other)) {
         util.forOwn(other, function(value, key) {
-          should(obj[key]).not.be.Null.and.containDeep(value);
+          should(obj[key]).containDeep(value);
         });
       } else {//one of the properties contain value
         this.assert(false);

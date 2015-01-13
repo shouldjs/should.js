@@ -1,3 +1,8 @@
+4.5.2 / 2015-01-13
+==================
+
+ * Fixed null properties in .containDeep and .containDeepOrdered
+
 4.5.1 / 2015-01-13
 ==================
 
