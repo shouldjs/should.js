@@ -21,7 +21,7 @@ describe('should', function() {
   });
 
   it('test assertion', function() {
-    'test'.should.be.a.string;
+    'test'.should.be.a.String;
     should.equal('foo', 'foo');
   });
   
@@ -42,5 +42,13 @@ describe('should', function() {
     user.should.have.ownProperty('name')
       .which.not.have.length(3)
         .and.be.equal('tj');
+  });
+
+  it('test proxy shield getters', function() {
+    if(typeof Proxy == 'function') {
+      err(function() {
+        'abc'.should.be.string;
+      }, 'Assertion has no property string');
+    }
   });
 });
