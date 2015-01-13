@@ -118,6 +118,8 @@ describe('property', function() {
           {b: 'b'}
         ]);
     }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
+
+    ({hi: null}).should.containEql({hi: null})
   });
 
   it('test .containDeepOrdered', function() {
@@ -190,5 +192,7 @@ describe('property', function() {
           {b: 'b'}
         ]);
     }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
+
+    ({hi: null}).should.containEql({hi: null})
   });
 });
