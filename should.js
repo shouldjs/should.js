@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.6.0
+ * @version v4.6.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -168,7 +168,7 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/property":15,"./ext/string":16,"./ext/type":17,"./util":19,"should-format":22}],2:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/property":15,"./ext/string":16,"./ext/type":17,"./util":19,"should-format":21}],2:[function(require,module,exports){
 var util = require('./util');
 
 /**
@@ -468,7 +468,7 @@ Assertion.prototype = {
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":19,"should-format":22}],4:[function(require,module,exports){
+},{"./assertion-error":2,"./util":19,"should-format":21}],4:[function(require,module,exports){
 var config = {
   checkProtoEql: false,
 
@@ -1125,6 +1125,8 @@ var config = require('../config');
 
 var util = require('../util');
 
+var type = require('should-type');
+
 module.exports = function(should, Assertion) {
 
   /**
@@ -1148,7 +1150,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('eql', function(val, description) {
     var eql = _eql();
-    this.params = {operator: 'to equal', expected: val, showDiff: true, message: description};
+    this.params = {operator: 'to equal', expected: val, message: description};
 
     var strictResult = eql(this.obj, val, should.config);
 
@@ -1157,6 +1159,8 @@ module.exports = function(should, Assertion) {
     if(!config.useOldDeepEqual && !strictResult.result) {
       this.params.details = util.formatEqlResult(strictResult, this.obj, val, should.format);
     }
+
+    this.params.showDiff = type(this.obj) == type(val);
 
     this.assert(result);
   });
@@ -1178,14 +1182,16 @@ module.exports = function(should, Assertion) {
    * should(null).be.exactly(null);
    */
   Assertion.add('equal', function(val, description) {
-    this.params = {operator: 'to be', expected: val, showDiff: true, message: description};
+    this.params = {operator: 'to be', expected: val, message: description};
+
+    this.params.showDiff = type(this.obj) == type(val);
 
     this.assert(val === this.obj);
   });
 
   Assertion.alias('equal', 'exactly');
 };
-},{"../config":4,"../eql":5,"../util":19}],12:[function(require,module,exports){
+},{"../config":4,"../eql":5,"../util":19,"should-type":23}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2384,18 +2390,17 @@ exports.formatEqlResult = function(r, a, b, format) {
           (r.b === b ? '' : ' and B has ' + format(r.b)) +
           (r.showReason ? ' because ' + r.reason: '')).trim();
 };
-},{"should-format":22}],20:[function(require,module,exports){
+},{"should-format":21}],20:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function makeResult(r, path, reason, a, b, showReason) {
+function makeResult(r, path, reason, a, b) {
   var o = {result: r};
   if(!r) {
     o.path = path;
     o.reason = reason;
     o.a = a;
     o.b = b;
-    o.showReason = showReason;
   }
   return o;
 }
@@ -2418,89 +2423,93 @@ var REASON = {
   EQUALITY_PROTOTYPE: 'A and B have different prototypes',
   WRAPPED_VALUE: 'A wrapped value is not equal to B wrapped value',
   FUNCTION_SOURCES: 'function A is not equal to B by source code value (via .toString call)',
-  MISSING_KEY: '%s does not have key %s',
+  MISSING_KEY: '%s has no key %s',
   CIRCULAR_VALUES: 'A has circular reference that was visited not in the same time as B'
 };
 
-var LENGTH = ['length'];
-var NAME = ['name'];
-var MESSAGE = ['message'];
-var BYTE_LENGTH = ['byteLength'];
-var PROTOTYPE = ['prototype'];
+function eqInternal(a, b, opts, stackA, stackB, path, fails) {
+  var r = EQUALS;
 
-function eq(a, b, opts, stackA, stackB, path) {
-  path = path || [];
-  opts = opts || { checkProtoEql: true };
+  function result(comparison, reason) {
+    var res = makeResult(comparison, path, reason, a, b);
+    if(!comparison && opts.collectAllFails) {
+      fails.push(res);
+    }
+    return res;
+  }
+
+  function checkPropertyEquality(property) {
+    return eqInternal(a[property], b[property], opts, stackA, stackB, path.concat([property]), fails);
+  }
 
   // equal a and b exit early
   if(a === b) {
     // check for +0 !== -0;
-    return makeResult(a !== 0 || (1 / a == 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b);
+    return result(a !== 0 || (1 / a == 1 / b), REASON.PLUS_0_AND_MINUS_0);
   }
 
-  var l, isValueEqual;
+  var l, p;
 
   var typeA = getType(a),
     typeB = getType(b);
 
   // if objects has different types they are not equals
-  if(typeA !== typeB) return makeResult(false, path, format(REASON.DIFFERENT_TYPES, typeA, typeB), a, b);
+  if(typeA !== typeB) return result(false, format(REASON.DIFFERENT_TYPES, typeA, typeB));
 
   switch(typeA) {
     case 'number':
-      return (a !== a) ? makeResult(b !== b, path, REASON.NAN_NUMBER, a, b)
+      return (a !== a) ? result(b !== b, REASON.NAN_NUMBER)
         // but treat `+0` vs. `-0` as not equal
-        : (a === 0 ? makeResult((1 / a === 1 / b), path, REASON.PLUS_0_AND_MINUS_0, a, b) : makeResult(a === b, path, REASON.EQUALITY, a, b));
+        : (a === 0 ? result(1 / a === 1 / b, REASON.PLUS_0_AND_MINUS_0) : result(a === b, REASON.EQUALITY));
 
     case 'regexp':
-      isValueEqual = a.source === b.source &&
-        a.global === b.global &&
-        a.multiline === b.multiline &&
-        a.lastIndex === b.lastIndex &&
-        a.ignoreCase === b.ignoreCase;
-      if(isValueEqual) break;
-      return makeResult(false, path, REASON.EQUALITY, a, b);
+      p = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase'];
+      while(p.length) {
+        r = checkPropertyEquality(p.shift());
+        if(!opts.collectAllFails && !r.result) return r;
+      }
+      break;
 
     case 'boolean':
     case 'string':
-      return makeResult(a === b, path, REASON.EQUALITY, a, b);
+      return result(a === b, REASON.EQUALITY);
 
     case 'date':
-      isValueEqual = +a === +b;
-      if(isValueEqual) break;
-      return makeResult(false, path, REASON.EQUALITY, a, b);
+      if(+a !== +b && !opts.collectAllFails) {
+        return result(false, REASON.EQUALITY);
+      }
+      break;
 
     case 'object-number':
     case 'object-boolean':
     case 'object-string':
-      isValueEqual = a.valueOf() === b.valueOf();
-      if(isValueEqual) break;
-      return makeResult(false, path, REASON.WRAPPED_VALUE, a.valueOf(), b.valueOf());
+      r = eqInternal(a.valueOf(), b.valueOf(), opts, stackA, stackB, path, fails);
+      if(!r.result && !opts.collectAllFails) {
+        r.reason = REASON.WRAPPED_VALUE;
+        return r;
+      }
+      break;
 
     case 'buffer':
-      if(a.length !== b.length) return makeResult(false, path.concat(LENGTH), REASON.EQUALITY, a.length, b.length);
+      r = checkPropertyEquality('length');
+      if(!opts.collectAllFails && !r.result) return r;
 
       l = a.length;
-      while(l--) if(a[l] !== b[l]) return makeResult(false, path.concat([l]), REASON.EQUALITY, a[l], b[l]);
+      while(l--) {
+        r = checkPropertyEquality(l);
+        if(!opts.collectAllFails && !r.result) return r;
+      }
 
       return EQUALS;
 
     case 'error':
-      //only check not enumerable properties, and check arrays later
-      if(a.name !== b.name) return makeResult(false, path.concat(NAME), REASON.EQUALITY, a.name, b.name);
-      if(a.message !== b.message) return makeResult(false, path.concat(MESSAGE), REASON.EQUALITY, a.message, b.message);
+      p = ['name', 'message'];
+      while(p.length) {
+        r = checkPropertyEquality(p.shift());
+        if(!opts.collectAllFails && !r.result) return r;
+      }
 
       break;
-
-    //XXX check more in browsers
-    case 'array-buffer':
-      if(a.byteLength !== b.byteLength) return makeResult(false, path.concat(BYTE_LENGTH), REASON.EQUALITY, a.byteLength, b.byteLength);
-
-      l = a.byteLength;
-      while(l--) if(a[l] !== b[l]) return makeResult(false, path.concat([l]), REASON.EQUALITY, a[l], b[l]);
-
-      return EQUALS;
-
   }
 
   // compare deep objects and arrays
@@ -2511,7 +2520,7 @@ function eq(a, b, opts, stackA, stackB, path) {
   l = stackA.length;
   while(l--) {
     if(stackA[l] == a) {
-      return makeResult(stackB[l] == b, path, REASON.CIRCULAR_VALUES, a, b);
+      return result(stackB[l] == b, REASON.CIRCULAR_VALUES);
     }
   }
 
@@ -2523,37 +2532,55 @@ function eq(a, b, opts, stackA, stackB, path) {
     keysComparison,
     key;
 
-  if(typeA === 'array' || typeA === 'arguments') {
-    if(a.length !== b.length) return makeResult(false, path.concat(LENGTH), REASON.EQUALITY, a.length, b.length);
+  if(typeA === 'array' || typeA === 'arguments' || typeA === 'typed-array') {
+    r = checkPropertyEquality('length');
+    if(!opts.collectAllFails && !r.result) return r;
+  }
+
+  if(typeA === 'array-buffer' || typeA === 'typed-array') {
+    r = checkPropertyEquality('byteLength');
+    if(!opts.collectAllFails && !r.result) return r;
   }
 
   if(typeB === 'function') {
     var fA = a.toString(), fB = b.toString();
-    if(fA !== fB) return makeResult(false, path, REASON.FUNCTION_SOURCES, fA, fB);
+    r = eqInternal(fA, fB, opts, stackA, stackB, path, fails);
+    r.reason = REASON.FUNCTION_SOURCES;
+    if(!opts.collectAllFails && !r.result) return r;
   }
 
   for(key in b) {
     if(hasOwnProperty.call(b, key)) {
-      hasProperty = hasOwnProperty.call(a, key);
-      if(!hasProperty) return makeResult(false, path, format(REASON.MISSING_KEY, 'A', key), a, b);
+      r = result(hasOwnProperty.call(a, key), format(REASON.MISSING_KEY, 'A', key));
+      if(!r.result && !opts.collectAllFails) {
+        return r;
+      }
 
-      keysComparison = eq(a[key], b[key], opts, stackA, stackB, path.concat([key]));
-      if(!keysComparison.result) return keysComparison;
+      if(r.result) {
+        r = checkPropertyEquality(key);
+        if(!r.result && !opts.collectAllFails) {
+          return r;
+        }
+      }
     }
   }
 
   // ensure both objects have the same number of properties
   for(key in a) {
     if(hasOwnProperty.call(a, key)) {
-      hasProperty = hasOwnProperty.call(b, key);
-      if(!hasProperty) return makeResult(false, path, format(REASON.MISSING_KEY, 'B', key), a, b);
+      r = result(hasOwnProperty.call(b, key), format(REASON.MISSING_KEY, 'B', key));
+      if(!r.result && !opts.collectAllFails) {
+        return r;
+      }
     }
   }
+
+  stackA.pop();
+  stackB.pop();
 
   var prototypesEquals = false, canComparePrototypes = false;
 
   if(opts.checkProtoEql) {
-
     if(Object.getPrototypeOf) {
       prototypesEquals = Object.getPrototypeOf(a) === Object.getPrototypeOf(b);
       canComparePrototypes = true;
@@ -2562,26 +2589,290 @@ function eq(a, b, opts, stackA, stackB, path) {
       canComparePrototypes = true;
     }
 
-    if(canComparePrototypes && !prototypesEquals) {
-      return makeResult(false, path, REASON.EQUALITY_PROTOTYPE, a, b, true);
+    if(canComparePrototypes && !prototypesEquals && !opts.collectAllFails) {
+      r = result(prototypesEquals, REASON.EQUALITY_PROTOTYPE);
+      r.showReason = true;
+      if(!r.result && !opts.collectAllFails) {
+        return r;
+      }
     }
   }
 
-  stackA.pop();
-  stackB.pop();
-
   if(typeB === 'function') {
-    keysComparison = eq(a.prototype, b.prototype, opts, stackA, stackB, path.concat(PROTOTYPE));
-    if(!keysComparison.result) return keysComparison;
+    r = checkPropertyEquality('prototype');
+    if(!r.result && !opts.collectAllFails) return r;
   }
 
   return EQUALS;
 }
 
+var defaultOptions = {checkProtoEql: true, collectAllFails: false};
+
+function eq(a, b, opts) {
+  opts = opts || defaultOptions;
+  var fails = [];
+  var r = eqInternal(a, b, opts || defaultOptions, [], [], [], fails);
+  return opts.collectAllFails ? fails : r;
+}
 
 module.exports = eq;
 
-},{"should-type":21}],21:[function(require,module,exports){
+eq.r = REASON;
+
+},{"should-type":23}],21:[function(require,module,exports){
+var getType = require('should-type');
+
+function genKeysFunc(f) {
+  return function(value) {
+    var k = f(value);
+    k.sort();
+    return k;
+  }
+}
+
+//XXX add ability to only inspect some paths
+var format = function(value, opts) {
+  opts = opts || {};
+
+  if(!('seen' in opts)) opts.seen = [];
+  opts.keys = genKeysFunc('keys' in opts && opts.keys === false ? Object.getOwnPropertyNames : Object.keys);
+
+  if(!('maxLineLength' in opts)) opts.maxLineLength = 60;
+  if(!('propSep' in opts)) opts.propSep = ',';
+
+  var type = getType(value);
+  return (format.formats[type] || format.formats['object'])(value, opts);
+};
+
+module.exports = format;
+
+format.formats = {};
+
+function add(t, f) {
+  format.formats[t] = f;
+}
+
+[ 'undefined',  'boolean',  'null'].forEach(function(name) {
+  add(name, String);
+});
+
+['number', 'boolean'].forEach(function(name) {
+  var capName = name.substring(0, 1).toUpperCase() + name.substring(1);
+  add('object-' + name, formatObjectWithPrefix(function(value) {
+    return '[' + capName + ': ' + format(value.valueOf()) + ']';
+  }));
+});
+
+add('object-string', function(value, opts) {
+  var realValue = value.valueOf();
+  var prefix = '[String: ' + format(realValue) + ']';
+  var props = opts.keys(value);
+  props = props.filter(function(p) {
+    return !(p.match(/\d+/) && parseInt(p, 10) < realValue.length);
+  });
+
+  if(props.length == 0) return prefix;
+  else return formatObject(value, opts, prefix, props);
+});
+
+add('regexp', formatObjectWithPrefix(String));
+
+add('number', function(value) {
+  if(value === 0 && 1 / value < 0) return '-0';
+  return String(value);
+});
+
+add('string', function(value) {
+  return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+      .replace(/'/g, "\\'")
+      .replace(/\\"/g, '"') + '\'';
+});
+
+add('object', formatObject);
+
+add('array', function(value, opts) {
+  var keys = opts.keys(value);
+  var len = 0;
+
+  opts.seen.push(value);
+
+  var props = keys.map(function(prop) {
+    var desc;
+    try {
+      desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
+    } catch(e) {
+      desc = {value: e};
+    }
+
+    var f;
+    if(prop.match(/\d+/)) {
+      f = format(desc.value, opts);
+    } else {
+      f = formatProperty(desc.value, opts, prop)
+    }
+    len += f.length;
+    return f;
+  });
+
+  opts.seen.pop();
+
+  if(props.length === 0) return '[]';
+
+  if(len <= opts.maxLineLength) {
+    return '[ ' + props.join(opts.propSep + ' ') + ' ]';
+  } else {
+    return '[' + '\n' + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + ']';
+  }
+});
+
+function addSpaces(v) {
+  return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
+}
+
+function formatObject(value, opts, prefix, props) {
+  props = props || opts.keys(value);
+
+  var len = 0;
+
+  opts.seen.push(value);
+  props = props.map(function(prop) {
+    var f = formatProperty(value, opts, prop);
+    len += f.length;
+    return f;
+  });
+  opts.seen.pop();
+
+  if(props.length === 0) return '{}';
+
+  if(len <= opts.maxLineLength) {
+    return '{ ' + (prefix ? prefix + ' ' : '') + props.join(opts.propSep + ' ') + ' }';
+  } else {
+    return '{' + '\n' + (prefix ? prefix + '\n' : '') + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + '}';
+  }
+}
+
+format.formatPropertyName = function(name, opts) {
+  return name.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/) ? name : format(name, opts)
+};
+
+
+function formatProperty(value, opts, prop) {
+  var desc;
+  try {
+    desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
+  } catch(e) {
+    desc = {value: e};
+  }
+
+  var propName = format.formatPropertyName(prop, opts);
+
+  var propValue = desc.get && desc.set ?
+    '[Getter/Setter]' : desc.get ?
+    '[Getter]' : desc.set ?
+    '[Setter]' : opts.seen.indexOf(desc.value) >= 0 ?
+    '[Circular]' :
+    format(desc.value, opts);
+
+  return propName + ': ' + propValue;
+}
+
+
+function pad2Zero(n) {
+  return n < 10 ? '0' + n : '' + n;
+}
+
+function pad3Zero(n) {
+  return n < 100 ? '0' + pad2Zero(n) : '' + n;
+}
+
+function formatDate(value) {
+  var to = value.getTimezoneOffset();
+  var absTo = Math.abs(to);
+  var hours = Math.floor(absTo / 60);
+  var minutes = absTo - hours * 60;
+  var tzFormat = 'GMT' + (to < 0 ? '+' : '-') + pad2Zero(hours) + pad2Zero(minutes);
+  return value.toLocaleDateString() + ' ' + value.toLocaleTimeString() + '.' + pad3Zero(value.getMilliseconds()) + ' ' + tzFormat;
+}
+
+function formatObjectWithPrefix(f) {
+  return function(value, opts) {
+    var prefix = f(value);
+    var props = opts.keys(value);
+    if(props.length == 0) return prefix;
+    else return formatObject(value, opts, prefix, props);
+  }
+}
+
+add('date', formatObjectWithPrefix(formatDate));
+
+var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
+
+function functionName(f) {
+  if(f.name) {
+    return f.name;
+  }
+  var name = f.toString().match(functionNameRE)[1];
+  return name;
+}
+
+add('function', formatObjectWithPrefix(function(value) {
+  var name = functionName(value);
+  return '[Function' + (name ? ': ' + name : '') + ']';
+}));
+
+add('error', formatObjectWithPrefix(function(value) {
+  var name = value.name;
+  var message = value.message;
+  return '[' + name + (message ? ': ' + message : '') + ']';
+}));
+
+function generateFunctionForIndexedArray(lengthProp, name) {
+  return function(value) {
+    var str = '';
+    var max = 50;
+    var len = value[lengthProp];
+    if(len > 0) {
+      for(var i = 0; i < max && i < len; i++) {
+        var b = value[i] || 0;
+        str += ' ' + pad2Zero(b.toString(16));
+      }
+      if(len > max)
+        str += ' ... ';
+    }
+    return '[' + (value.constructor.name || name) + (str ? ':' + str : '') + ']';
+  }
+}
+
+add('buffer', generateFunctionForIndexedArray('length', 'Buffer'));
+
+add('array-buffer', generateFunctionForIndexedArray('byteLength'));
+
+add('typed-array', generateFunctionForIndexedArray('byteLength'));
+
+add('promise', function(value) {
+  return '[Promise]';
+});
+
+add('xhr', function(value) {
+  return '[XMLHttpRequest]';
+});
+
+add('html-element', function(value) {
+  return value.outerHTML;
+});
+
+add('html-element-text', function(value) {
+  return value.nodeValue;
+});
+
+add('document', function(value) {
+  return value.documentElement.outerHTML;
+});
+
+add('window', function(value) {
+  return '[Window]';
+});
+},{"should-type":22}],22:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var types = {
@@ -2738,260 +3029,7 @@ Object.keys(types).forEach(function(typeName) {
   module.exports[typeName] = types[typeName];
 });
 
-},{}],22:[function(require,module,exports){
-var getType = require('should-type');
-
-function genKeysFunc(f) {
-  return function(value) {
-    var k = f(value);
-    k.sort();
-    return k;
-  }
-}
-
-//XXX add ability to only inspect some paths
-var format = function(value, opts) {
-  opts = opts || {};
-
-  if(!('seen' in opts)) opts.seen = [];
-  opts.keys = genKeysFunc('keys' in opts && opts.keys === false ? Object.getOwnPropertyNames : Object.keys);
-
-  if(!('maxLineLength' in opts)) opts.maxLineLength = 60;
-  if(!('propSep' in opts)) opts.propSep = ',';
-
-  var type = getType(value);
-  return (format.formats[type] || format.formats['object'])(value, opts);
-};
-
-module.exports = format;
-
-format.formats = {};
-
-function add(t, f) {
-  format.formats[t] = f;
-}
-
-[ 'undefined',  'boolean',  'null'].forEach(function(name) {
-  add(name, String);
-});
-
-['number', 'boolean'].forEach(function(name) {
-  var capName = name.substring(0, 1).toUpperCase() + name.substring(1);
-  add('object-' + name, formatObjectWithPrefix(function(value) {
-    return '[' + capName + ': ' + format(value.valueOf()) + ']';
-  }));
-});
-
-add('object-string', function(value, opts) {
-  var realValue = value.valueOf();
-  var prefix = '[String: ' + format(realValue) + ']';
-  var props = opts.keys(value);
-  props = props.filter(function(p) {
-    return !(p.match(/\d+/) && parseInt(p, 10) < realValue.length);
-  });
-
-  if(props.length == 0) return prefix;
-  else return formatObject(value, opts, prefix, props);
-});
-
-add('regexp', formatObjectWithPrefix(String));
-
-add('number', function(value) {
-  if(value === 0 && 1 / value < 0) return '-0';
-  return String(value);
-});
-
-add('string', function(value) {
-  return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-      .replace(/'/g, "\\'")
-      .replace(/\\"/g, '"') + '\'';
-});
-
-add('object', formatObject);
-
-add('array', function(value, opts) {
-  var keys = opts.keys(value);
-  var len = 0;
-
-  opts.seen.push(value);
-
-  var props = keys.map(function(prop) {
-    var desc;
-    try {
-      desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
-    } catch(e) {
-      desc = {value: e};
-    }
-
-    var f;
-    if(prop.match(/\d+/)) {
-      f = format(desc.value, opts);
-    } else {
-      f = formatProperty(desc.value, opts, prop)
-    }
-    len += f.length;
-    return f;
-  });
-
-  opts.seen.pop();
-
-  if(props.length === 0) return '[]';
-
-  if(len <= opts.maxLineLength) {
-    return '[ ' + props.join(opts.propSep + ' ') + ' ]';
-  } else {
-    return '[' + '\n' + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + ']';
-  }
-});
-
-function addSpaces(v) {
-  return '  ' + v;
-}
-
-function formatObject(value, opts, prefix, props) {
-  props = props || opts.keys(value);
-
-  var len = 0;
-
-  opts.seen.push(value);
-  props = props.map(function(prop) {
-    var f = formatProperty(value, opts, prop);
-    len += f.length;
-    return f;
-  });
-  opts.seen.pop();
-
-  if(props.length === 0) return '{}';
-
-  if(len <= opts.maxLineLength) {
-    return '{ ' + (prefix ? prefix + ' ' : '') + props.join(opts.propSep + ' ') + ' }';
-  } else {
-    return '{' + '\n' + (prefix ? prefix + '\n' : '') + props.map(addSpaces).join(opts.propSep + '\n') + '\n' + '}';
-  }
-}
-
-format.formatPropertyName = function(name, opts) {
-  return name.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/) ? name : format(name, opts)
-};
-
-
-function formatProperty(value, opts, prop) {
-  var desc;
-  try {
-    desc = Object.getOwnPropertyDescriptor(value, prop) || {value: value[prop]};
-  } catch(e) {
-    desc = {value: e};
-  }
-
-  var propName = format.formatPropertyName(prop, opts);
-
-  var propValue = desc.get && desc.set ?
-    '[Getter/Setter]' : desc.get ?
-    '[Getter]' : desc.set ?
-    '[Setter]' : opts.seen.indexOf(desc.value) >= 0 ?
-    '[Circular]' :
-    format(desc.value, opts);
-
-  return propName + ': ' + propValue;
-}
-
-
-function pad2Zero(n) {
-  return n < 10 ? '0' + n : '' + n;
-}
-
-function pad3Zero(n) {
-  return n < 100 ? '0' + pad2Zero(n) : '' + n;
-}
-
-function formatDate(value) {
-  var to = value.getTimezoneOffset();
-  var absTo = Math.abs(to);
-  var hours = Math.floor(absTo / 60);
-  var minutes = absTo - hours * 60;
-  var tzFormat = 'GMT' + (to < 0 ? '+' : '-') + pad2Zero(hours) + pad2Zero(minutes);
-  return value.toLocaleDateString() + ' ' + value.toLocaleTimeString() + '.' + pad3Zero(value.getMilliseconds()) + ' ' + tzFormat;
-}
-
-function formatObjectWithPrefix(f) {
-  return function(value, opts) {
-    var prefix = f(value);
-    var props = opts.keys(value);
-    if(props.length == 0) return prefix;
-    else return formatObject(value, opts, prefix, props);
-  }
-}
-
-add('date', formatObjectWithPrefix(formatDate));
-
-var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
-
-function functionName(f) {
-  if(f.name) {
-    return f.name;
-  }
-  var name = f.toString().match(functionNameRE)[1];
-  return name;
-}
-
-add('function', formatObjectWithPrefix(function(value) {
-  var name = functionName(value);
-  return '[Function' + (name ? ': ' + name : '') + ']';
-}));
-
-add('error', formatObjectWithPrefix(function(value) {
-  var name = value.name;
-  var message = value.message;
-  return '[' + name + (message ? ': ' + message : '') + ']';
-}));
-
-function generateFunctionForIndexedArray(lengthProp, name) {
-  return function(value) {
-    var str = '';
-    var max = 50;
-    var len = value[lengthProp];
-    if(len > 0) {
-      for(var i = 0; i < max && i < len; i++) {
-        var b = value[i] || 0;
-        str += ' ' + pad2Zero(b.toString(16));
-      }
-      if(len > max)
-        str += ' ... ';
-    }
-    return '[' + (value.constructor.name || name) + (str ? ':' + str : '') + ']';
-  }
-}
-
-add('buffer', generateFunctionForIndexedArray('length', 'Buffer'));
-
-add('array-buffer', generateFunctionForIndexedArray('byteLength'));
-
-add('typed-array', generateFunctionForIndexedArray('byteLength'));
-
-add('promise', function(value) {
-  return '[Promise]';
-});
-
-add('xhr', function(value) {
-  return '[XMLHttpRequest]';
-});
-
-add('html-element', function(value) {
-  return value.outerHTML;
-});
-
-add('html-element-text', function(value) {
-  return value.nodeValue;
-});
-
-add('document', function(value) {
-  return value.documentElement.outerHTML;
-});
-
-add('window', function(value) {
-  return '[Window]';
-});
-},{"should-type":23}],23:[function(require,module,exports){
-arguments[4][21][0].apply(exports,arguments)
-},{"dup":21}]},{},[1])(1)
+},{}],23:[function(require,module,exports){
+arguments[4][22][0].apply(exports,arguments)
+},{"dup":22}]},{},[1])(1)
 });

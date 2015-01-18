@@ -1,7 +1,7 @@
 {
   "name": "should",
   "description": "test framework agnostic BDD-style assertions",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "author": "TJ Holowaychuk <tj@vision-media.ca> and contributors",
   "repository": {
     "type": "git",
@@ -35,7 +35,8 @@
   "main": "./lib/should.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "0.2.8",
-    "should-format": "0.0.6"
+    "should-equal": "0.3.1",
+    "should-format": "0.0.7",
+    "should-type": "0.0.4"
   }
 }
