@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.6.1
+ * @version v4.6.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -259,7 +259,7 @@ function Assertion(obj) {
  * });
  */
 Assertion.add = function(name, func, isGetter) {
-  var prop = {enumerable: true};
+  var prop = {enumerable: true, configurable: true};
   if(typeof isGetter == 'undefined') isGetter = false;
   prop[isGetter ? 'get' : 'value'] = function() {
     var context = new Assertion(this.obj);
