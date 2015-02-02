@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.6.2
+ * @version v4.6.3
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -97,12 +97,6 @@ should.extend = function(propertyName, proto) {
   return { name: propertyName, descriptor: prevDescriptor, proto: proto };
 };
 
-var defaultProto = Object.prototype;
-var defaultProperty = 'should';
-
-//Expose api via `Object#should`.
-var prevShould = should.extend(defaultProperty, defaultProto);
-
 /**
  * Delete previous extension. If `desc` missing it will remove default extension.
  *
@@ -125,10 +119,12 @@ var prevShould = should.extend(defaultProperty, defaultProto);
 should.noConflict = function(desc) {
   desc = desc || prevShould;
 
-  delete desc.proto[desc.name];
+  if(desc) {
+    delete desc.proto[desc.name];
 
-  if(desc.descriptor) {
-    Object.defineProperty(desc.proto, desc.name, desc.descriptor);
+    if(desc.descriptor) {
+      Object.defineProperty(desc.proto, desc.name, desc.descriptor);
+    }
   }
   return should;
 };
@@ -167,6 +163,13 @@ should
   .use(require('./ext/error'))
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
+
+
+var defaultProto = Object.prototype;
+var defaultProperty = 'should';
+
+//Expose api via `Object#should`.
+var prevShould = should.extend(defaultProperty, defaultProto);
 
 },{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/property":15,"./ext/string":16,"./ext/type":17,"./util":19,"should-format":21}],2:[function(require,module,exports){
 var util = require('./util');
@@ -1020,35 +1023,31 @@ module.exports = function(should, Assertion) {
     this.params = { operator: 'to contain ' + i(other) };
 
     var obj = this.obj;
-    if(util.isArray(obj)) {
-      if(util.isArray(other)) {
-        var otherIdx = 0;
-        obj.forEach(function(item) {
-          try {
-            should(item).containDeepOrdered(other[otherIdx]);
-            otherIdx++;
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
-              return;
-            }
-            throw e;
+    if(util.isArray(obj) && util.isArray(other)) {
+      var otherIdx = 0;
+      obj.forEach(function(item) {
+        try {
+          should(item).containDeepOrdered(other[otherIdx]);
+          otherIdx++;
+        } catch(e) {
+          if(e instanceof should.AssertionError) {
+            return;
           }
-        }, this);
+          throw e;
+        }
+      }, this);
 
-        this.assert(otherIdx == other.length);
-        //search array contain other as sub sequence
-      } else {
-        this.assert(false);
-      }
+      this.assert(otherIdx == other.length);
     } else if(util.isString(obj)) {// expect other to be string
       this.assert(obj.indexOf(String(other)) >= 0);
-    } else if(util.isObject(obj)) {// object contains object case
-      if(util.isObject(other)) {
-        util.forOwn(other, function(value, key) {
-          should(obj[key]).containDeepOrdered(value);
-        });
-      } else {//one of the properties contain value
-        this.assert(false);
+    } else if(util.isObject(obj) && util.isObject(other)) {// object contains object case
+      util.forOwn(other, function(value, key) {
+        should(obj[key]).containDeepOrdered(value);
+      });
+
+      // if both objects is empty means we finish traversing - and we need to compare for hidden values
+      if(util.isEmptyObject(obj) && util.isEmptyObject(other)) {
+        this.eql(other);
       }
     } else {
       this.eql(other);
@@ -1072,38 +1071,34 @@ module.exports = function(should, Assertion) {
     this.params = { operator: 'to contain ' + i(other) };
 
     var obj = this.obj;
-    if(util.isArray(obj)) {
-      if(util.isArray(other)) {
-        var usedKeys = {};
-        other.forEach(function(otherItem) {
-          this.assert(obj.some(function(item, index) {
-            if(index in usedKeys) return false;
+    if(util.isArray(obj) && util.isArray(other)) {
+      var usedKeys = {};
+      other.forEach(function(otherItem) {
+        this.assert(obj.some(function(item, index) {
+          if(index in usedKeys) return false;
 
-            try {
-              should(item).containDeep(otherItem);
-              usedKeys[index] = true;
-              return true;
-            } catch(e) {
-              if(e instanceof should.AssertionError) {
-                return false;
-              }
-              throw e;
+          try {
+            should(item).containDeep(otherItem);
+            usedKeys[index] = true;
+            return true;
+          } catch(e) {
+            if(e instanceof should.AssertionError) {
+              return false;
             }
-          }));
-        }, this);
-
-      } else {
-        this.assert(false);
-      }
+            throw e;
+          }
+        }));
+      }, this);
     } else if(util.isString(obj)) {// expect other to be string
       this.assert(obj.indexOf(String(other)) >= 0);
-    } else if(util.isObject(obj)) {// object contains object case
-      if(util.isObject(other)) {
-        util.forOwn(other, function(value, key) {
-          should(obj[key]).containDeep(value);
-        });
-      } else {//one of the properties contain value
-        this.assert(false);
+    } else if(util.isObject(obj) && util.isObject(other)) {// object contains object case
+      util.forOwn(other, function(value, key) {
+        should(obj[key]).containDeep(value);
+      });
+
+      // if both objects is empty means we finish traversing - and we need to compare for hidden values
+      if(util.isEmptyObject(obj) && util.isEmptyObject(other)) {
+        this.eql(other);
       }
     } else {
       this.eql(other);
@@ -2389,6 +2384,15 @@ exports.formatEqlResult = function(r, a, b, format) {
           (r.a === a ? '' : ', A has ' + format(r.a)) +
           (r.b === b ? '' : ' and B has ' + format(r.b)) +
           (r.showReason ? ' because ' + r.reason: '')).trim();
+};
+
+exports.isEmptyObject = function(obj) {
+  for(var prop in obj) {
+    if(hasOwnProperty.call(obj, prop)) {
+      return false;
+    }
+  }
+  return true;
 };
 },{"should-format":21}],20:[function(require,module,exports){
 var getType = require('should-type');

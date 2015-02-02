@@ -1,3 +1,9 @@
+4.6.3 / 2015-02-01
+==================
+
+ * Added small check for .noConflict
+ * Fix end cases for .containDeep and .containDeepOrdered
+
 4.6.2 / 2015-01-28
 ==================
 
