@@ -119,7 +119,11 @@ describe('property', function() {
         ]);
     }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
 
-    ({hi: null}).should.containEql({hi: null})
+    ({hi: null}).should.containEql({hi: null});
+
+    var firstDec = [{date: (new Date('2014-12-01 00:00:00'))}];
+    var secondDec = [{date: (new Date('2014-12-02 00:00:00'))}];
+    firstDec.should.not.containDeep(secondDec);
   });
 
   it('test .containDeepOrdered', function() {
