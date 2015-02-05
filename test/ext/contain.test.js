@@ -124,6 +124,8 @@ describe('property', function() {
     var firstDec = [{date: (new Date('2014-12-01 00:00:00'))}];
     var secondDec = [{date: (new Date('2014-12-02 00:00:00'))}];
     firstDec.should.not.containDeep(secondDec);
+
+    [{date: { d: (new Date('2014-12-01 00:00:00'))}}].should.not.containDeep([{date: (new Date('2014-12-02 00:00:00'))}]);
   });
 
   it('test .containDeepOrdered', function() {
