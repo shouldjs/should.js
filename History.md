@@ -1,3 +1,8 @@
+4.6.5 / 2015-02-05
+==================
+
+ * Fix perfomance degradation on large objects
+
 4.6.4 / 2015-02-05
 ==================
 
