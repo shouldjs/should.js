@@ -1,3 +1,8 @@
+4.6.4 / 2015-02-05
+==================
+
+ * Fix end cases for .containDeep and .containDeepOrdered
+
 4.6.3 / 2015-02-01
 ==================
 

@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v4.6.3
+ * @version v4.6.4
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1046,7 +1046,7 @@ module.exports = function(should, Assertion) {
       });
 
       // if both objects is empty means we finish traversing - and we need to compare for hidden values
-      if(util.isEmptyObject(obj) && util.isEmptyObject(other)) {
+      if(util.isEmptyObject(other)) {
         this.eql(other);
       }
     } else {
@@ -1097,7 +1097,7 @@ module.exports = function(should, Assertion) {
       });
 
       // if both objects is empty means we finish traversing - and we need to compare for hidden values
-      if(util.isEmptyObject(obj) && util.isEmptyObject(other)) {
+      if(util.isEmptyObject(other)) {
         this.eql(other);
       }
     } else {
