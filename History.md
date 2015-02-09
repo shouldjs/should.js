@@ -1,3 +1,12 @@
+5.0.0 / 2015-02-09
+==================
+
+ * Remove old .eql implementation
+ * Refactor nested errors
+ * Added separate reporting message for false negative results like 10.should.not.equal(10)
+ * Make error.message lazy fix old perfomance bottlenecks for constructing messages for big objects
+ * Added .propertyWithDescriptor
+
 4.6.5 / 2015-02-05
 ==================
 
