@@ -8,15 +8,12 @@ _should_ is an expressive, readable, framework-agnostic assertion library. The m
 
 _should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
 
-### Breaking changes for 5.x
+### Upgrading instractions
 
-Please check [wiki](https://github.com/shouldjs/should.js/wiki/Breaking-changes-5.x).
+Please check [wiki page](https://github.com/shouldjs/should.js/wiki/Breaking-changes) for upgrading instructions.
 
-### Breaking changes for 4.x
 
-Please check [wiki](https://github.com/shouldjs/should.js/wiki/Breaking-changes-4.x).
-
-### .eql implementation in 4.x
+### .eql implementation in **4.x**
 
 In 4.x `.eql` implementation was changed to fix old bug in deepEqual from node's `assert` module. To do not allow to assume that `10` is equal to `'10'`. You can still use old .eql implementation via `should.config` flags.
 
