@@ -18,7 +18,7 @@ describe('number', function() {
 
     err(function(){
       NaN.should.not.be.NaN;
-    }, "expected NaN not to be NaN")
+    }, "expected NaN not to be NaN (false negative fail)")
   });
 
   it('test Infinity', function() {
@@ -34,11 +34,11 @@ describe('number', function() {
 
     err(function(){
       NaN.should.be.Infinity;
-    }, "expected NaN to be Infinity\n    expected NaN not to be NaN")
+    }, "expected NaN to be Infinity\n    expected NaN not to be NaN (false negative fail)")
 
     err(function(){
       Infinity.should.not.be.Infinity;
-    }, "expected Infinity not to be Infinity")
+    }, "expected Infinity not to be Infinity (false negative fail)")
   });
 
   it('test within(start, finish)', function() {
@@ -49,7 +49,7 @@ describe('number', function() {
 
     err(function(){
       (5).should.not.be.within(4,6);
-    }, "expected 5 not to be within 4..6");
+    }, "expected 5 not to be within 4..6 (false negative fail)");
 
     err(function(){
       (10).should.be.within(50,100);
@@ -71,7 +71,7 @@ describe('number', function() {
 
     err(function(){
       (99.99).should.not.be.approximately(100, 0.1);
-    }, "expected 99.99 not to be approximately 100 ±0.1");
+    }, "expected 99.99 not to be approximately 100 ±0.1 (false negative fail)");
 
     err(function(){
       (99.99).should.be.approximately(105, 0.1);
@@ -91,7 +91,7 @@ describe('number', function() {
 
     err(function(){
       (10).should.not.be.above(6);
-    }, "expected 10 not to be above 6");
+    }, "expected 10 not to be above 6 (false negative fail)");
 
     err(function(){
       (5).should.be.above(6, 'foo');
@@ -114,7 +114,7 @@ describe('number', function() {
 
     err(function(){
       (6).should.not.be.below(10);
-    }, "expected 6 not to be below 10");
+    }, "expected 6 not to be below 10 (false negative fail)");
 
     err(function(){
       (6).should.be.below(5, 'foo');

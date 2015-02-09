@@ -12,11 +12,12 @@ describe('type', function() {
 
     err(function() {
       ((function(){ return arguments; })(1,2,3)).should.not.be.arguments;
-    }, "expected { '0': 1, '1': 2, '2': 3 } not to be arguments");
+    }, "expected { '0': 1, '1': 2, '2': 3 } not to be arguments (false negative fail)");
 
     err(function() {
       ({}).should.be.arguments;
-    }, "expected {} to be arguments");
+    }, 'expected {} to be arguments',
+       '    expected {} to have [[Class]] Arguments');
   });
 
   it('test typeof', function() {
@@ -24,7 +25,7 @@ describe('type', function() {
 
     err(function(){
       'test'.should.not.have.type('string');
-    }, "expected 'test' not to have type string");
+    }, "expected 'test' not to have type string (false negative fail)");
 
     err(function(){
       'test'.should.not.have.type('string', 'foo');
@@ -38,7 +39,7 @@ describe('type', function() {
 
     err(function(){
       (5).should.not.have.type('number');
-    }, "expected 5 not to have type number");
+    }, "expected 5 not to have type number (false negative fail)");
 
     err(function(){
       (5).should.not.have.type('number', 'foo');
@@ -79,7 +80,7 @@ describe('type', function() {
 
     err(function(){
       ({}).should.not.be.an.instanceof(Object);
-    }, "expected {} not to be an instance of Object");
+    }, "expected {} not to be an instance of Object (false negative fail)");
   });
 
   it('test instanceOf (non-reserved)', function() {
@@ -119,7 +120,9 @@ describe('type', function() {
 
     err(function() {
       (1).should.be.a.Function;
-    }, "expected 1 to be a function");
+    }, "expected 1 to be a function",
+       "    expected 1 to have type function",
+       "        expected 'number' to be 'function'");
   });
 
   it('test Object', function() {
@@ -131,7 +134,9 @@ describe('type', function() {
 
     err(function() {
       (1).should.be.an.Object;
-    }, 'expected 1 to be an object');
+    }, 'expected 1 to be an object',
+       '    expected 1 to have type object',
+       '        expected \'number\' to be \'object\'');
   });
 
   it('test String', function() {
@@ -140,10 +145,14 @@ describe('type', function() {
     (0).should.not.be.a.String;
 
     (new String("")).should.be.a.String;
+    //but
+    should(new String("")).not.be.a.String;
 
     err(function() {
       (1).should.be.a.String
-    }, 'expected 1 to be a string');
+    }, 'expected 1 to be a string',
+       '    expected 1 to have type string',
+       '        expected \'number\' to be \'string\'');
   });
 
   it('test Array', function() {
@@ -155,12 +164,14 @@ describe('type', function() {
 
     err(function() {
       [].should.not.be.Array
-    }, 'expected [] not to be an array');
+    }, 'expected [] not to be an array (false negative fail)');
   });
 
   it('test Number', function() {
     (1).should.be.a.Number;
     (new Number(10)).should.be.a.Number;
+    //but
+    should(new Number(10)).should.not.be.a.Number;
 
     NaN.should.be.a.Number;
     Infinity.should.be.a.Number;
@@ -169,26 +180,32 @@ describe('type', function() {
 
     err(function() {
       ([]).should.be.a.Number;
-    }, 'expected [] to be a number');
+    }, 'expected [] to be a number',
+       '    expected [] to have type number',
+       '        expected \'object\' to be \'number\'');
   });
   it('test Boolean', function() {
     (true).should.be.a.Boolean;
     (false).should.be.a.Boolean;
 
     (new Boolean(false)).should.be.a.Boolean;
+    //but
+    should(new Boolean(false)).should.not.be.a.Boolean;
 
     ({}).should.not.be.a.Boolean;
 
     err(function() {
       [].should.be.a.Boolean;
-    }, 'expected [] to be a boolean');
+    }, "expected [] to be a boolean",
+       "    expected [] to have type boolean",
+       "        expected 'object' to be 'boolean'");
   });
   it('test Error', function() {
     (new Error()).should.be.an.Error;
 
     ({}).should.not.be.Error;
 
-    var ae = new AssertionError({ actual: 10 });
+    var ae = new AssertionError({ actual: 10, operator: 'to fail' });
     ae.should.be.an.Error;
 
     var AsyncTimeoutError = function AsyncTimeoutError(msg) {
@@ -204,6 +221,7 @@ describe('type', function() {
 
     err(function() {
       ([]).should.be.an.Error;
-    }, 'expected [] to be an error');
+    }, 'expected [] to be an error',
+       '    expected [] to be an instance of Error');
   });
 });

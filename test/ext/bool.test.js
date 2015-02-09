@@ -13,7 +13,7 @@ describe('bool', function() {
 
     err(function(){
       true.should.not.be.true;
-    }, "expected true not to be true")
+    }, "expected true not to be true (false negative fail)")
   });
 
   it('test false', function() {
@@ -27,7 +27,7 @@ describe('bool', function() {
 
     err(function(){
       false.should.not.be.false;
-    }, "expected false not to be false")
+    }, "expected false not to be false (false negative fail)")
   });
 
   it('test ok', function() {
@@ -42,6 +42,6 @@ describe('bool', function() {
 
     err(function(){
       'test'.should.not.be.ok;
-    }, "expected 'test' not to be truthy");
+    }, "expected 'test' not to be truthy (false negative fail)");
   });
 });

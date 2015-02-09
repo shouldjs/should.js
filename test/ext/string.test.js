@@ -12,7 +12,7 @@ describe('string', function() {
 
     err(function() {
       'foobar'.should.not.startWith('foo');
-    }, "expected 'foobar' not to start with 'foo'");
+    }, "expected 'foobar' not to start with 'foo' (false negative fail)");
 
     err(function() {
       'foobar'.should.startWith('bar', 'baz');
@@ -33,7 +33,7 @@ describe('string', function() {
 
     err(function() {
       'foobar'.should.not.endWith('bar');
-    }, "expected 'foobar' not to end with 'bar'");
+    }, "expected 'foobar' not to end with 'bar' (false negative fail)");
 
     err(function() {
       'foobar'.should.endWith('foo', 'baz');

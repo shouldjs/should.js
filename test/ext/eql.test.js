@@ -58,16 +58,4 @@ describe('eql', function() {
     should.config.checkProtoEql = false;
   });
 
-  it('should allow to use old equal function', function() {
-    var a = { a: 10};
-    var b = { a: '10'};
-
-    a.should.be.not.eql(b);
-
-    should.config.useOldDeepEqual = true;
-
-    a.should.be.eql(b);
-
-    should.config.useOldDeepEqual = false;
-  });
 });

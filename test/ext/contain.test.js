@@ -1,7 +1,7 @@
 var err = require('../util').err;
 var should = require('../../');
 
-describe('property', function() {
+describe('contain*', function() {
 
   it('test containEql', function() {
     'hello boy'.should.containEql('boy');
@@ -34,7 +34,7 @@ describe('property', function() {
 
     err(function() {
       [1, 2, 3].should.not.containEql(3);
-    }, "expected [ 1, 2, 3 ] not to contain 3");
+    }, "expected [ 1, 2, 3 ] not to contain 3 (false negative fail)");
 
     err(function() {
       [1, 2, 3].should.containEql(4);
@@ -108,7 +108,7 @@ describe('property', function() {
 
     err(function() {
       'hello boy'.should.not.containDeep('boy');
-    }, "expected 'hello boy' not to contain 'boy'");
+    }, "expected 'hello boy' not to contain 'boy' (false negative fail)");
 
     err(function() {
       [
@@ -117,7 +117,7 @@ describe('property', function() {
       ].should.not.containDeep([
           {b: 'b'}
         ]);
-    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
+    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ] (false negative fail)");
 
     ({hi: null}).should.containEql({hi: null});
 
@@ -128,7 +128,7 @@ describe('property', function() {
     [{date: { d: (new Date('2014-12-01 00:00:00'))}}].should.not.containDeep([{date: (new Date('2014-12-02 00:00:00'))}]);
   });
 
-  it('test .containDeepOrdered', function() {
+  it('test containDeepOrdered', function() {
     'hello boy'.should.containDeepOrdered('boy');
 
     ({ a: { b: 10 }, b: { c: 10, d: 11, a: { b: 10, c: 11} }}).should
@@ -188,7 +188,7 @@ describe('property', function() {
 
     err(function() {
       'hello boy'.should.not.containDeepOrdered('boy');
-    }, "expected 'hello boy' not to contain 'boy'");
+    }, "expected 'hello boy' not to contain 'boy' (false negative fail)");
 
     err(function() {
       [
@@ -197,7 +197,7 @@ describe('property', function() {
       ].should.not.containDeepOrdered([
           {b: 'b'}
         ]);
-    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ]");
+    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ] (false negative fail)");
 
     ({hi: null}).should.containEql({hi: null})
   });

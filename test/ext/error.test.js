@@ -5,7 +5,7 @@ describe('error', function() {
   it('test throw()', function() {
     err(function() {
       'a'.should.throw();
-    }, "expected 'a' to be a function");
+    }, 'expected \'a\' to be a function\n    expected \'a\' to have type function\n        expected \'string\' to be \'function\'');
 
     (function(){}).should.not.throw();
     (function(){ throw new Error('fail') }).should.throw();

@@ -13,7 +13,7 @@ describe('match', function() {
 
     err(function() {
       'foobar'.should.not.match(/^foo/i)
-    }, "expected 'foobar' not to match /^foo/i");
+    }, "expected 'foobar' not to match /^foo/i (false negative fail)");
 
     err(function() {
       'foobar'.should.match(/^bar/i, 'foo')
@@ -32,7 +32,7 @@ describe('match', function() {
     // positive false
     err(function() {
       ({ a: 'foo', c: 'barfoo' }).should.not.match(/foo$/);
-    }, "expected { a: 'foo', c: 'barfoo' } not to match /foo$/\n    matched properties: a, c");
+    }, "expected { a: 'foo', c: 'barfoo' } not to match /foo$/\n    matched properties: a, c (false negative fail)");
 
     // negative true
     err(function() {
@@ -46,7 +46,7 @@ describe('match', function() {
 
     err(function() {
       ['a', 'b', 'c'].should.not.match(/[a-z]/);
-    }, "expected [ 'a', 'b', 'c' ] not to match /[a-z]/");
+    }, "expected [ 'a', 'b', 'c' ] not to match /[a-z]/ (false negative fail)");
 
     err(function() {
       ['a', 'b', 'c'].should.match(/[d-z]/);
@@ -80,19 +80,19 @@ describe('match', function() {
       (5).should.match(function(it) {
         it.should.be.an.Array;
       });
-    }, "expected 5 to match [Function]\n    expected 5 to be an array");
+    }, "expected 5 to match [Function]\n    expected 5 to be an array\n        expected 5 to have [[Class]] Array");
 
     err(function() {
       (5).should.not.match(function(it) {
         return it.should.be.a.Number;
       });
-    }, "expected 5 not to match [Function]\n    expected 5 to be a number");
+    }, "expected 5 not to match [Function] (false negative fail)");
 
     err(function() {
       (5).should.not.match(function(n) {
         return n > 0;
       });
-    }, "expected 5 not to match [Function]");
+    }, "expected 5 not to match [Function] (false negative fail)");
   });
 
   it('test match(object)', function() {
@@ -123,7 +123,7 @@ describe('match', function() {
         .match({ a: 10, b: /c$/, c: function(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } not to match { a: 10, b: /c$/, c: [Function] }\n    matched properties: a, b, c");
+    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } not to match { a: 10, b: /c$/, c: [Function] }\n    matched properties: a, b, c (false negative fail)");
   });
 
   it('test each property match(function)', function() {
@@ -141,7 +141,7 @@ describe('match', function() {
 
     err(function() {
       (['a', 'b', 'c']).should.not.matchEach(/[a-c]/);
-    }, "expected [ 'a', 'b', 'c' ] not to match each /[a-c]/");
+    }, "expected [ 'a', 'b', 'c' ] not to match each /[a-c]/ (false negative fail)");
 
     err(function() {
       [10, 11].should.matchEach(10);
