@@ -6,19 +6,11 @@
 
 _should_ is an expressive, readable, framework-agnostic assertion library. The main goals of this library are __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
 
-_should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
+_should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`. It does not mean that you should use it like getter - it is possible to use it as function call. For this use `.noConflict` function.
 
-### Breaking changes for 5.x
+### Upgrading instractions
 
-Please check [wiki](https://github.com/shouldjs/should.js/wiki/Breaking-changes-5.x).
-
-### Breaking changes for 4.x
-
-Please check [wiki](https://github.com/shouldjs/should.js/wiki/Breaking-changes-4.x).
-
-### .eql implementation in 4.x
-
-In 4.x `.eql` implementation was changed to fix old bug in deepEqual from node's `assert` module. To do not allow to assume that `10` is equal to `'10'`. You can still use old .eql implementation via `should.config` flags.
+Please check [wiki page](https://github.com/shouldjs/should.js/wiki/Breaking-changes) for upgrading instructions.
 
 ## Example
 ```javascript
@@ -140,7 +132,7 @@ What assertion function should do. It should check only positive case. `should` 
 `params` object can contain several fields:
 
 - `operator` - it is string which describe your assertion
-- `obj` it is actual value, you can assume it is your own this.obj if you need to define you own
+- `actual` it is actual value, you can assume it is your own this.obj if you need to define you own
 - `expected` it is any value that expected to be matched this.obj
 
 You can assume its usage in generating AssertionError message like: expected `obj`? || this.obj not? `operator` `expected`?
@@ -201,6 +193,8 @@ See also [CONTRIBUTING](./CONTRIBUTING.md).
 ## OMG IT EXTENDS OBJECT???!?!@
 
 Yes, yes it does, with a single getter _should_, and no it won't break your code, because it does this **properly** with a non-enumerable property.
+
+Also it is possible use it without extension.
 
 ## License
 
