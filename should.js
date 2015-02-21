@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v5.0.0
+ * @version v5.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -34,6 +34,7 @@ should.Assertion = require('./assertion');
 
 should.format = require('should-format');
 should.type = require('should-type');
+should.util = util;
 
 /**
  * Object with configuration.
