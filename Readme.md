@@ -8,7 +8,7 @@ _should_ is an expressive, readable, framework-agnostic assertion library. The m
 
 _should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`. It does not mean that you should use it like getter - it is possible to use it as function call. For this use `.noConflict` function.
 
-### Upgrading instractions
+### Upgrading instructions
 
 Please check [wiki page](https://github.com/shouldjs/should.js/wiki/Breaking-changes) for upgrading instructions.
 
