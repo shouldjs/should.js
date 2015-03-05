@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v5.0.1
+ * @version v5.1.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -943,10 +943,11 @@ module.exports = function(should, Assertion) {
    * @alias Assertion#the
    * @category assertion chaining
    */
-  ['an', 'of', 'a', 'and', 'be', 'have', 'with', 'is', 'which', 'the'].forEach(function(name) {
+  ['an', 'of', 'a', 'and', 'be', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
     Assertion.addChain(name);
   });
 };
+
 },{}],9:[function(require,module,exports){
 /*!
  * Should
@@ -1206,7 +1207,7 @@ module.exports = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion errors
    * @alias Assertion#throwError
-   * @param {string|RegExp|Function|Object} [message] Message to match or properties
+   * @param {string|RegExp|Function|Object|GeneratorFunction|GeneratorObject} [message] Message to match or properties
    * @param {Object} [properties] Optional properties that will be matched to thrown error
    * @example
    *
@@ -1219,12 +1220,21 @@ module.exports = function(should, Assertion) {
    * error.a = 10;
    * (function(){ throw error; }).should.throw(Error, { a: 10 });
    * (function(){ throw error; }).should.throw({ a: 10 });
+   * (function*() {
+   *   yield throwError();
+   * }).should.throw();
    */
   Assertion.add('throw', function(message, properties) {
     var fn = this.obj
       , err = {}
       , errorInfo = ''
       , thrown = false;
+
+    if(util.isGeneratorFunction(fn)) {
+      return fn().should.throw(message, properties);
+    } else if(util.isGeneratorObject(fn)) {
+      return fn.next.should.throw(message, properties);
+    }
 
     this.is.a.Function;
 
@@ -1646,7 +1656,7 @@ module.exports = function(should, Assertion) {
    * ({ a: 10 }).should.have.enumerable('a');
    */
   Assertion.add('enumerable', function(name, val) {
-    name = String(name);
+    name = util.convertPropertyName(name);
 
     this.params = {
       operator: "to have enumerable property " + util.formatProp(name) + (arguments.length > 1 ? " equal to " + i(val): "")
@@ -1694,7 +1704,7 @@ module.exports = function(should, Assertion) {
    * ({ a: 10 }).should.have.property('a');
    */
   Assertion.add('property', function(name, val) {
-    name = String(name);
+    name = util.convertPropertyName(name);
     if(arguments.length > 1) {
       var p = {};
       p[name] = val;
@@ -1715,13 +1725,15 @@ module.exports = function(should, Assertion) {
    * @example
    *
    * ({ a: 10 }).should.have.properties('a');
+   * ({ a: 10, b: 20 }).should.have.properties([ 'a' ]);
+   * ({ a: 10, b: 20 }).should.have.properties({ b: 20 });
    */
   Assertion.add('properties', function(names) {
     var values = {};
     if(arguments.length > 1) {
       names = aSlice.call(arguments);
     } else if(!Array.isArray(names)) {
-      if(typeof names == 'string') {
+      if(typeof names == 'string' || typeof names == 'symbol') {
         names = [names];
       } else {
         values = names;
@@ -1820,7 +1832,7 @@ module.exports = function(should, Assertion) {
    * ({ a: 10 }).should.have.ownProperty('a');
    */
   Assertion.add('ownProperty', function(name, description) {
-    name = String(name);
+    name = util.convertPropertyName(name);
     this.params = {
       actual: this.obj,
       operator: 'to have own property ' + util.formatProp(name),
@@ -1860,16 +1872,18 @@ module.exports = function(should, Assertion) {
   }, true);
 
   /**
-   * Asserts given object has exact keys.
+   * Asserts given object has exact keys. Compared to `properties`, `keys` does not accept Object as a argument.
    *
    * @name keys
    * @alias Assertion#key
    * @memberOf Assertion
    * @category assertion property
-   * @param {Array|...string|Object} [keys] Keys to check
+   * @param {Array|...string} [keys] Keys to check
    * @example
    *
-   * ({ a: 10}).should.have.keys('a');
+   * ({ a: 10 }).should.have.keys('a');
+   * ({ a: 10, b: 20 }).should.have.keys('a', 'b');
+   * ({ a: 10, b: 20 }).should.have.keys([ 'a', 'b' ]);
    * ({}).should.have.keys();
    */
   Assertion.add('keys', function(keys) {
@@ -1925,7 +1939,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('propertyByPath', function(properties) {
     if(arguments.length > 1) properties = aSlice.call(arguments);
-    else if(arguments.length === 1 && util.isString(properties)) properties = [properties];
+    else if(arguments.length === 1 && typeof properties == 'string') properties = [properties];
     else if(arguments.length === 0) properties = [];
 
     var allProps = properties.map(util.formatProp);
@@ -2175,6 +2189,45 @@ module.exports = function(should, Assertion) {
   }, true);
 
   Assertion.alias('undefined', 'Undefined');
+
+  /**
+   * Assert given object supports es6 iterable protocol (just check
+   * that object has property Symbol.iterator, which is a function)
+   * @name iterable
+   * @memberOf Assertion
+   * @category es6
+   */
+  Assertion.add('iterable', function() {
+    this.params = {operator: 'to be iterable'};
+
+    this.obj.should.have.property(Symbol.iterator).which.is.a.Function;
+  }, true);
+
+  /**
+   * Assert given object supports es6 iterator protocol (just check
+   * that object has property next, which is a function)
+   * @name iterator
+   * @memberOf Assertion
+   * @category es6
+   */
+  Assertion.add('iterator', function() {
+    this.params = {operator: 'to be iterator'};
+
+    this.obj.should.have.property('next').which.is.a.Function;
+  }, true);
+
+  /**
+   * Assert given object is a generator object
+   * @name iterator
+   * @memberOf Assertion
+   * @category es6
+   */
+  Assertion.add('generator', function() {
+    this.params = {operator: 'to be generator'};
+
+    this.obj.should.be.iterable.and.iterator
+      .it.be.equal(this.obj[Symbol.iterator]());
+  }, true);
 };
 
 },{"../util":17}],17:[function(require,module,exports){
@@ -2207,11 +2260,22 @@ exports.merge = function(a, b) {
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
-exports.forEach = function(obj, f, context) {
-  for(var prop in obj) {
-    if(hasOwnProperty.call(obj, prop)) {
-      if(f.call(context, obj[prop], prop, obj) === false)
+exports.forEach = function forEach(obj, f, context) {
+  if(exports.isGeneratorFunction(obj)) {
+    return forEach(obj(), f, context);
+  } else if (exports.isGeneratorObject(obj)) {
+    var value = obj.next();
+    while(!value.done) {
+      if(f.call(context, value.value, 'value', obj) === false)
         return;
+      value = obj.next();
+    }
+  } else {
+    for(var prop in obj) {
+      if(hasOwnProperty.call(obj, prop)) {
+        if(f.call(context, obj[prop], prop, obj) === false)
+          return;
+      }
     }
   }
 };
@@ -2262,7 +2326,7 @@ exports.isIndexable = function(obj) {
     t == type.TYPED_ARRAY ||
     t == type.DATA_VIEW ||
     t == type.STRING;
-}
+};
 
 exports.length = function(obj) {
   switch(type(obj)) {
@@ -2278,6 +2342,29 @@ exports.length = function(obj) {
     case type.STRING:
       return obj.length;
   }
+};
+
+exports.convertPropertyName = function(name) {
+  if(typeof name == 'symbol') {
+    return name;
+  } else {
+    return String(name);
+  }
+};
+
+exports.isGeneratorObject = function(obj) {
+  if(!obj) return false;
+
+  return typeof obj.next == 'function' &&
+          typeof obj[Symbol.iterator] == 'function' &&
+          obj[Symbol.iterator]() === obj;
+};
+
+//TODO find better way
+exports.isGeneratorFunction = function(f) {
+  if(typeof f != 'function') return false;
+
+  return /^function\s*\*\s*/.test(f.toString());
 }
 },{"should-format":19,"should-type":20}],18:[function(require,module,exports){
 var getType = require('should-type');
