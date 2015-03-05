@@ -231,14 +231,29 @@ describe('property', function() {
 
     ({ '0': { '0': 10}}).should.not.have.propertyByPath(0, 0, 1);
 
+    ({ a: { b: 10}}).should.have.propertyByPath('a');
+
+    ({ a: { b: 10}}).should.not.have.propertyByPath('z');
+
     // true fail
     err(function() {
       ({ a: { b: 10}}).should.have.propertyByPath('a', 'b', 'c');
     }, "expected { a: { b: 10 } } to have property by path a, b, c - failed on c\n    expected 10 to have property c");
 
+    // true fail
+    err(function() {
+      ({ a: { b: 10}}).should.have.propertyByPath('z');
+    }, "expected { a: { b: 10 } } to have property by path z - failed on z\n    expected { a: { b: 10 } } to have property z");
+
     // false positive
     err(function() {
       ({ a: { b: 10}}).should.not.have.propertyByPath('a', 'b');
     }, "expected { a: { b: 10 } } not to have property by path a, b (false negative fail)");
+
+    // false positive
+    err(function() {
+      ({ a: { b: 10}}).should.not.have.propertyByPath('a');
+    }, "expected { a: { b: 10 } } not to have property by path a (false negative fail)");
+
   })
 });
