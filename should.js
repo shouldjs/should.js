@@ -1,11 +1,11 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v5.1.0
+ * @version v5.2.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Should=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Should = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -23,7 +23,7 @@ var util = require('./util');
  * @example
  *
  * var should = require('should');
- * should('abc').be.a.string;
+ * should('abc').be.a.String;
  */
 var should = function should(obj) {
   return (new should.Assertion(obj)).proxied();
@@ -1464,7 +1464,64 @@ module.exports = function(should, Assertion) {
       }
     }, this);
   });
+
+  /**
+  * Asserts if any of given object values or array elements match `other` object, using some assumptions:
+  * First object matched if they are equal,
+  * If `other` is a regexp - matching with regexp
+  * If `other` is a function check if this function throws AssertionError on given object or return false - it will be assumed as not matched
+  * All other cases check if this `other` equal to each element
+  *
+  * @name matchAny
+  * @memberOf Assertion
+  * @category assertion matching
+  * @param {*} other Object to match
+  * @param {string} [description] Optional message
+  * @example
+  * [ 'a', 'b', 'c'].should.matchAny(/\w+/);
+  * [ 'a', 'b', 'c'].should.matchAny('a');
+  *
+  * [ 'a', 'b', 'c'].should.matchAny(function(value) { value.should.be.eql('a') });
+  *
+  * { a: 'a', b: 'b', c: 'c' }.should.matchAny(function(value) { value.should.be.eql('a') });
+  */
+  Assertion.add('matchAny', function(other, description) {
+      this.params = {operator: 'to match any ' + i(other), message: description};
+
+      var f = other;
+
+      if(other instanceof RegExp) {
+          f = function(it) {
+              return !!other.exec(it);
+          };
+      } else if(typeof other != 'function') {
+          f = function(it) {
+              return eql(it, other).result;
+          };
+      }
+
+      this.assert(util.some(this.obj, function(value, key) {
+          try {
+              var result = f(value, key);
+
+              if(typeof result == 'boolean') {
+                  return result; // if it is just boolean, return it
+              }
+
+              // Else return true - no exception was thrown, so assume it succeeded
+              return true;
+          } catch(e) {
+              if(e instanceof should.AssertionError) {
+                  // Caught an AssertionError, return false to the iterator
+                  return false;
+              } else {
+                  throw e;
+              }
+          }
+      }, this));
+  });
 };
+
 },{"../util":17,"should-equal":18}],13:[function(require,module,exports){
 /*!
  * Should
@@ -2195,7 +2252,7 @@ module.exports = function(should, Assertion) {
    * that object has property Symbol.iterator, which is a function)
    * @name iterable
    * @memberOf Assertion
-   * @category es6
+   * @category assertion es6
    */
   Assertion.add('iterable', function() {
     this.params = {operator: 'to be iterable'};
@@ -2208,7 +2265,7 @@ module.exports = function(should, Assertion) {
    * that object has property next, which is a function)
    * @name iterator
    * @memberOf Assertion
-   * @category es6
+   * @category assertion es6
    */
   Assertion.add('iterator', function() {
     this.params = {operator: 'to be iterator'};
@@ -2218,15 +2275,16 @@ module.exports = function(should, Assertion) {
 
   /**
    * Assert given object is a generator object
-   * @name iterator
+   * @name generator
    * @memberOf Assertion
-   * @category es6
+   * @category assertion es6
    */
   Assertion.add('generator', function() {
     this.params = {operator: 'to be generator'};
 
-    this.obj.should.be.iterable.and.iterator
-      .it.be.equal(this.obj[Symbol.iterator]());
+    this.obj.should.be.iterable
+      .and.iterator
+      .and.it.is.equal(this.obj[Symbol.iterator]());
   }, true);
 };
 

@@ -1,9 +1,14 @@
+5.2.0 / 2015-03-12
+==================
+
+ * Added `.matchAny`, like `.matchEach` but with `some` semantics
+
 5.1.0 / 2015-03-05
 ==================
 
  * Initial support of es6 generators, iterables, iterators and symbols
  * .throwError now support generator functions
- * Fix bug in .propertyByPath 
+ * Fix bug in .propertyByPath
 
 5.0.1 / 2015-02-21
 ==================
