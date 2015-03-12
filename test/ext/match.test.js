@@ -147,4 +147,44 @@ describe('match', function() {
       [10, 11].should.matchEach(10);
     }, "expected [ 10, 11 ] to match each 10");
   });
+
+  it('test matchAny(function)', function() {
+      [9, 10, 11].should.matchAny(function(it) {
+          return it >= 10;
+      });
+
+      [9, 10, 11].should.not.matchAny(function(it) {
+          return it == 2;
+      });
+
+      ({ a: 10, b: 11, c: 12}).should.matchAny(function(value, key) {
+          value.should.be.a.Number;
+      });
+
+      ({ a: 10, b: 'eleven', c: 'twelve'}).should.matchAny(function(value, key) {
+          value.should.be.a.Number;
+      });
+  });
+
+  it('test matchAny(number)', function() {
+      [10, 11, 12].should.matchAny(10);
+
+      [10, 10].should.matchAny(10);
+
+      [10, 11, 12].should.not.matchAny(2);
+  });
+
+  it('test matchAny(regexp)', function() {
+      (['a', 'b', 'c']).should.matchAny(/[a-b]/);
+
+      (['a', 'b', 'c']).should.not.matchAny(/[d-f]/);
+
+      err(function() {
+          (['a', 'b', 'c']).should.not.matchAny(/[a-c]/);
+      }, "expected [ 'a', 'b', 'c' ] not to match any /[a-c]/ (false negative fail)");
+
+      err(function() {
+          [8, 9].should.matchAny(10);
+      }, "expected [ 8, 9 ] to match any 10");
+  });
 });
