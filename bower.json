@@ -1,7 +1,6 @@
 {
   "name": "should",
   "main": "should.js",
-  "version": "5.0.0",
   "homepage": "https://github.com/shouldjs/should.js",
   "repository": {
     "type": "git",
