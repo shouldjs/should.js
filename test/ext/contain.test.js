@@ -1,5 +1,5 @@
 var err = require('../util').err;
-var should = require('../../');
+require('../../');
 
 describe('contain*', function() {
 
@@ -34,15 +34,14 @@ describe('contain*', function() {
 
     err(function() {
       [1, 2, 3].should.not.containEql(3);
-    }, "expected [ 1, 2, 3 ] not to contain 3 (false negative fail)");
+    }, 'expected [ 1, 2, 3 ] not to contain 3 (false negative fail)');
 
     err(function() {
       [1, 2, 3].should.containEql(4);
-    }, "expected [ 1, 2, 3 ] to contain 4");
+    }, 'expected [ 1, 2, 3 ] to contain 4');
   });
 
   it('test containDeep', function() {
-    'hello boy'.should.containDeep('boy');
 
     ({ a: { b: 10 }, b: { c: 10, d: 11, a: { b: 10, c: 11} }}).should
       .containDeep({ a: { b: 10 }, b: { c: 10, a: { c: 11 }}});
@@ -87,8 +86,8 @@ describe('contain*', function() {
         [1]
       ]);
 
-    [1,2,3].should.not.containDeep([3,3,3]);
-    [1,2,3].should.containDeep([3]);
+    [1, 2, 3].should.not.containDeep([3, 3, 3]);
+    [1, 2, 3].should.containDeep([3]);
 
     [
       {a: 'a'},
@@ -106,9 +105,8 @@ describe('contain*', function() {
 
     [1, 2, 3].should.containDeep([3, 2]);
 
-    err(function() {
-      'hello boy'.should.not.containDeep('boy');
-    }, "expected 'hello boy' not to contain 'boy' (false negative fail)");
+    ['code-for-days', 'code'].should.containDeep(['code', 'code-for-days']);
+    ['code-for-days', 'code-fast'].should.containDeep(['code-fast', 'code-for-days']);
 
     err(function() {
       [
@@ -129,7 +127,6 @@ describe('contain*', function() {
   });
 
   it('test containDeepOrdered', function() {
-    'hello boy'.should.containDeepOrdered('boy');
 
     ({ a: { b: 10 }, b: { c: 10, d: 11, a: { b: 10, c: 11} }}).should
       .containDeepOrdered({ a: { b: 10 }, b: { c: 10, a: { c: 11 }}});
@@ -187,10 +184,6 @@ describe('contain*', function() {
       ]);
 
     err(function() {
-      'hello boy'.should.not.containDeepOrdered('boy');
-    }, "expected 'hello boy' not to contain 'boy' (false negative fail)");
-
-    err(function() {
       [
         {a: 'a'},
         {b: 'b', c: 'c'}
@@ -199,6 +192,6 @@ describe('contain*', function() {
         ]);
     }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ] (false negative fail)");
 
-    ({hi: null}).should.containEql({hi: null})
+    ({hi: null}).should.containEql({hi: null});
   });
 });

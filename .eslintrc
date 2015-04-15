@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "quotes": [2, "single", "avoid-escape"],
+    "strict": false,
+    "camelcase": false,
+    "no-unused-expressions": true,
+    "eqeqeq": [2, "smart"],
+    "curly": false,
+    "no-wrap-func": false,
+    "no-underscore-dangle": false
+  },
+  "env": {
+    "node": true,
+    "browser": true,
+    "mocha": true,
+    "es6": true
+  }
+}

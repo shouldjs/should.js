@@ -15,15 +15,16 @@
   },
   "devDependencies": {
     "browserify": "latest",
-    "mocha-better-spec-reporter": "latest",
-    "gulp-uglify": "^1.0.1",
-    "gulp-util": "^2.2.14",
+    "generator-supported": "0.0.1",
     "gulp": "^3.8.10",
-    "vinyl-source-stream2": "^0.1.1",
+    "gulp-header": "^1.2.2",
     "gulp-load-plugins": "^0.5.1",
     "gulp-rename": "^1.2.0",
-    "gulp-header": "^1.2.2",
+    "gulp-uglify": "^1.0.1",
+    "gulp-util": "^2.2.14",
     "mocha": "latest",
+    "mocha-better-spec-reporter": "latest",
+    "vinyl-source-stream2": "^0.1.1",
     "zuul": "latest"
   },
   "keywords": [
