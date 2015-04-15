@@ -323,18 +323,6 @@ Assertion.add = function(name, func, isGetter) {
           return this.proxied();
         }
 
-        //console.log('catch', name, context.params.operator, e.operator);
-        //console.log(name, e.actual, context.obj, context.params.actual, this.params.actual);
-        /*if(e.operator !== context.params.operator) {// it means assertion happen because own context
-         if(!('obj' in context.params)) {
-         if(!('actual' in context.params)) {
-         context.params.actual = context.obj;
-         }
-         }
-         util.merge(e, context.params);
-         //e.operato
-         //e.operator = context.params.operator;
-         }*/
         if(context !== e.assertion) {
           context.params.previous = e;
         }
@@ -1080,11 +1068,8 @@ module.exports = function(should, Assertion) {
     } else if(util.isIndexable(obj) && util.isIndexable(other)) {
       var usedKeys = {};
       util.forEach(other, function(otherItem) {
-        console.log('>', otherItem);
         this.assert(util.some(obj, function(item, index) {
           if(index in usedKeys) return false;
-
-          console.log('>>', item);
 
           try {
             should(item).containDeep(otherItem);
@@ -1245,7 +1230,6 @@ module.exports = function(should, Assertion) {
     try {
       fn();
     } catch(e) {
-      console.log(e);
       thrown = true;
       err = e;
     }
