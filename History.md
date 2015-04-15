@@ -1,3 +1,9 @@
+6.0.0 / 2015-04-
+==================
+
+  * From .containDeep* removed .indexOf checks for strings, now it is just equality checks (see #55)
+  * Fix for .not.throws for generators
+
 5.2.0 / 2015-03-12
 ==================
 
