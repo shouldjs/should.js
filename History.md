@@ -1,4 +1,4 @@
-6.0.0 / 2015-04-
+6.0.0 / 2015-04-15
 ==================
 
   * From .containDeep* removed .indexOf checks for strings, now it is just equality checks (see #55)

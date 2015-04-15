@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v5.2.0
+ * @version v6.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -198,7 +198,7 @@ var AssertionError = function AssertionError(options) {
         configurable: true,
         enumerable: false
       }
-    )
+    );
   }
 
   if(Error.captureStackTrace) {
@@ -260,10 +260,10 @@ AssertionError.prototype = Object.create(Error.prototype, {
 });
 
 module.exports = AssertionError;
+
 },{"./util":17,"should-format":19}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
 var util = require('./util');
-var format = require('should-format');
 
 /**
  * should Assertion
@@ -335,7 +335,7 @@ Assertion.add = function(name, func, isGetter) {
          //e.operato
          //e.operator = context.params.operator;
          }*/
-        if(context != e.assertion) {
+        if(context !== e.assertion) {
           context.params.previous = e;
         }
 
@@ -350,7 +350,7 @@ Assertion.add = function(name, func, isGetter) {
     //negative pass
     if(this.negate) {
       context.negate = true;//because .fail will set negate
-      context.params.details = "false negative fail";
+      context.params.details = 'false negative fail';
       context.fail();
     }
 
@@ -491,14 +491,15 @@ Assertion.prototype = {
             throw new Error('Assertion has no property ' + util.formatProp(name));
           }
         }
-      })
+      });
     }
     return this;
   }
 };
 
 module.exports = Assertion;
-},{"./assertion-error":2,"./util":17,"should-format":19}],4:[function(require,module,exports){
+
+},{"./assertion-error":2,"./util":17}],4:[function(require,module,exports){
 var config = {
   checkProtoEql: false
 };
@@ -937,10 +938,12 @@ module.exports = function(should, Assertion) {
    * @alias Assertion#a
    * @alias Assertion#and
    * @alias Assertion#have
+   * @alias Assertion#has
    * @alias Assertion#with
    * @alias Assertion#is
    * @alias Assertion#which
    * @alias Assertion#the
+   * @alias Assertion#it
    * @category assertion chaining
    */
   ['an', 'of', 'a', 'and', 'be', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
@@ -960,7 +963,6 @@ var eql = require('should-equal');
 
 module.exports = function(should, Assertion) {
   var i = should.format;
-  var type = should.type;
 
   /**
    * Assert that given object contain something that equal to `other`. It uses `should-equal` for equality checks.
@@ -992,9 +994,8 @@ module.exports = function(should, Assertion) {
     this.is.not.null.and.not.undefined;
 
     var obj = this.obj;
-    var tpe = should.type(obj);
 
-    if(tpe == should.type.STRING) {
+    if(typeof obj == 'string') {
       this.assert(obj.indexOf(String(other)) >= 0);
     } else if(util.isIndexable(obj)) {
       this.assert(util.some(obj, function(v) {
@@ -1008,7 +1009,6 @@ module.exports = function(should, Assertion) {
   /**
    * Assert that given object is contain equally structured object on the same depth level.
    * If given object is an array and `other` is an array it checks that the eql elements is going in the same sequence in given array (recursive)
-   * For string it is working as `Assertion#containEql
    * If given object is an object it checks that the same keys contain deep equal values (recursive)
    * On other cases it try to check with `.eql`
    *
@@ -1021,8 +1021,6 @@ module.exports = function(should, Assertion) {
    * [ 1, 2, 3].should.containDeepOrdered([1, 2]);
    * [ 1, 2, [ 1, 2, 3 ]].should.containDeepOrdered([ 1, [ 2, 3 ]]);
    *
-   * '123'.should.containDeepOrdered('1')
-   *
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({a: 10});
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({b: {c: 10}});
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({b: {d: [1, 3]}});
@@ -1031,8 +1029,8 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to contain ' + i(other)};
 
     var obj = this.obj;
-    if(type(obj) == type.STRING) {// expect other to be string
-      this.assert(obj.indexOf(String(other)) >= 0);
+    if(typeof obj == 'string') {// expect other to be string
+      obj.should.be.equal(String(other));
     } else if(util.isIndexable(obj) && util.isIndexable(other)) {
       for(var objIdx = 0, otherIdx = 0, objLength = util.length(obj), otherLength = util.length(other); objIdx < objLength && otherIdx < otherLength; objIdx++) {
         try {
@@ -1046,7 +1044,7 @@ module.exports = function(should, Assertion) {
         }
       }
 
-      this.assert(otherIdx == otherLength);
+      this.assert(otherIdx === otherLength);
     } else if(obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
       util.forEach(other, function(value, key) {
         should(obj[key]).containDeepOrdered(value);
@@ -1078,12 +1076,15 @@ module.exports = function(should, Assertion) {
 
     var obj = this.obj;
     if(typeof obj == 'string') {// expect other to be string
-      this.assert(obj.indexOf(String(other)) >= 0);
+      obj.should.be.equal(String(other));
     } else if(util.isIndexable(obj) && util.isIndexable(other)) {
       var usedKeys = {};
       util.forEach(other, function(otherItem) {
+        console.log('>', otherItem);
         this.assert(util.some(obj, function(item, index) {
           if(index in usedKeys) return false;
+
+          console.log('>>', item);
 
           try {
             should(item).containDeep(otherItem);
@@ -1128,7 +1129,7 @@ function formatEqlResult(r, a, b, format) {
   return ((r.path.length > 0 ? 'at ' + r.path.map(util.formatProp).join(' -> ') : '') +
   (r.a === a ? '' : ', A has ' + format(r.a)) +
   (r.b === b ? '' : ' and B has ' + format(r.b)) +
-  (r.showReason ? ' because ' + r.reason: '')).trim();
+  (r.showReason ? ' because ' + r.reason : '')).trim();
 }
 
 module.exports = function(should, Assertion) {
@@ -1156,9 +1157,9 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to equal', expected: val, message: description};
 
     var strictResult = eql(this.obj, val, should.config);
-    this.params.details = strictResult.result ? '': formatEqlResult(strictResult, this.obj, val, should.format);
+    this.params.details = strictResult.result ? '' : formatEqlResult(strictResult, this.obj, val, should.format);
 
-    this.params.showDiff = type(this.obj) == type(val);
+    this.params.showDiff = type(this.obj) === type(val);
 
     this.assert(strictResult.result);
   });
@@ -1189,6 +1190,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
 };
+
 },{"../util":17,"should-equal":18,"should-type":20}],11:[function(require,module,exports){
 /*!
  * Should
@@ -1233,7 +1235,7 @@ module.exports = function(should, Assertion) {
     if(util.isGeneratorFunction(fn)) {
       return fn().should.throw(message, properties);
     } else if(util.isGeneratorObject(fn)) {
-      return fn.next.should.throw(message, properties);
+      return fn.next.bind(fn).should.throw(message, properties);
     }
 
     this.is.a.Function;
@@ -1243,6 +1245,7 @@ module.exports = function(should, Assertion) {
     try {
       fn();
     } catch(e) {
+      console.log(e);
       thrown = true;
       err = e;
     }
@@ -1299,6 +1302,7 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('throw', 'throwError');
 };
+
 },{"../util":17}],12:[function(require,module,exports){
 /*!
  * Should
@@ -2424,6 +2428,7 @@ exports.isGeneratorFunction = function(f) {
 
   return /^function\s*\*\s*/.test(f.toString());
 }
+
 },{"should-format":19,"should-type":20}],18:[function(require,module,exports){
 var getType = require('should-type');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
