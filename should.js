@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v6.0.0
+ * @version v6.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -142,7 +142,7 @@ should.noConflict = function(desc) {
  *   Assertion.add('asset', function() {
  *      this.params = { operator: 'to be asset' };
  *
- *      this.obj.should.have.property('id').which.is.a.Number;
+ *      this.obj.should.have.property('id').which.is.a.Number();
  *      this.obj.should.have.property('path');
  *  })
  * })
@@ -298,14 +298,14 @@ function Assertion(obj) {
  * Assertion.add('asset', function() {
  *      this.params = { operator: 'to be asset' };
  *
- *      this.obj.should.have.property('id').which.is.a.Number;
+ *      this.obj.should.have.property('id').which.is.a.Number();
  *      this.obj.should.have.property('path');
  * });
  */
 Assertion.add = function(name, func, isGetter) {
   var prop = {enumerable: true, configurable: true};
 
-  isGetter = !!isGetter;
+  isGetter = false;
 
   prop[isGetter ? 'get' : 'value'] = function() {
     var context = new Assertion(this.obj, this, name);
@@ -863,10 +863,10 @@ module.exports = function(should, Assertion) {
    * @alias Assertion#True
    * @example
    *
-   * (true).should.be.true;
-   * false.should.not.be.True;
+   * (true).should.be.true();
+   * false.should.not.be.true();
    *
-   * ({ a: 10}).should.not.be.true;
+   * ({ a: 10}).should.not.be.true();
    */
   Assertion.add('true', function() {
     this.is.exactly(true);
@@ -883,8 +883,8 @@ module.exports = function(should, Assertion) {
    * @alias Assertion#False
    * @example
    *
-   * (true).should.not.be.false;
-   * false.should.be.False;
+   * (true).should.not.be.false();
+   * false.should.be.false();
    */
   Assertion.add('false', function() {
     this.is.exactly(false);
@@ -900,13 +900,13 @@ module.exports = function(should, Assertion) {
    * @category assertion bool
    * @example
    *
-   * (true).should.be.ok;
-   * ''.should.not.be.ok;
-   * should(null).not.be.ok;
-   * should(void 0).not.be.ok;
+   * (true).should.be.ok();
+   * ''.should.not.be.ok();
+   * should(null).not.be.ok();
+   * should(void 0).not.be.ok();
    *
-   * (10).should.be.ok;
-   * (0).should.not.be.ok;
+   * (10).should.be.ok();
+   * (0).should.not.be.ok();
    */
   Assertion.add('ok', function() {
     this.params = { operator: 'to be truthy' };
@@ -979,7 +979,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('containEql', function(other) {
     this.params = {operator: 'to contain ' + i(other)};
 
-    this.is.not.null.and.not.undefined;
+    this.is.not.null().and.not.undefined();
 
     var obj = this.obj;
 
@@ -1223,7 +1223,7 @@ module.exports = function(should, Assertion) {
       return fn.next.bind(fn).should.throw(message, properties);
     }
 
-    this.is.a.Function;
+    this.is.a.Function();
 
     var errorMatched = true;
 
@@ -1327,7 +1327,7 @@ module.exports = function(should, Assertion) {
    *   return n < 0;
    * });
    * (5).should.not.match(function(it) {
-   *    it.should.be.an.Array;
+   *    it.should.be.an.Array();
    * });
    * ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should
    * .match({ a: 10, b: /c$/, c: function(it) {
@@ -1526,8 +1526,8 @@ module.exports = function(should, Assertion) {
    * @category assertion numbers
    * @example
    *
-   * (10).should.not.be.NaN;
-   * NaN.should.be.NaN;
+   * (10).should.not.be.NaN();
+   * NaN.should.be.NaN();
    */
   Assertion.add('NaN', function() {
     this.params = { operator: 'to be NaN' };
@@ -1543,14 +1543,14 @@ module.exports = function(should, Assertion) {
    * @category assertion numbers
    * @example
    *
-   * (10).should.not.be.Infinity;
-   * NaN.should.not.be.Infinity;
+   * (10).should.not.be.Infinity();
+   * NaN.should.not.be.Infinity();
    */
   Assertion.add('Infinity', function() {
     this.params = { operator: 'to be Infinity' };
 
-    this.is.a.Number
-      .and.not.a.NaN
+    this.is.a.Number()
+      .and.not.a.NaN()
       .and.assert(!isFinite(this.obj));
   }, true);
 
@@ -1899,9 +1899,9 @@ module.exports = function(should, Assertion) {
    * @category assertion property
    * @example
    *
-   * ''.should.be.empty;
-   * [].should.be.empty;
-   * ({}).should.be.empty;
+   * ''.should.be.empty();
+   * [].should.be.empty();
+   * ({}).should.be.empty();
    */
   Assertion.add('empty', function() {
     this.params = {operator: 'to be empty'};
@@ -2139,7 +2139,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('Object', function() {
     this.params = {operator: 'to be an object'};
 
-    this.is.not.null.and.have.type('object');
+    this.is.not.null().and.have.type('object');
   }, true);
 
   /**
@@ -2245,7 +2245,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('iterable', function() {
     this.params = {operator: 'to be iterable'};
 
-    this.obj.should.have.property(Symbol.iterator).which.is.a.Function;
+    this.obj.should.have.property(Symbol.iterator).which.is.a.Function();
   }, true);
 
   /**
@@ -2258,7 +2258,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('iterator', function() {
     this.params = {operator: 'to be iterator'};
 
-    this.obj.should.have.property('next').which.is.a.Function;
+    this.obj.should.have.property('next').which.is.a.Function();
   }, true);
 
   /**

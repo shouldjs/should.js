@@ -32,7 +32,7 @@ user.should.have.property('pets').with.lengthOf(4);
 should(user).have.property('name', 'tj');
 
 // also you can test in that way for null's
-should(null).not.be.ok;
+should(null).not.be.ok();
 
 someAsyncTask(foo, function(err, result){
   should.not.exist(err);
@@ -53,7 +53,7 @@ someAsyncTask(foo, function(err, result){
     ```js
     var should = require('should');
 
-    (5).should.be.exactly(5).and.be.a.Number;
+    (5).should.be.exactly(5).and.be.a.Number();
     ```
 
 ## In browser
@@ -167,7 +167,7 @@ in this case this.params defined and then used new assertion context (because ca
 Assertion.add('asset', function() {
     this.params = { operator: 'to be asset' };
 
-    this.obj.should.have.property('id').which.is.a.Number;
+    this.obj.should.have.property('id').which.is.a.Number();
     this.obj.should.have.property('path');
 })
 
