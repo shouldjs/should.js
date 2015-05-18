@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v6.0.2
+ * @version v6.0.3
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1218,9 +1218,9 @@ module.exports = function(should, Assertion) {
       , thrown = false;
 
     if(util.isGeneratorFunction(fn)) {
-      return fn().should.throw(message, properties);
+      return should(fn()).throw(message, properties);
     } else if(util.isGeneratorObject(fn)) {
-      return fn.next.bind(fn).should.throw(message, properties);
+      return should(fn.next.bind(fn)).throw(message, properties);
     }
 
     this.is.a.Function;
@@ -1907,7 +1907,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be empty'};
 
     if(util.length(this.obj) !== void 0) {
-      this.obj.should.have.property('length', 0);
+      should(this.obj).have.property('length', 0);
     } else {
       var obj = Object(this.obj); // wrap to reference for booleans and numbers
       for(var prop in obj) {
