@@ -1,3 +1,8 @@
+6.0.2 / 2015-05-18
+==================
+
+  * Replace in all internal assertions `should` usage to non getter form
+
 6.0.1 / 2015-04-15
 ==================
 

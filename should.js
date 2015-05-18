@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v6.0.0
+ * @version v6.0.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1018,7 +1018,7 @@ module.exports = function(should, Assertion) {
 
     var obj = this.obj;
     if(typeof obj == 'string') {// expect other to be string
-      obj.should.be.equal(String(other));
+      this.is.equal(String(other));
     } else if(util.isIndexable(obj) && util.isIndexable(other)) {
       for(var objIdx = 0, otherIdx = 0, objLength = util.length(obj), otherLength = util.length(other); objIdx < objLength && otherIdx < otherLength; objIdx++) {
         try {
@@ -1064,7 +1064,7 @@ module.exports = function(should, Assertion) {
 
     var obj = this.obj;
     if(typeof obj == 'string') {// expect other to be string
-      obj.should.be.equal(String(other));
+      this.is.equal(String(other));
     } else if(util.isIndexable(obj) && util.isIndexable(other)) {
       var usedKeys = {};
       util.forEach(other, function(otherItem) {
@@ -1244,7 +1244,7 @@ module.exports = function(should, Assertion) {
           errorMatched = err instanceof message;
         } else if(null != message) {
           try {
-            err.should.match(message);
+            should(err).match(message);
           } catch(e) {
             if(e instanceof should.AssertionError) {
               errorInfo = ": " + e.message;
@@ -1263,7 +1263,7 @@ module.exports = function(should, Assertion) {
           }
         } else if('function' == typeof message && properties) {
           try {
-            err.should.match(properties);
+            should(err).match(properties);
           } catch(e) {
             if(e instanceof should.AssertionError) {
               errorInfo = ": " + e.message;
@@ -1732,7 +1732,7 @@ module.exports = function(should, Assertion) {
 
     var obj = this.obj;
     args.names.forEach(function(name) {
-      obj.should.have.enumerable(name);
+      should(obj).have.enumerable(name);
     });
   });
 
@@ -1911,7 +1911,7 @@ module.exports = function(should, Assertion) {
     } else {
       var obj = Object(this.obj); // wrap to reference for booleans and numbers
       for(var prop in obj) {
-        this.obj.should.not.have.ownProperty(prop);
+        should(this.obj).not.have.ownProperty(prop);
       }
     }
   }, true);
@@ -2245,7 +2245,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('iterable', function() {
     this.params = {operator: 'to be iterable'};
 
-    this.obj.should.have.property(Symbol.iterator).which.is.a.Function;
+    should(this.obj).have.property(Symbol.iterator).which.is.a.Function;
   }, true);
 
   /**
@@ -2258,7 +2258,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('iterator', function() {
     this.params = {operator: 'to be iterator'};
 
-    this.obj.should.have.property('next').which.is.a.Function;
+    should(this.obj).have.property('next').which.is.a.Function;
   }, true);
 
   /**
@@ -2270,7 +2270,7 @@ module.exports = function(should, Assertion) {
   Assertion.add('generator', function() {
     this.params = {operator: 'to be generator'};
 
-    this.obj.should.be.iterable
+    should(this.obj).be.iterable
       .and.iterator
       .and.it.is.equal(this.obj[Symbol.iterator]());
   }, true);
