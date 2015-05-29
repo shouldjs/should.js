@@ -188,7 +188,7 @@ AssertionError: expected { id: 10 } to be asset
 
 To run the tests for _should_ simply run:
 
-    $ make test
+    $ npm test
 
 See also [CONTRIBUTING](./CONTRIBUTING.md).
 
