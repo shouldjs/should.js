@@ -145,7 +145,7 @@ describe('match', function() {
 
     err(function() {
       [10, 11].should.matchEach(10);
-    }, "expected [ 10, 11 ] to match each 10");
+    }, 'expected [ 10, 11 ] to match each 10\n    expected 11 to match 10');
   });
 
   it('test matchAny(function)', function() {

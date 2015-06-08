@@ -6,7 +6,8 @@
   * Breaking Change. Change result of should-type to be more accurate and consistent.
   * Fixed should-equal options checks
   * Fixed should-format typed arrays (more then 8 bits)
-  
+  * Added aliases: .matchEach => .matchSome, .matchAny => .matchEvery (to be similar to array methods). See #65.
+  * Breaking Change (possibly). .matchEach and .matchAny now uses internally .match. See #65.
 
 6.0.3 / 2015-05-18
 ==================
