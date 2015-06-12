@@ -199,29 +199,29 @@ describe('property', function() {
   });
 
   it('test empty', function() {
-    ''.should.be.empty;
-    [].should.be.empty;
-    ({}).should.be.empty;
-    ({ length: 10 }).should.not.be.empty;
+    ''.should.be.empty();
+    [].should.be.empty();
+    ({}).should.be.empty();
+    ({ length: 10 }).should.not.be.empty();
 
     (function() {
-      arguments.should.be.empty;
+      arguments.should.be.empty();
     })();
 
     err(function() {
-      ({}).should.not.be.empty;
+      ({}).should.not.be.empty();
     }, 'expected {} not to be empty (false negative fail)');
 
     err(function() {
-      ({ length: 10 }).should.be.empty;
+      ({ length: 10 }).should.be.empty();
     }, 'expected { length: 10 } to be empty\n    expected { length: 10 } not to have own property length (false negative fail)');
 
     err(function() {
-      'asd'.should.be.empty;
+      'asd'.should.be.empty();
     }, "expected 'asd' to be empty\n    expected 'asd' to have property length of 0 (got 3)");
 
     err(function() {
-      ''.should.not.be.empty;
+      ''.should.not.be.empty();
     }, "expected '' not to be empty (false negative fail)");
   });
 

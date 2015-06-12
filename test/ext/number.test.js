@@ -3,41 +3,41 @@ var should = require('../../');
 
 describe('number', function() {
   it('test NaN', function() {
-    NaN.should.be.NaN;
-    Infinity.should.not.be.NaN;
-    (0).should.not.be.NaN;
-    false.should.not.be.NaN;
-    ({}).should.not.be.NaN;
-    ''.should.not.be.NaN;
-    'foo'.should.not.be.NaN;
-    /^$/.should.not.be.NaN;
+    NaN.should.be.NaN();
+    Infinity.should.not.be.NaN();
+    (0).should.not.be.NaN();
+    false.should.not.be.NaN();
+    ({}).should.not.be.NaN();
+    ''.should.not.be.NaN();
+    'foo'.should.not.be.NaN();
+    /^$/.should.not.be.NaN();
 
     err(function(){
-      Infinity.should.be.NaN;
+      Infinity.should.be.NaN();
     }, "expected Infinity to be NaN")
 
     err(function(){
-      NaN.should.not.be.NaN;
+      NaN.should.not.be.NaN();
     }, "expected NaN not to be NaN (false negative fail)")
   });
 
   it('test Infinity', function() {
-    NaN.should.not.be.Infinity;
-    (1/0).should.be.Infinity;
-    Infinity.should.be.Infinity;
-    (0).should.not.be.Infinity;
-    false.should.not.be.Infinity;
-    ({}).should.not.be.Infinity;
-    ''.should.not.be.Infinity;
-    'foo'.should.not.be.Infinity;
-    /^$/.should.not.be.Infinity;
+    NaN.should.not.be.Infinity();
+    (1/0).should.be.Infinity();
+    Infinity.should.be.Infinity();
+    (0).should.not.be.Infinity();
+    false.should.not.be.Infinity();
+    ({}).should.not.be.Infinity();
+    ''.should.not.be.Infinity();
+    'foo'.should.not.be.Infinity();
+    /^$/.should.not.be.Infinity();
 
     err(function(){
-      NaN.should.be.Infinity;
+      NaN.should.be.Infinity();
     }, "expected NaN to be Infinity\n    expected NaN not to be NaN (false negative fail)")
 
     err(function(){
-      Infinity.should.not.be.Infinity;
+      Infinity.should.not.be.Infinity();
     }, "expected Infinity not to be Infinity (false negative fail)")
   });
 

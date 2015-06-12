@@ -63,11 +63,11 @@ describe('match', function() {
     });
 
     (5).should.not.match(function(it) {
-      it.should.be.an.Array;
+      it.should.be.an.Array();
     });
 
     (5).should.match(function(it) {
-      it.should.be.a.Number;
+      it.should.be.a.Number();
     });
 
     err(function() {
@@ -78,13 +78,13 @@ describe('match', function() {
 
     err(function() {
       (5).should.match(function(it) {
-        it.should.be.an.Array;
+        it.should.be.an.Array();
       });
     }, "expected 5 to match [Function]\n    expected 5 to be an array\n        expected 5 to have [[Class]] Array");
 
     err(function() {
       (5).should.not.match(function(it) {
-        return it.should.be.a.Number;
+        return it.should.be.a.Number();
       });
     }, "expected 5 not to match [Function] (false negative fail)");
 
@@ -134,7 +134,7 @@ describe('match', function() {
     [10, 10].should.matchEach(10);
 
     ({ a: 10, b: 11, c: 12}).should.matchEach(function(value, key) {
-      value.should.be.a.Number;
+      value.should.be.a.Number();
     });
 
     (['a', 'b', 'c']).should.matchEach(/[a-c]/);
@@ -158,11 +158,11 @@ describe('match', function() {
       });
 
       ({ a: 10, b: 11, c: 12}).should.matchAny(function(value, key) {
-          value.should.be.a.Number;
+          value.should.be.a.Number();
       });
 
       ({ a: 10, b: 'eleven', c: 'twelve'}).should.matchAny(function(value, key) {
-          value.should.be.a.Number;
+          value.should.be.a.Number();
       });
   });
 
