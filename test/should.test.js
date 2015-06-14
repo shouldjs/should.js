@@ -24,7 +24,7 @@ describe('should', function() {
     'test'.should.be.a.String;
     should.equal('foo', 'foo');
   });
-  
+
   it('test .expected and .actual', function() {
     try {
       'foo'.should.equal('bar');
@@ -33,7 +33,7 @@ describe('should', function() {
       assert('bar' == err.expected, 'err.expected');
     }
   });
- 
+
   it('test chaining', function() {
     var user = { name: 'tj', pets: ['tobi', 'loki', 'jane', 'bandit'] };
 
@@ -42,13 +42,5 @@ describe('should', function() {
     user.should.have.ownProperty('name')
       .which.not.have.length(3)
         .and.be.equal('tj');
-  });
-
-  it('test proxy shield getters', function() {
-    if(typeof Proxy == 'function') {
-      err(function() {
-        'abc'.should.be.string;
-      }, 'Assertion has no property string');
-    }
   });
 });
