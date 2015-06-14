@@ -116,7 +116,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw(Error, { a: 11 });
-    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ a: 10, message: '' \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
+    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ [\s\S]*a: 10, [\s\S]*message: ''[\s\S]* \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 
   it('test .throw(properties) with matching error', function() {
@@ -126,7 +126,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw({ a: 11 });
-    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ a: 10, message: '' \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
+    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ [\s\S]*a: 10, [\s\S]*message: ''[\s\S]* \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 /* TODO find a way to write tests with es6 features
   it('should support to catch errors from generators', function() {
