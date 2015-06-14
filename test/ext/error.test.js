@@ -1,7 +1,6 @@
 var err = require('../util').err;
 require('../../');
 
-var generatorSupported = require('generator-supported');
 
 describe('error', function() {
   it('test throw()', function() {
@@ -14,13 +13,13 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throw();
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){
         throw new Error('fail');
       }).should.not.throw();
-    }, /expected \[Function\] not to throw exception \(got [\s\S]*\[Error: fail\][\s\S]*\)/);
+    }, /expected Function \{ name: '' \} not to throw exception \(got Error \{ [\s\S]*message: 'fail' \}\)/);
   });
 
   it('test throw() with regex message', function() {
@@ -28,11 +27,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throw(/fail/);
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw new Error('error'); }).should.throw(/fail/);
-    }, "expected [Function] to throw exception with a message matching /fail/, but got 'error'");
+    }, "expected Function { name: \'\' } to throw exception with a message matching /fail/, but got 'error'");
   });
 
   it('test throw() with string message', function() {
@@ -40,11 +39,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throw('fail');
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw new Error('error'); }).should.throw('fail');
-    }, "expected [Function] to throw exception with a message matching 'fail', but got 'error'");
+    }, "expected Function { name: \'\' } to throw exception with a message matching 'fail', but got 'error'");
   });
 
   it('test throw() with type', function() {
@@ -52,11 +51,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throw(Error);
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw 'error'; }).should.throw(Error);
-    }, 'expected [Function] to throw exception of type Error, but got String');
+    }, 'expected Function { name: \'\' } to throw exception of type Error, but got String');
   });
 
   it('test throwError()', function() {
@@ -65,13 +64,13 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throwError();
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){
         throw new Error('fail');
       }).should.not.throwError();
-    }, /expected \[Function\] not to throw exception \(got [\s\S]*\[Error: fail\][\s\S]*\)/);
+    }, /expected Function \{ name: '' \} not to throw exception \(got Error \{ [\s\S]*message: 'fail' \}\)/);
   });
 
   it('test throwError() with regex message', function() {
@@ -79,11 +78,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throwError(/fail/);
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw new Error('error'); }).should.throwError(/fail/);
-    }, "expected [Function] to throw exception with a message matching /fail/, but got 'error'");
+    }, "expected Function { name: \'\' } to throw exception with a message matching /fail/, but got 'error'");
   });
 
   it('test throwError() with string message', function() {
@@ -91,11 +90,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throwError('fail');
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw new Error('error'); }).should.throwError('fail');
-    }, "expected [Function] to throw exception with a message matching 'fail', but got 'error'");
+    }, "expected Function { name: \'\' } to throw exception with a message matching 'fail', but got 'error'");
   });
 
   it('test throwError() with type', function() {
@@ -103,11 +102,11 @@ describe('error', function() {
 
     err(function(){
       (function(){}).should.throw(Error);
-    }, 'expected [Function] to throw exception');
+    }, 'expected Function { name: \'\' } to throw exception');
 
     err(function(){
       (function(){ throw 'error'; }).should.throw(Error);
-    }, "expected [Function] to throw exception of type Error, but got String");
+    }, "expected Function { name: '' } to throw exception of type Error, but got String");
   });
 
   it('test .throw(err, properties) with matching error', function() {
@@ -117,7 +116,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw(Error, { a: 11 });
-    }, /expected \[Function\] to throw exception: expected \{[\s\S]*\[Error\][\s\S]* a: 10[\s\S]*\} to match \{ a: 11 \}\n    not matched properties: a \(10\)/);
+    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ a: 10, message: '' \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 
   it('test .throw(properties) with matching error', function() {
@@ -127,7 +126,7 @@ describe('error', function() {
 
     err(function(){
       (function(){ throw error; }).should.throw({ a: 11 });
-    }, /expected \[Function\] to throw exception: expected \{[\s\S]*\[Error\][\s\S]* a: 10[\s\S]*\} to match \{ a: 11 \}\n    not matched properties: a \(10\)/);
+    }, /expected Function \{ name: '' \} to throw exception: expected Error \{ a: 10, message: '' \} to match Object \{ a: 11 \}\n    not matched properties: a \(10\)/);
   });
 /* TODO find a way to write tests with es6 features
   it('should support to catch errors from generators', function() {
@@ -153,7 +152,7 @@ describe('error', function() {
 
       err(function(){
         (function * () {yield noError();}).should.throw();
-      }, 'expected [Function] to throw exception');
+      }, 'expected Function { name: \'\' } to throw exception');
 
     }
   });*/

@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "browserify": "latest",
-    "generator-supported": "0.0.1",
     "gulp": "^3.8.10",
     "gulp-header": "^1.2.2",
     "gulp-load-plugins": "^0.5.1",
@@ -37,7 +36,7 @@
   "license": "MIT",
   "dependencies": {
     "should-equal": "0.4.3",
-    "should-format": "0.1.0",
+    "should-format": "0.2.0",
     "should-type": "0.1.1"
   }
 }

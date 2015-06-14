@@ -53,7 +53,7 @@ describe('eql', function() {
 
     err(function() {
       b.should.be.eql(a);
-    }, 'expected { a: 2 } to equal { a: 2 } (because A and B have different prototypes)');
+    }, 'expected Object { a: 2 } to equal { a: 2 } (because A and B have different prototypes)');
 
     should.config.checkProtoEql = false;
   });

@@ -12,12 +12,12 @@ describe('type', function() {
 
     err(function() {
       ((function(){ return arguments; })(1,2,3)).should.not.be.arguments();
-    }, "expected { '0': 1, '1': 2, '2': 3 } not to be arguments (false negative fail)");
+    }, "expected Arguments [ 1, 2, 3 ] not to be arguments (false negative fail)");
 
     err(function() {
       ({}).should.be.arguments();
-    }, 'expected {} to be arguments',
-       '    expected {} to have [[Class]] Arguments');
+    }, 'expected Object {} to be arguments',
+       '    expected Object {} to have [[Class]] Arguments');
   });
 
   it('test typeof', function() {
@@ -80,7 +80,7 @@ describe('type', function() {
 
     err(function(){
       ({}).should.not.be.an.instanceof(Object);
-    }, "expected {} not to be an instance of Object (false negative fail)");
+    }, "expected Object {} not to be an instance of Object (false negative fail)");
   });
 
   it('test instanceOf (non-reserved)', function() {
@@ -164,7 +164,7 @@ describe('type', function() {
 
     err(function() {
       [].should.not.be.Array();
-    }, 'expected [] not to be an array (false negative fail)');
+    }, 'expected Array [] not to be an array (false negative fail)');
   });
 
   it('test Number', function() {
@@ -180,8 +180,8 @@ describe('type', function() {
 
     err(function() {
       ([]).should.be.a.Number();
-    }, 'expected [] to be a number',
-       '    expected [] to have type number',
+    }, 'expected Array [] to be a number',
+       '    expected Array [] to have type number',
        '        expected \'object\' to be \'number\'');
   });
   it('test Boolean', function() {
@@ -196,8 +196,8 @@ describe('type', function() {
 
     err(function() {
       [].should.be.a.Boolean();
-    }, "expected [] to be a boolean",
-       "    expected [] to have type boolean",
+    }, "expected Array [] to be a boolean",
+       "    expected Array [] to have type boolean",
        "        expected 'object' to be 'boolean'");
   });
   it('test Error', function() {
@@ -221,7 +221,7 @@ describe('type', function() {
 
     err(function() {
       ([]).should.be.an.Error();
-    }, 'expected [] to be an error',
-       '    expected [] to be an instance of Error');
+    }, 'expected Array [] to be an error',
+       '    expected Array [] to be an instance of Error');
   });
 });

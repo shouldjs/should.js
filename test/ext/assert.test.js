@@ -296,15 +296,15 @@ describe('assert', function() {
     testAssertionMessage(-Infinity, '-Infinity');
     testAssertionMessage('', '""');
     testAssertionMessage('foo', "'foo'");
-    testAssertionMessage([], '[]');
-    testAssertionMessage([1, 2, 3], '[ 1, 2, 3 ]');
+    testAssertionMessage([], 'Array []');
+    testAssertionMessage([1, 2, 3], 'Array [ 1, 2, 3 ]');
     testAssertionMessage(/a/, '/a/');
     testAssertionMessage(function f() {
-    }, '[Function: f]');
-    testAssertionMessage({}, '{}');
-    testAssertionMessage({a: undefined, b: null}, '{ a: undefined, b: null }');
+    }, 'Function { name: \'f\' }');
+    testAssertionMessage({}, 'Object {}');
+    testAssertionMessage({a: undefined, b: null}, 'Object { a: undefined, b: null }');
     testAssertionMessage({a: NaN, b: Infinity, c: -Infinity},
-      '{ a: NaN, b: Infinity, c: -Infinity }');
+      'Object { a: NaN, b: Infinity, c: -Infinity }');
   });
 
   it('regressions from node.js testcase', function() {

@@ -15,9 +15,9 @@ it('should throw when used last managed context', function() {
 
   util.err(function() {
       ({}).should.be._10();
-    }, 'expected {} to be a number 10',
-    '    expected {} to be a number',
-    '        expected {} to have type number',
+    }, 'expected Object {} to be a number 10',
+    '    expected Object {} to be a number',
+    '        expected Object {} to have type number',
     '            expected \'object\' to be \'number\'');
 
   util.err(function() {

@@ -32,12 +32,12 @@ describe('match', function() {
     // positive false
     err(function() {
       ({ a: 'foo', c: 'barfoo' }).should.not.match(/foo$/);
-    }, "expected { a: 'foo', c: 'barfoo' } not to match /foo$/\n    matched properties: a, c (false negative fail)");
+    }, "expected Object { a: 'foo', c: 'barfoo' } not to match /foo$/\n    matched properties: a, c (false negative fail)");
 
     // negative true
     err(function() {
       ({ a: 'foo', c: 'barfoo' }).should.match(/^foo$/);
-    }, "expected { a: 'foo', c: 'barfoo' } to match /^foo$/\n    not matched properties: c ('barfoo')\n    matched properties: a");
+    }, "expected Object { a: 'foo', c: 'barfoo' } to match /^foo$/\n    not matched properties: c ('barfoo')\n    matched properties: a");
   });
 
   it('test array match(regexp)', function() {
@@ -46,11 +46,11 @@ describe('match', function() {
 
     err(function() {
       ['a', 'b', 'c'].should.not.match(/[a-z]/);
-    }, "expected [ 'a', 'b', 'c' ] not to match /[a-z]/ (false negative fail)");
+    }, "expected Array [ 'a', 'b', 'c' ] not to match /[a-z]/ (false negative fail)");
 
     err(function() {
       ['a', 'b', 'c'].should.match(/[d-z]/);
-    }, "expected [ 'a', 'b', 'c' ] to match /[d-z]/");
+    }, "expected Array [ 'a', 'b', 'c' ] to match /[d-z]/");
   });
 
   it('test match(function)', function() {
@@ -74,25 +74,25 @@ describe('match', function() {
       (5).should.match(function(n) {
         return n < 0;
       });
-    }, "expected 5 to match [Function]");
+    }, "expected 5 to match Function { name: '' }");
 
     err(function() {
       (5).should.match(function(it) {
         it.should.be.an.Array();
       });
-    }, "expected 5 to match [Function]\n    expected 5 to be an array\n        expected 5 to have [[Class]] Array");
+    }, "expected 5 to match Function { name: '' }\n    expected 5 to be an array\n        expected 5 to have [[Class]] Array");
 
     err(function() {
       (5).should.not.match(function(it) {
         return it.should.be.a.Number();
       });
-    }, "expected 5 not to match [Function] (false negative fail)");
+    }, "expected 5 not to match Function { name: '' } (false negative fail)");
 
     err(function() {
       (5).should.not.match(function(n) {
         return n > 0;
       });
-    }, "expected 5 not to match [Function] (false negative fail)");
+    }, "expected 5 not to match Function { name: '' } (false negative fail)");
   });
 
   it('test match(object)', function() {
@@ -116,14 +116,14 @@ describe('match', function() {
         .match({ a: 11, b: /c$/, c: function(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } to match { a: 11, b: /c$/, c: [Function] }\n    not matched properties: a (10)\n    matched properties: b, c");
+    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } to match Object { a: 11, b: /c$/, c: Function { name: '' } }\n    not matched properties: a (10)\n    matched properties: b, c");
 
     err(function() {
       ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should.not
         .match({ a: 10, b: /c$/, c: function(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected { a: 10, b: 'abc', c: { d: 10 }, d: 0 } not to match { a: 10, b: /c$/, c: [Function] }\n    matched properties: a, b, c (false negative fail)");
+    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } not to match Object { a: 10, b: /c$/, c: Function { name: '' } }\n    matched properties: a, b, c (false negative fail)");
   });
 
   it('test each property match(function)', function() {
@@ -141,11 +141,11 @@ describe('match', function() {
 
     err(function() {
       (['a', 'b', 'c']).should.not.matchEach(/[a-c]/);
-    }, "expected [ 'a', 'b', 'c' ] not to match each /[a-c]/ (false negative fail)");
+    }, "expected Array [ 'a', 'b', 'c' ] not to match each /[a-c]/ (false negative fail)");
 
     err(function() {
       [10, 11].should.matchEach(10);
-    }, 'expected [ 10, 11 ] to match each 10\n    expected 11 to match 10');
+    }, 'expected Array [ 10, 11 ] to match each 10\n    expected 11 to match 10');
   });
 
   it('test matchAny(function)', function() {
@@ -181,10 +181,10 @@ describe('match', function() {
 
       err(function() {
           (['a', 'b', 'c']).should.not.matchAny(/[a-c]/);
-      }, "expected [ 'a', 'b', 'c' ] not to match any /[a-c]/ (false negative fail)");
+      }, "expected Array [ 'a', 'b', 'c' ] not to match any /[a-c]/ (false negative fail)");
 
       err(function() {
           [8, 9].should.matchAny(10);
-      }, "expected [ 8, 9 ] to match any 10");
+      }, "expected Array [ 8, 9 ] to match any 10");
   });
 });

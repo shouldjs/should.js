@@ -34,11 +34,11 @@ describe('contain*', function() {
 
     err(function() {
       [1, 2, 3].should.not.containEql(3);
-    }, 'expected [ 1, 2, 3 ] not to contain 3 (false negative fail)');
+    }, 'expected Array [ 1, 2, 3 ] not to contain 3 (false negative fail)');
 
     err(function() {
       [1, 2, 3].should.containEql(4);
-    }, 'expected [ 1, 2, 3 ] to contain 4');
+    }, 'expected Array [ 1, 2, 3 ] to contain 4');
   });
 
   it('test containDeep', function() {
@@ -115,7 +115,7 @@ describe('contain*', function() {
       ].should.not.containDeep([
           {b: 'b'}
         ]);
-    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ] (false negative fail)");
+    }, "expected Array [ Object { a: 'a' }, Object { b: 'b', c: 'c' } ] not to contain Array [ Object { b: 'b' } ] (false negative fail)");
 
     ({hi: null}).should.containEql({hi: null});
 
@@ -190,7 +190,7 @@ describe('contain*', function() {
       ].should.not.containDeepOrdered([
           {b: 'b'}
         ]);
-    }, "expected [ { a: 'a' }, { b: 'b', c: 'c' } ] not to contain [ { b: 'b' } ] (false negative fail)");
+    }, "expected Array [ Object { a: 'a' }, Object { b: 'b', c: 'c' } ] not to contain Array [ Object { b: 'b' } ] (false negative fail)");
 
     ({hi: null}).should.containEql({hi: null});
   });
