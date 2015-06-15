@@ -32,7 +32,7 @@
     "assert",
     "should"
   ],
-  "main": "./lib/should.js",
+  "main": "./index.js",
   "license": "MIT",
   "dependencies": {
     "should-equal": "0.4.3",

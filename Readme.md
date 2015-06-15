@@ -1,6 +1,6 @@
 # should.js
 
-[![Join the chat at https://gitter.im/shouldjs/should.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shouldjs/should.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/shouldjs/should.js](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/shouldjs/should.js)
 
 [![Build Status](https://travis-ci.org/shouldjs/should.js.svg?branch=master)](https://travis-ci.org/shouldjs/should.js)
 
@@ -8,11 +8,19 @@
 
 _should_ is an expressive, readable, framework-agnostic assertion library. The main goals of this library are __to be expressive__ and __to be helpful__. It keeps your test code clean, and your error messages helpful.
 
-_should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`. It does not mean that you should use it like getter - it is possible to use it as function call. For this use `.noConflict` function.
+By default (when you `require('should')`) _should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
+
+It is also possible to use should.js without getter (it will not even try to exetend Object.prototype), just `require('should/as-function')`. Or if you already use version that auto add getter, you can call `.noConflict` function.
+
+**Results of `(something).should` getter and `should(something)` in most situations the same**
 
 ### Upgrading instructions
 
 Please check [wiki page](https://github.com/shouldjs/should.js/wiki/Breaking-changes) for upgrading instructions.
+
+### FAQ
+
+You can take look in [FAQ](https://github.com/shouldjs/should.js/wiki/FAQ).
 
 ## Example
 ```javascript
@@ -56,9 +64,15 @@ someAsyncTask(foo, function(err, result){
     (5).should.be.exactly(5).and.be.a.Number();
     ```
 
+    ```js
+    var should = require('should/as-function');
+
+    should(10).be.exactly(5).and.be.a.Number();
+    ```
+
 ## In browser
 
-Well, even when browsers by complains of authors has 100% es5 support, it does not mean it has not bugs. Please see [wiki](https://github.com/shouldjs/should.js/wiki/Known-Bugs) for known bugs.
+Well, even when browsers by complains of authors has 100% es5 support, it does not mean it has no bugs. Please see [wiki](https://github.com/shouldjs/should.js/wiki/Known-Bugs) for known bugs.
 
 If you want to use _should_ in browser, use the `should.js` file in the root of this repository, or build it yourself. To build a fresh version:
 
@@ -121,11 +135,10 @@ Almost all assertions return the same object - so you can easy chain them. But s
 
 ## Adding own assertions
 
-To add own assertion you need to call `should.Assertion.add` function. It accept 3 arguments:
+Adding own assertion is pretty easy. You need to call `should.Assertion.add` function. It accept 2 arguments:
 
 1. name of assertion method (string)
 2. assertion function (function)
-3. optional boolean value to mark if this assertion should be getter
 
 What assertion function should do. It should check only positive case. `should` will handle `.not` itself.
 `this` in assertion function will be instance of `should.Assertion` and you **must** define in any way this.params object
@@ -141,12 +154,12 @@ You can assume its usage in generating AssertionError message like: expected `ob
 
 In `should` sources appeared 2 kinds of usage of this method.
 
-First not preferred and used **only** for shortcuts to other assertions, e.g how `.should.be.true` defined:
+First not preferred and used **only** for shortcuts to other assertions, e.g how `.should.be.true()` defined:
 
 ```javascript
 Assertion.add('true', function() {
     this.is.exactly(true);
-}, true);
+});
 ```
 There you can see that assertion function do not define own `this.params` and instead call within the same assertion `.exactly`
 that will fill `this.params`. **You should use this way very carefully, but you can use it**.
@@ -157,8 +170,8 @@ Second way preferred and i assume you will use it instead of first.
 Assertion.add('true', function() {
     this.params = { operator: 'to be true', expected: true };
 
-    this.obj.should.be.exactly(true);
-}, true);
+    should(this.obj).be.exactly(true);
+});
 ```
 in this case this.params defined and then used new assertion context (because called `.should`). Internally this way does not
  create any edge cases as first.
