@@ -1,13 +1,16 @@
 7.0.0 / 2015-06-
 ==================
 
-  * Added support to .eql es6 set, map and symbol (should-type, should-format, should-equal)
-  * Breaking Change. More accurate work with types (dom nodes, typed-arrays).
-  * Breaking Change. Change result of should-type to be more accurate and consistent.
+  * Added support to `.eql` es6 set, map and symbol (`should-type`, `should-format`, `should-equal`)
+  * **Breaking Change** More accurate work with types (dom nodes, typed-arrays).
+  * **Breaking Change** Change result of should-type to be more accurate and consistent.
   * Fixed should-equal options checks
   * Fixed should-format typed arrays (more then 8 bits)
   * Added aliases: .matchEach => .matchSome, .matchAny => .matchEvery (to be similar to array methods). See #65.
-  * Breaking Change (possibly). .matchEach and .matchAny now uses internally .match. See #65.
+  * **Breaking Change (possibly)** .matchEach and .matchAny now uses internally .match. See #65.
+  * **Breaking Change** No more getter assertions. No all assertions are functions.
+  * **Breaking Change** No more proxy returning, to check property names.
+  * **Breaking Change** `should-format` now looks more like chrome developer tools inpections.
 
 6.0.3 / 2015-05-18
 ==================
