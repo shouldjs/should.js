@@ -1,3 +1,8 @@
+7.0.1 / 2015-06-18
+==================
+
+  * Fixes in should-type for dom nodes, host object and promises
+
 7.0.0 / 2015-06-18
 ==================
 

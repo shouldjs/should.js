@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v7.0.0
+ * @version v7.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -134,12 +134,10 @@ function Assertion(obj) {
  *      this.obj.should.have.property('path');
  * });
  */
-Assertion.add = function(name, func, isGetter) {
+Assertion.add = function(name, func) {
   var prop = {enumerable: true, configurable: true};
 
-  isGetter = false;
-
-  prop[isGetter ? 'get' : 'value'] = function() {
+  prop.value = function() {
     var context = new Assertion(this.obj, this, name);
     context.anyOne = this.anyOne;
 
@@ -152,7 +150,7 @@ Assertion.add = function(name, func, isGetter) {
         if(this.negate) {
           this.obj = context.obj;
           this.negate = false;
-          return this.proxied();
+          return this;
         }
 
         if(context !== e.assertion) {
@@ -178,7 +176,7 @@ Assertion.add = function(name, func, isGetter) {
     if(!this.params.operator) this.params = context.params;//shortcut
     this.obj = context.obj;
     this.negate = false;
-    return this.proxied();
+    return this;
   };
 
   Object.defineProperty(Assertion.prototype, name, prop);
@@ -190,7 +188,7 @@ Assertion.addChain = function(name, onCall) {
   Object.defineProperty(Assertion.prototype, name, {
     get: function() {
       onCall();
-      return this.proxied();
+      return this;
     },
     enumerable: true
   });
@@ -241,7 +239,7 @@ Assertion.prototype = {
    * //throws AssertionError: expected 42 to be magic number
    */
   assert: function(expr) {
-    if(expr) return this.proxied();
+    if(expr) return this;
 
     var params = this.params;
 
@@ -287,7 +285,7 @@ Assertion.prototype = {
    */
   get not() {
     this.negate = !this.negate;
-    return this.proxied();
+    return this;
   },
 
   /**
@@ -298,21 +296,6 @@ Assertion.prototype = {
    */
   get any() {
     this.anyOne = true;
-    return this.proxied();
-  },
-
-  proxied: function() {
-    if(typeof Proxy == 'function') {
-      return new Proxy(this, {
-        get: function(target, name) {
-          if(name in target) {
-            return target[name];
-          } else {
-            throw new Error('Assertion has no property ' + util.formatProp(name));
-          }
-        }
-      });
-    }
     return this;
   }
 };
@@ -708,7 +691,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('true', function() {
     this.is.exactly(true);
-  }, true);
+  });
 
   Assertion.alias('true', 'True');
 
@@ -726,7 +709,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('false', function() {
     this.is.exactly(false);
-  }, true);
+  });
 
   Assertion.alias('false', 'False');
 
@@ -750,8 +733,9 @@ module.exports = function(should, Assertion) {
     this.params = { operator: 'to be truthy' };
 
     this.assert(this.obj);
-  }, true);
+  });
 };
+
 },{}],7:[function(require,module,exports){
 module.exports = function(should, Assertion) {
   /**
@@ -759,6 +743,7 @@ module.exports = function(should, Assertion) {
    *
    * @memberOf Assertion
    * @name be
+   * @property {should.Assertion} be
    * @alias Assertion#an
    * @alias Assertion#of
    * @alias Assertion#a
@@ -1339,7 +1324,7 @@ module.exports = function(should, Assertion) {
     this.params = { operator: 'to be NaN' };
 
     this.assert(this.obj !== this.obj);
-  }, true);
+  });
 
   /**
    * Assert given object is not finite (positive or negative)
@@ -1358,7 +1343,7 @@ module.exports = function(should, Assertion) {
     this.is.a.Number()
       .and.not.a.NaN()
       .and.assert(!isFinite(this.obj));
-  }, true);
+  });
 
   /**
    * Assert given number between `start` and `finish` or equal one of them.
@@ -1855,6 +1840,7 @@ module.exports = function(should, Assertion) {
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
 };
+
 },{}],15:[function(require,module,exports){
 /*!
  * Should
@@ -1875,7 +1861,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be a number'};
 
     this.have.type('number');
-  }, true);
+  });
 
   /**
    * Assert given object is arguments
@@ -1888,7 +1874,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be arguments'};
 
     this.have.class('Arguments');
-  }, true);
+  });
 
   Assertion.alias('arguments', 'Arguments');
 
@@ -1933,7 +1919,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be a function'};
 
     this.have.type('function');
-  }, true);
+  });
 
   /**
    * Assert given object is object
@@ -1945,7 +1931,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be an object'};
 
     this.is.not.null().and.have.type('object');
-  }, true);
+  });
 
   /**
    * Assert given object is string
@@ -1957,7 +1943,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be a string'};
 
     this.have.type('string');
-  }, true);
+  });
 
   /**
    * Assert given object is array
@@ -1969,7 +1955,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be an array'};
 
     this.have.class('Array');
-  }, true);
+  });
 
   /**
    * Assert given object is boolean
@@ -1981,7 +1967,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be a boolean'};
 
     this.have.type('boolean');
-  }, true);
+  });
 
   /**
    * Assert given object is error
@@ -1993,7 +1979,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be an error'};
 
     this.have.instanceOf(Error);
-  }, true);
+  });
 
   /**
    * Assert given object is null
@@ -2006,7 +1992,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be null'};
 
     this.assert(this.obj === null);
-  }, true);
+  });
 
   Assertion.alias('null', 'Null');
 
@@ -2036,7 +2022,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be undefined'};
 
     this.assert(this.obj === void 0);
-  }, true);
+  });
 
   Assertion.alias('undefined', 'Undefined');
 
@@ -2051,7 +2037,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be iterable'};
 
     should(this.obj).have.property(Symbol.iterator).which.is.a.Function();
-  }, true);
+  });
 
   /**
    * Assert given object supports es6 iterator protocol (just check
@@ -2064,7 +2050,7 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be iterator'};
 
     should(this.obj).have.property('next').which.is.a.Function();
-  }, true);
+  });
 
   /**
    * Assert given object is a generator object
@@ -2078,7 +2064,7 @@ module.exports = function(should, Assertion) {
     should(this.obj).be.iterable
       .and.iterator
       .and.it.is.equal(this.obj[Symbol.iterator]());
-  }, true);
+  });
 };
 
 },{"../util":17}],16:[function(require,module,exports){
@@ -2102,7 +2088,7 @@ var util = require('./util');
  * should('abc').be.a.String;
  */
 var should = function should(obj) {
-  return (new should.Assertion(obj)).proxied();
+  return (new should.Assertion(obj));
 };
 
 should.AssertionError = require('./assertion-error');
@@ -2194,7 +2180,7 @@ should.extend = function(propertyName, proto) {
  * should(Object.prototype).not.have.property('must');
  */
 should.noConflict = function(desc) {
-  desc = desc || prevShould;
+  desc = desc || should._prevShould;
 
   if(desc) {
     delete desc.proto[desc.name];
@@ -2240,13 +2226,6 @@ should
   .use(require('./ext/error'))
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
-
-
-var defaultProto = Object.prototype;
-var defaultProperty = 'should';
-
-//Expose api via `Object#should`.
-var prevShould = should.extend(defaultProperty, defaultProto);
 
 },{"./assertion":2,"./assertion-error":1,"./config":3,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":17,"should-type":22}],17:[function(require,module,exports){
 /*!
@@ -3113,8 +3092,8 @@ Formatter.add('object', 'html-element', '#document', function(value) {
   return value.documentElement.outerHTML;
 });
 
-Formatter.add('object', 'window', function() {
-  return '[Window]';
+Formatter.add('object', 'host', function() {
+  return '[Host]';
 });
 
 Formatter.add('object', 'set', function(value) {
@@ -3233,7 +3212,7 @@ var types = require('./types');
  * @param {string} type Usually what is returned from typeof
  * @param {string} cls  Sanitized @Class via Object.prototype.toString
  * @param {string} sub  If type and cls the same, and need to specify somehow
- *
+ * @private
  * @example
  *
  * //for null
@@ -3254,6 +3233,7 @@ function Type(type, cls, sub) {
 
 /**
  * Function to store type checks
+ * @private
  */
 function TypeChecker() {
   this.checks = [];
@@ -3315,8 +3295,8 @@ main
   .addClass('[object Error]', types.ERROR)
   .addClass('[object Date]', types.DATE)
   .addClass('[object Arguments]', types.ARGUMENTS)
-  .addClass('[object Math]', types.OBJECT)
-  .addClass('[object JSON]', types.OBJECT)
+  .addClass('[object Math]')
+  .addClass('[object JSON]')
   .addClass('[object ArrayBuffer]', types.ARRAY_BUFFER)
   .addClass('[object Int8Array]', types.TYPED_ARRAY, 'int8')
   .addClass('[object Uint8Array]', types.TYPED_ARRAY, 'uint8')
@@ -3333,16 +3313,13 @@ main
   .addClass('[object Set]', types.SET)
   .addClass('[object WeakSet]', types.WEAK_SET)
   .addClass('[object Promise]', types.PROMISE)
-  .addClass('[object Window]', types.WINDOW)
-  .addClass('[object HTMLDocument]', types.HTML_ELEMENT, types.DOCUMENT)
   .addClass('[object Blob]', types.BLOB)
   .addClass('[object File]', types.FILE)
   .addClass('[object FileList]', types.FILE_LIST)
   .addClass('[object XMLHttpRequest]', types.XHR)
-  .addClass('[object Text]', types.HTML_ELEMENT, types.TEXT)
   .add(function(obj) {
     if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
-        (this.getType(obj.then) === types.FUNCTION)) {
+        (typeof obj.then === types.FUNCTION)) {
           return new Type(types.OBJECT, types.PROMISE);
         }
   })
@@ -3351,10 +3328,15 @@ main
       return new Type(types.OBJECT, types.BUFFER);
     }
   })
-  .add(function(obj, _, cls) {
-    var m = cls.match(/^\[object HTML(\w*)Element\]$/);
-    if(m) {
-      return new Type(types.OBJECT, types.HTML_ELEMENT, m[1] && m[1].toLowerCase());
+  .add(function(obj) {
+    if(typeof Node !== 'undefined' && obj instanceof Node) {
+      return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
+    }
+  })
+  .add(function(obj) {
+    // probably at the begginging should be enough these checks
+    if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
+      return new Type(types.OBJECT, types.HOST);
     }
   })
   .add(function() {
@@ -3416,6 +3398,8 @@ var types = {
   FILE: 'file',
   FILE_LIST: 'file-list',
   BLOB: 'blob',
+
+  HOST: 'host',
 
   XHR: 'xhr'
 };
