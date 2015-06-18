@@ -35,8 +35,8 @@
   "main": "./index.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "0.4.3",
-    "should-format": "0.2.0",
-    "should-type": "0.1.1"
+    "should-equal": "0.5.0",
+    "should-format": "0.3.0",
+    "should-type": "0.2.0"
   }
 }
