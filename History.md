@@ -1,4 +1,4 @@
-7.0.0 / 2015-06-
+7.0.0 / 2015-06-18
 ==================
 
   * Added support to `.eql` es6 set, map and symbol (`should-type`, `should-format`, `should-equal`)
