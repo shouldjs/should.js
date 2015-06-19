@@ -1,13 +1,12 @@
 {
   "rules": {
     "quotes": [2, "single", "avoid-escape"],
-    "strict": false,
-    "camelcase": false,
-    "no-unused-expressions": true,
+    "strict": 0,
+    "camelcase": 0,
     "eqeqeq": [2, "smart"],
-    "curly": false,
-    "no-wrap-func": false,
-    "no-underscore-dangle": false
+    "curly": 0,
+    "no-wrap-func": 0,
+    "no-underscore-dangle": 0
   },
   "env": {
     "node": true,
