@@ -20,7 +20,7 @@ var banner = [
 
 gulp.task('script', function() {
   var bundleStream = browserify({
-    entries: './lib/should.js',
+    entries: pkg.main,
     builtins: null,
     insertGlobals: false,
     detectGlobals: false,

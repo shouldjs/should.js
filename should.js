@@ -1,11 +1,27 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v7.0.1
+ * @version v7.0.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Should = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var should = require('./lib/should');
+
+var defaultProto = Object.prototype;
+var defaultProperty = 'should';
+
+//Expose api via `Object#should`.
+try {
+  var prevShould = should.extend(defaultProperty, defaultProto);
+  should._prevShould = prevShould;
+} catch(e) {
+  //ignore errors
+}
+
+module.exports = should;
+
+},{"./lib/should":17}],2:[function(require,module,exports){
 var util = require('./util');
 
 /**
@@ -93,7 +109,7 @@ AssertionError.prototype = Object.create(Error.prototype, {
 
 module.exports = AssertionError;
 
-},{"./util":17}],2:[function(require,module,exports){
+},{"./util":18}],3:[function(require,module,exports){
 var AssertionError = require('./assertion-error');
 var util = require('./util');
 
@@ -124,7 +140,6 @@ function Assertion(obj) {
  * @static
  * @param {String} name Name of assertion. It will be used for defining method or getter on Assertion.prototype
  * @param {Function} func Function that will be called on executing assertion
- * @param {Boolean} [isGetter] If this assertion is getter. By default it is false.
  * @example
  *
  * Assertion.add('asset', function() {
@@ -302,7 +317,7 @@ Assertion.prototype = {
 
 module.exports = Assertion;
 
-},{"./assertion-error":1,"./util":17}],3:[function(require,module,exports){
+},{"./assertion-error":2,"./util":18}],4:[function(require,module,exports){
 var Formatter = require('should-format').Formatter;
 
 var config = {
@@ -315,7 +330,7 @@ var config = {
 
 module.exports = config;
 
-},{"should-format":20}],4:[function(require,module,exports){
+},{"should-format":21}],5:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -596,7 +611,7 @@ assert.ifError = function(err) {
   }
 };
 
-},{"./../assertion":2,"should-equal":19}],5:[function(require,module,exports){
+},{"./../assertion":3,"should-equal":20}],6:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -667,7 +682,7 @@ module.exports = function(should) {
     }
   };
 };
-},{"../assertion-error":1,"../util":17,"./_assert":4}],6:[function(require,module,exports){
+},{"../assertion-error":2,"../util":18,"./_assert":5}],7:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -736,7 +751,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function(should, Assertion) {
   /**
    * Simple chaining. It actually do nothing.
@@ -762,7 +777,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -922,7 +937,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":17,"should-equal":19}],9:[function(require,module,exports){
+},{"../util":18,"should-equal":20}],10:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -999,7 +1014,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('equal', 'exactly');
 };
 
-},{"../util":17,"should-equal":19,"should-type":22}],10:[function(require,module,exports){
+},{"../util":18,"should-equal":20,"should-type":23}],11:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1110,7 +1125,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('throw', 'throwError');
 };
 
-},{"../util":17}],11:[function(require,module,exports){
+},{"../util":18}],12:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1301,7 +1316,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('matchEach', 'matchEvery');
 };
 
-},{"../util":17,"should-equal":19}],12:[function(require,module,exports){
+},{"../util":18,"should-equal":20}],13:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1426,7 +1441,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1798,7 +1813,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":17,"should-equal":19}],14:[function(require,module,exports){
+},{"../util":18,"should-equal":20}],15:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -1841,7 +1856,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2067,7 +2082,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":17}],16:[function(require,module,exports){
+},{"../util":18}],17:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2085,7 +2100,7 @@ var util = require('./util');
  * @example
  *
  * var should = require('should');
- * should('abc').be.a.String;
+ * should('abc').be.a.String();
  */
 var should = function should(obj) {
   return (new should.Assertion(obj));
@@ -2102,7 +2117,7 @@ should.util = util;
  * Object with configuration.
  * It contains such properties:
  * * `checkProtoEql` boolean - Affect if `.eql` will check objects prototypes
- * * `useOldDeepEqual` boolean - Use old deepEqual implementation, that was copied from node's assert.deepEqual (will be removed in 5.x)
+ * Also it can contain options for should-format.
  *
  * @type {Object}
  * @memberOf should
@@ -2227,7 +2242,7 @@ should
   .use(require('./ext/match'))
   .use(require('./ext/contain'));
 
-},{"./assertion":2,"./assertion-error":1,"./config":3,"./ext/assert":5,"./ext/bool":6,"./ext/chain":7,"./ext/contain":8,"./ext/eql":9,"./ext/error":10,"./ext/match":11,"./ext/number":12,"./ext/property":13,"./ext/string":14,"./ext/type":15,"./util":17,"should-type":22}],17:[function(require,module,exports){
+},{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":6,"./ext/bool":7,"./ext/chain":8,"./ext/contain":9,"./ext/eql":10,"./ext/error":11,"./ext/match":12,"./ext/number":13,"./ext/property":14,"./ext/string":15,"./ext/type":16,"./util":18,"should-type":23}],18:[function(require,module,exports){
 /*!
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
@@ -2364,7 +2379,7 @@ exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":3,"should-format":20,"should-type":22}],18:[function(require,module,exports){
+},{"./config":4,"should-format":21,"should-type":23}],19:[function(require,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -2373,7 +2388,7 @@ module.exports = function format(msg) {
   return msg;
 }
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var getType = require('should-type');
 var format = require('./format');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -2715,7 +2730,7 @@ module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":18,"should-type":22}],20:[function(require,module,exports){
+},{"./format":19,"should-type":23}],21:[function(require,module,exports){
 var getType = require('should-type');
 var util = require('./util');
 
@@ -3172,7 +3187,7 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":21,"should-type":22}],21:[function(require,module,exports){
+},{"./util":22,"should-type":23}],22:[function(require,module,exports){
 function addSpaces(v) {
   return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
 }
@@ -3202,7 +3217,7 @@ module.exports = {
   }
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var types = require('./types');
@@ -3363,7 +3378,7 @@ Object.keys(types).forEach(function(typeName) {
 
 module.exports = getGlobalType;
 
-},{"./types":23}],23:[function(require,module,exports){
+},{"./types":24}],24:[function(require,module,exports){
 var types = {
   NUMBER: 'number',
   UNDEFINED: 'undefined',
@@ -3406,5 +3421,5 @@ var types = {
 
 module.exports = types;
 
-},{}]},{},[16])(16)
+},{}]},{},[1])(1)
 });
