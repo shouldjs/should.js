@@ -1,6 +1,6 @@
 /*
  * should - test framework agnostic BDD-style assertions
- * @version v7.0.2
+ * @version v7.0.3
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1012,6 +1012,7 @@ module.exports = function(should, Assertion) {
   });
 
   Assertion.alias('equal', 'exactly');
+  Assertion.alias('eql', 'deepEqual');
 };
 
 },{"../util":18,"should-equal":20,"should-type":23}],11:[function(require,module,exports){
@@ -1257,6 +1258,7 @@ module.exports = function(should, Assertion) {
    * @name matchEach
    * @memberOf Assertion
    * @category assertion matching
+   * @alias Assertion#matchSome
    * @param {*} other Object to match
    * @param {string} [description] Optional message
    * @example
@@ -1286,6 +1288,7 @@ module.exports = function(should, Assertion) {
   * @memberOf Assertion
   * @category assertion matching
   * @param {*} other Object to match
+  * @alias Assertion#matchEvery
   * @param {string} [description] Optional message
   * @example
   * [ 'a', 'b', 'c'].should.matchAny(/\w+/);
@@ -1428,7 +1431,7 @@ module.exports = function(should, Assertion) {
    * @param {string} [description] Optional message
    * @example
    *
-   * (0).should.be.above(10);
+   * (0).should.be.below(10);
    */
   Assertion.add('below', function(n, description) {
     this.params = { operator: 'to be below ' + n, message: description };
