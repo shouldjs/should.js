@@ -148,6 +148,10 @@ describe('match', function() {
     }, 'expected Array [ 10, 11 ] to match each 10\n    expected 11 to match 10');
   });
 
+  it('test matchAny(obj)', function() {
+    [{}, {nested: {prop: 'foo'}}].should.matchAny( {nested: {prop: 'foo'}} );
+  });
+
   it('test matchAny(function)', function() {
       [9, 10, 11].should.matchAny(function(it) {
           return it >= 10;
