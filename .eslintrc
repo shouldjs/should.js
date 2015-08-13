@@ -6,7 +6,8 @@
     "eqeqeq": [2, "smart"],
     "curly": 0,
     "no-wrap-func": 0,
-    "no-underscore-dangle": 0
+    "no-underscore-dangle": 0,
+    "yoda": 0
   },
   "env": {
     "node": true,

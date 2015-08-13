@@ -1,15 +1,18 @@
 var gulp = require('gulp');
-var $ = require('gulp-load-plugins')({lazy: false});
 
-var source = require('vinyl-source-stream2');
+var header = require('gulp-header');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
+
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+
 var browserify = require('browserify');
-
-var path = require('path');
 
 var pkg = require('./package.json');
 
 var banner = [
-  '/*',
+  '/*!',
   ' * <%= pkg.name %> - <%= pkg.description %>',
   ' * @version v<%= pkg.version %>',
   ' * @author <%= pkg.author %>',
@@ -31,10 +34,10 @@ gulp.task('script', function() {
 
   return bundleStream
     .pipe(source('should.js'))
-    .pipe($.header(banner, {pkg: pkg}))
+    .pipe(buffer())
+    .pipe(header(banner, {pkg: pkg}))
     .pipe(gulp.dest('./'))
-    .pipe($.uglify())
-    .pipe($.header(banner, {pkg: pkg}))
-    .pipe($.rename('should.min.js'))
+    .pipe(uglify({ preserveComments: 'some' }))
+    .pipe(rename('should.min.js'))
     .pipe(gulp.dest('./'));
 });
