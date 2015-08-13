@@ -1,3 +1,9 @@
+7.0.4 / 2015-08-14
+==================
+
+  * Missing doc for .deepEqual
+  * Fix .match and dependent assertions to check property in object-object matching
+
 7.0.3 / 2015-08-09
 ==================
 

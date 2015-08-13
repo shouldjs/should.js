@@ -1,6 +1,6 @@
-/*
+/*!
  * should - test framework agnostic BDD-style assertions
- * @version v7.0.3
+ * @version v7.0.4
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -612,7 +612,7 @@ assert.ifError = function(err) {
 };
 
 },{"./../assertion":3,"should-equal":20}],6:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -683,7 +683,7 @@ module.exports = function(should) {
   };
 };
 },{"../assertion-error":2,"../util":18,"./_assert":5}],7:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -778,7 +778,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{}],9:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -938,7 +938,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18,"should-equal":20}],10:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -963,6 +963,7 @@ module.exports = function(should, Assertion) {
    * @name eql
    * @memberOf Assertion
    * @category assertion equality
+   * @alias Assertion#deepEqual
    * @param {*} val Expected value
    * @param {string} [description] Optional message
    * @example
@@ -1016,7 +1017,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18,"should-equal":20,"should-type":23}],11:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -1127,7 +1128,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18}],12:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -1204,7 +1205,7 @@ module.exports = function(should, Assertion) {
           if(matchedProps.length)
             this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
 
-          this.assert(notMatchedProps.length == 0);
+          this.assert(notMatchedProps.length === 0);
         } // should we try to convert to String and exec?
       } else if(typeof other == 'function') {
         var res;
@@ -1225,7 +1226,7 @@ module.exports = function(should, Assertion) {
 
         util.forEach(other, function(value, key) {
           try {
-            should(this.obj[key]).match(value);
+            should(this.obj).have.property(key).which.match(value);
             matchedProps.push(util.formatProp(key));
           } catch(e) {
             if(e instanceof should.AssertionError) {
@@ -1241,7 +1242,7 @@ module.exports = function(should, Assertion) {
         if(matchedProps.length)
           this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
 
-        this.assert(notMatchedProps.length == 0);
+        this.assert(notMatchedProps.length === 0);
       } else {
         this.assert(false);
       }
@@ -1320,7 +1321,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18,"should-equal":20}],13:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -1445,7 +1446,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{}],14:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -1817,7 +1818,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18,"should-equal":20}],15:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -1860,7 +1861,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{}],16:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -2086,7 +2087,7 @@ module.exports = function(should, Assertion) {
 };
 
 },{"../util":18}],17:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
@@ -2246,7 +2247,7 @@ should
   .use(require('./ext/contain'));
 
 },{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":6,"./ext/bool":7,"./ext/chain":8,"./ext/contain":9,"./ext/eql":10,"./ext/error":11,"./ext/match":12,"./ext/number":13,"./ext/property":14,"./ext/string":15,"./ext/type":16,"./util":18,"should-type":23}],18:[function(require,module,exports){
-/*!
+/*
  * Should
  * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
