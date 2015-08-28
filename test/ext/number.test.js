@@ -124,4 +124,16 @@ describe('number', function() {
       (6).should.not.be.below(10, 'foo');
     }, "foo");
   });
+
+  it('test aboveOrEqual(n)', function() {
+    (5).should.be.aboveOrEqual(2);
+    (5).should.be.aboveOrEqual(5);
+    (5).should.not.be.aboveOrEqual(6);
+  });
+
+  it('test belowOrEqual(n)', function() {
+    (2).should.be.belowOrEqual(5);
+    (5).should.be.belowOrEqual(5);
+    (6).should.not.be.belowOrEqual(5);
+  });
 });
