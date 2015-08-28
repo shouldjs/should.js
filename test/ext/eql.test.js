@@ -58,4 +58,17 @@ describe('eql', function() {
     should.config.checkProtoEql = false;
   });
 
+  it('should check one of equal', function() {
+    'ab'.should.be.equalOneOf('a', 10, 'ab');
+    'ab'.should.be.equalOneOf(['a', 10, 'ab']);
+    'ab'.should.not.be.equalOneOf(['a', 10]);
+    'ab'.should.not.be.equalOneOf('a', 10);
+  });
+
+  it('should check one of deep equal', function() {
+    ({ a: 'ab' }).should.not.be.oneOf('a', 10, 'ab');
+    ({ a: 'ab' }).should.not.be.oneOf(['a', 10, 'ab']);
+    ({ a: 'ab' }).should.be.oneOf('a', 10, 'ab', { a: 'ab' });
+    ({ a: 'ab' }).should.be.oneOf(['a', 10, 'ab', { a: 'ab' }]);
+  });
 });
