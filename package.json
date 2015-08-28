@@ -33,6 +33,7 @@
     "should"
   ],
   "main": "./index.js",
+  "browser": "./should.js",
   "license": "MIT",
   "dependencies": {
     "should-equal": "0.5.0",
