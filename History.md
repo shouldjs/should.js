@@ -1,3 +1,11 @@
+
+7.1.0 / 2015-08-28
+==================
+
+  * Added .aboveOrEqual and .belowOrEqual for numbers (<= and >=)
+  * Added .oneOf and .equalOneOf to check equality of one of values
+  * Added 'browser' field to package.json
+
 7.0.4 / 2015-08-14
 ==================
 

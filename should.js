@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v7.0.4
+ * @version v7.1.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1014,6 +1014,65 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('equal', 'exactly');
   Assertion.alias('eql', 'deepEqual');
+
+  function addOneOf(name, message, method) {
+    Assertion.add(name, function(vals) {
+      if(arguments.length !== 1) {
+        vals = Array.prototype.slice.call(arguments);
+      } else {
+        should(vals).be.Array();
+      }
+
+      this.params = {operator: message, expected: vals};
+
+      var obj = this.obj;
+      var found = false;
+
+      util.forEach(vals, function(val) {
+        try {
+          should(val)[method](obj);
+          found = true;
+          return false;
+        } catch(e) {
+          if(e instanceof should.AssertionError) {
+            return;//do nothing
+          }
+          throw e;
+        }
+      });
+
+      this.assert(found);
+    });
+  }
+
+  /**
+   * Exact comparison using === to be one of supplied objects.
+   *
+   * @name equalOneOf
+   * @memberOf Assertion
+   * @category assertion equality
+   * @param {Array|*} vals Expected values
+   * @example
+   *
+   * 'ab'.should.be.equalOneOf('a', 10, 'ab');
+   * 'ab'.should.be.equalOneOf(['a', 10, 'ab']);
+   */
+  addOneOf('equalOneOf', 'to be equals one of', 'equal');
+
+  /**
+   * Exact comparison using .eql to be one of supplied objects.
+   *
+   * @name oneOf
+   * @memberOf Assertion
+   * @category assertion equality
+   * @param {Array|*} vals Expected values
+   * @example
+   *
+   * ({a: 10}).should.be.oneOf('a', 10, 'ab', {a: 10});
+   * ({a: 10}).should.be.oneOf(['a', 10, 'ab', {a: 10}]);
+   */
+  addOneOf('oneOf', 'to be one of', 'eql');
+
 };
 
 },{"../util":18,"should-equal":20,"should-type":23}],11:[function(require,module,exports){
@@ -1397,7 +1456,7 @@ module.exports = function(should, Assertion) {
    * (9.99).should.be.approximately(10, 0.1);
    */
   Assertion.add('approximately', function(value, delta, description) {
-    this.params = { operator: 'to be approximately ' + value + " ±" + delta, message: description };
+    this.params = { operator: 'to be approximately ' + value + ' ±' + delta, message: description };
 
     this.assert(Math.abs(this.obj - value) <= delta);
   });
@@ -1442,6 +1501,49 @@ module.exports = function(should, Assertion) {
 
   Assertion.alias('above', 'greaterThan');
   Assertion.alias('below', 'lessThan');
+
+  /**
+   * Assert given number above `n`.
+   *
+   * @name aboveOrEqual
+   * @alias Assertion#greaterThanOrEqual
+   * @memberOf Assertion
+   * @category assertion numbers
+   * @param {number} n Margin number
+   * @param {string} [description] Optional message
+   * @example
+   *
+   * (10).should.be.aboveOrEqual(0);
+   * (10).should.be.aboveOrEqual(10);
+   */
+  Assertion.add('aboveOrEqual', function(n, description) {
+    this.params = { operator: 'to be above or equal' + n, message: description };
+
+    this.assert(this.obj >= n);
+  });
+
+  /**
+   * Assert given number below `n`.
+   *
+   * @name belowOrEqual
+   * @alias Assertion#lessThanOrEqual
+   * @memberOf Assertion
+   * @category assertion numbers
+   * @param {number} n Margin number
+   * @param {string} [description] Optional message
+   * @example
+   *
+   * (0).should.be.belowOrEqual(10);
+   * (0).should.be.belowOrEqual(0);
+   */
+  Assertion.add('belowOrEqual', function(n, description) {
+    this.params = { operator: 'to be below or equal' + n, message: description };
+
+    this.assert(this.obj <= n);
+  });
+
+  Assertion.alias('aboveOrEqual', 'greaterThanOrEqual');
+  Assertion.alias('belowOrEqual', 'lessThanOrEqual');
 
 };
 
