@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-- '0.10'
+- '0.12'
 script:
 - test $SAUCE_USERNAME && npm run zuul || echo 'not running on saucelabs'
 - npm test

@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v7.1.0
+ * @version v7.1.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -3065,9 +3065,10 @@ Formatter.generateFunctionForIndexedArray = function generateFunctionForIndexedA
   };
 };
 
-['undefined', 'boolean', 'null', 'symbol'].forEach(function(name) {
-  Formatter.add(name, String);
-});
+Formatter.add('undefined', function() { return 'undefined' });
+Formatter.add('null', function() { return 'null' });
+Formatter.add('boolean', function(value) { return value ? 'true': 'false' });
+Formatter.add('symbol', function(value) { return value.toString() });
 
 ['number', 'boolean'].forEach(function(name) {
   Formatter.add('object', name, function(value) {

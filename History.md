@@ -1,3 +1,7 @@
+7.1.1 / 2015-10-20
+==================
+
+  * Update format package to fix node 0.12 Symbol formatting
 
 7.1.0 / 2015-08-28
 ==================
