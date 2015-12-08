@@ -23,7 +23,7 @@ var banner = [
 
 gulp.task('script', function() {
   var bundleStream = browserify({
-    entries: pkg.main,
+    entries: './browser-entry',
     builtins: null,
     insertGlobals: false,
     detectGlobals: false,
