@@ -1,3 +1,9 @@
+8.0.0 / 2015-12-08
+==================
+
+  * Move should-promised to main repo
+  * Expose window.should as should function and not a getter
+
 7.1.1 / 2015-10-20
 ==================
 

@@ -1,11 +1,20 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v7.1.1
+ * @version v8.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Should = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+window.Should = require('./index');
+
+Object.defineProperty(window, 'should', {
+  enumerable: false,
+  configurable: true,
+  value: window.Should
+});
+
+},{"./index":2}],2:[function(require,module,exports){
 var should = require('./lib/should');
 
 var defaultProto = Object.prototype;
@@ -21,7 +30,13 @@ try {
 
 module.exports = should;
 
-},{"./lib/should":17}],2:[function(require,module,exports){
+},{"./lib/should":19}],3:[function(require,module,exports){
+/*
+ * Should
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
 var util = require('./util');
 
 /**
@@ -109,9 +124,14 @@ AssertionError.prototype = Object.create(Error.prototype, {
 
 module.exports = AssertionError;
 
-},{"./util":18}],3:[function(require,module,exports){
+},{"./util":20}],4:[function(require,module,exports){
+/*
+ * Should
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
 var AssertionError = require('./assertion-error');
-var util = require('./util');
 
 /**
  * should Assertion
@@ -129,109 +149,13 @@ function Assertion(obj) {
   this.params = {actual: obj};
 }
 
-/**
- * Way to extend Assertion function. It uses some logic
- * to define only positive assertions and itself rule with negative assertion.
- *
- * All actions happen in subcontext and this method take care about negation.
- * Potentially we can add some more modifiers that does not depends from state of assertion.
- * @memberOf Assertion
- * @category assertion
- * @static
- * @param {String} name Name of assertion. It will be used for defining method or getter on Assertion.prototype
- * @param {Function} func Function that will be called on executing assertion
- * @example
- *
- * Assertion.add('asset', function() {
- *      this.params = { operator: 'to be asset' };
- *
- *      this.obj.should.have.property('id').which.is.a.Number();
- *      this.obj.should.have.property('path');
- * });
- */
-Assertion.add = function(name, func) {
-  var prop = {enumerable: true, configurable: true};
-
-  prop.value = function() {
-    var context = new Assertion(this.obj, this, name);
-    context.anyOne = this.anyOne;
-
-    try {
-      func.apply(context, arguments);
-    } catch(e) {
-      //check for fail
-      if(e instanceof AssertionError) {
-        //negative fail
-        if(this.negate) {
-          this.obj = context.obj;
-          this.negate = false;
-          return this;
-        }
-
-        if(context !== e.assertion) {
-          context.params.previous = e;
-        }
-
-        //positive fail
-        context.negate = false;
-        context.fail();
-      }
-      // throw if it is another exception
-      throw e;
-    }
-
-    //negative pass
-    if(this.negate) {
-      context.negate = true;//because .fail will set negate
-      context.params.details = 'false negative fail';
-      context.fail();
-    }
-
-    //positive pass
-    if(!this.params.operator) this.params = context.params;//shortcut
-    this.obj = context.obj;
-    this.negate = false;
-    return this;
-  };
-
-  Object.defineProperty(Assertion.prototype, name, prop);
-};
-
-Assertion.addChain = function(name, onCall) {
-  onCall = onCall || function() {
-  };
-  Object.defineProperty(Assertion.prototype, name, {
-    get: function() {
-      onCall();
-      return this;
-    },
-    enumerable: true
-  });
-};
-
-/**
- * Create alias for some `Assertion` property
- *
- * @memberOf Assertion
- * @category assertion
- * @static
- * @param {String} from Name of to map
- * @param {String} to Name of alias
- * @example
- *
- * Assertion.alias('true', 'True');
- */
-Assertion.alias = function(from, to) {
-  var desc = Object.getOwnPropertyDescriptor(Assertion.prototype, from);
-  if(!desc) throw new Error('Alias ' + from + ' -> ' + to + ' could not be created as ' + from + ' not defined');
-  Object.defineProperty(Assertion.prototype, to, desc);
-};
-
 Assertion.prototype = {
   constructor: Assertion,
 
   /**
-   * Base method for assertions. Before calling this method need to fill Assertion#params object. This method usually called from other assertion methods.
+   * Base method for assertions.
+   *
+   * Before calling this method need to fill Assertion#params object. This method usually called from other assertion methods.
    * `Assertion#params` can contain such properties:
    * * `operator` - required string containing description of this assertion
    * * `obj` - optional replacement for this.obj, it usefull if you prepare more clear object then given
@@ -254,7 +178,9 @@ Assertion.prototype = {
    * //throws AssertionError: expected 42 to be magic number
    */
   assert: function(expr) {
-    if(expr) return this;
+    if(expr) {
+      return this;
+    }
 
     var params = this.params;
 
@@ -290,34 +216,192 @@ Assertion.prototype = {
    */
   fail: function() {
     return this.assert(false);
-  },
-
-  /**
-   * Negation modifier. Current assertion chain become negated. Each call invert negation on current assertion.
-   *
-   * @memberOf Assertion
-   * @category assertion
-   */
-  get not() {
-    this.negate = !this.negate;
-    return this;
-  },
-
-  /**
-   * Any modifier - it affect on execution of sequenced assertion to do not `check all`, but `check any of`.
-   *
-   * @memberOf Assertion
-   * @category assertion
-   */
-  get any() {
-    this.anyOne = true;
-    return this;
   }
 };
 
-module.exports = Assertion;
 
-},{"./assertion-error":2,"./util":18}],4:[function(require,module,exports){
+
+/**
+ * Assertion used to delegate calls of Assertion methods inside of Promise.
+ * It has almost all methods of Assertion.prototype
+ *
+ * @param {Promise} obj
+ */
+function PromisedAssertion(/* obj */) {
+  Assertion.apply(this, arguments);
+}
+
+/**
+ * Make PromisedAssertion to look like promise. Delegate resolve and reject to given promise.
+ *
+ * @returns {Promise}
+ */
+PromisedAssertion.prototype.then = function(resolve, reject) {
+  return this.obj.then(resolve, reject);
+};
+
+/**
+ * Way to extend Assertion function. It uses some logic
+ * to define only positive assertions and itself rule with negative assertion.
+ *
+ * All actions happen in subcontext and this method take care about negation.
+ * Potentially we can add some more modifiers that does not depends from state of assertion.
+ *
+ * @param {String} name Name of assertion. It will be used for defining method or getter on Assertion.prototype
+ * @param {Function} func Function that will be called on executing assertion
+ * @example
+ *
+ * Assertion.add('asset', function() {
+ *      this.params = { operator: 'to be asset' }
+ *
+ *      this.obj.should.have.property('id').which.is.a.Number()
+ *      this.obj.should.have.property('path')
+ * })
+ */
+Assertion.add = function(name, func) {
+  Object.defineProperty(Assertion.prototype, name, {
+    enumerable: true,
+    configurable: true,
+    value: function() {
+      var context = new Assertion(this.obj, this, name);
+      context.anyOne = this.anyOne;
+
+      try {
+        func.apply(context, arguments);
+      } catch (e) {
+        // check for fail
+        if (e instanceof AssertionError) {
+          // negative fail
+          if (this.negate) {
+            this.obj = context.obj;
+            this.negate = false;
+            return this;
+          }
+
+          if (context !== e.assertion) {
+            context.params.previous = e;
+          }
+
+          // positive fail
+          context.negate = false;
+          context.fail();
+        }
+        // throw if it is another exception
+        throw e;
+      }
+
+      // negative pass
+      if (this.negate) {
+        context.negate = true; // because .fail will set negate
+        context.params.details = 'false negative fail';
+        context.fail();
+      }
+
+      // positive pass
+      if (!this.params.operator) {
+        this.params = context.params; // shortcut
+      }
+      this.obj = context.obj;
+      this.negate = false;
+      return this;
+    }
+  });
+
+  Object.defineProperty(PromisedAssertion.prototype, name, {
+    enumerable: true,
+    configurable: true,
+    value: function() {
+      var args = arguments;
+      this.obj = this.obj.then(function(a) {
+        return a[name].apply(a, args);
+      });
+
+      return this;
+    }
+  });
+};
+
+/**
+ * Add chaining getter to Assertion like .a, .which etc
+ * @param  {string} name   name of getter
+ * @param  {function} [onCall] optional function to call
+ */
+Assertion.addChain = function(name, onCall) {
+  onCall = onCall || function() {};
+  Object.defineProperty(Assertion.prototype, name, {
+    get: function() {
+      onCall.call(this);
+      return this;
+    },
+    enumerable: true
+  });
+
+  Object.defineProperty(PromisedAssertion.prototype, name, {
+    enumerable: true,
+    configurable: true,
+    get: function() {
+      this.obj = this.obj.then(function(a) {
+        return a[name];
+      });
+
+      return this;
+    }
+  });
+};
+
+/**
+ * Create alias for some `Assertion` property
+ *
+ * @param {String} from Name of to map
+ * @param {String} to Name of alias
+ * @example
+ *
+ * Assertion.alias('true', 'True')
+ */
+Assertion.alias = function(from, to) {
+  var desc = Object.getOwnPropertyDescriptor(Assertion.prototype, from);
+  if (!desc) throw new Error('Alias ' + from + ' -> ' + to + ' could not be created as ' + from + ' not defined');
+  Object.defineProperty(Assertion.prototype, to, desc);
+
+  var desc2 = Object.getOwnPropertyDescriptor(PromisedAssertion.prototype, from);
+  if (desc2) {
+    Object.defineProperty(PromisedAssertion.prototype, to, desc2);
+  }
+};
+/**
+ * Negation modifier. Current assertion chain become negated. Each call invert negation on current assertion.
+ *
+ * @name not
+ * @property
+ * @memberOf Assertion
+ * @category assertion
+ */
+Assertion.addChain('not', function() {
+  this.negate = !this.negate;
+});
+
+/**
+ * Any modifier - it affect on execution of sequenced assertion to do not `check all`, but `check any of`.
+ *
+ * @name any
+ * @property
+ * @memberOf Assertion
+ * @category assertion
+ */
+Assertion.addChain('any', function() {
+  this.anyOne = true;
+});
+
+module.exports = Assertion;
+module.exports.PromisedAssertion = PromisedAssertion;
+
+},{"./assertion-error":3}],5:[function(require,module,exports){
+/*
+ * Should
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
 var Formatter = require('should-format').Formatter;
 
 var config = {
@@ -330,7 +414,7 @@ var config = {
 
 module.exports = config;
 
-},{"should-format":21}],5:[function(require,module,exports){
+},{"should-format":23}],6:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -611,10 +695,10 @@ assert.ifError = function(err) {
   }
 };
 
-},{"./../assertion":3,"should-equal":20}],6:[function(require,module,exports){
+},{"./../assertion":4,"should-equal":22}],7:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -682,10 +766,10 @@ module.exports = function(should) {
     }
   };
 };
-},{"../assertion-error":2,"../util":18,"./_assert":5}],7:[function(require,module,exports){
+},{"../assertion-error":3,"../util":20,"./_assert":6}],8:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -751,7 +835,13 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+/*
+ * Should
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
 module.exports = function(should, Assertion) {
   /**
    * Simple chaining. It actually do nothing.
@@ -777,10 +867,10 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -937,10 +1027,10 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":18,"should-equal":20}],10:[function(require,module,exports){
+},{"../util":20,"should-equal":22}],11:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -1075,10 +1165,10 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":18,"should-equal":20,"should-type":23}],11:[function(require,module,exports){
+},{"../util":20,"should-equal":22,"should-type":25}],12:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 var util = require('../util');
@@ -1186,10 +1276,10 @@ module.exports = function(should, Assertion) {
   Assertion.alias('throw', 'throwError');
 };
 
-},{"../util":18}],12:[function(require,module,exports){
+},{"../util":20}],13:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -1207,8 +1297,12 @@ module.exports = function(should, Assertion) {
    * If `other` is a regexp and given object is an object check values on matching regexp
    * If `other` is a function check if this function throws AssertionError on given object or return false - it will be assumed as not matched
    * If `other` is an object check if the same keys matched with above rules
-   * All other cases failed
-   *
+   * All other cases failed.
+   * 
+   * Usually it is right idea to add pre type assertions, like `.String()` or `.Object()` to be sure assertions will do what you are expecting.
+   * Object iteration happen by keys (properties with enumerable: true), thus some objects can cause small pain. Typical example is js 
+   * Error - it by default has 2 properties `name` and `message`, but they both non-enumerable. In this case make sure you specify checking props (see examples).
+   * 
    * @name match
    * @memberOf Assertion
    * @category assertion matching
@@ -1237,6 +1331,19 @@ module.exports = function(should, Assertion) {
    * .match({ '0': 10, '1': /c$/, '2': function(it) {
    *    return it.should.have.property('d', 10);
    * }});
+   * 
+   * var myString = 'abc';
+   * 
+   * myString.should.be.a.String().and.match(/abc/);
+   * 
+   * myString = {};
+   * 
+   * myString.should.match(/abc/); //yes this will pass
+   * //better to do
+   * myString.should.be.an.Object().and.not.empty().and.match(/abc/);//fixed
+   * 
+   * (new Error('boom')).should.match(/abc/);//passed because no keys
+   * (new Error('boom')).should.not.match({ message: /abc/ });//check specified property
    */
   Assertion.add('match', function(other, description) {
     this.params = {operator: 'to match ' + i(other), message: description};
@@ -1379,10 +1486,10 @@ module.exports = function(should, Assertion) {
   Assertion.alias('matchEach', 'matchEvery');
 };
 
-},{"../util":18,"should-equal":20}],13:[function(require,module,exports){
+},{"../util":20,"should-equal":22}],14:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -1547,10 +1654,247 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * MIT Licensed
+ */
+
+var util = require('../util');
+var PromisedAssertion = require('../assertion').PromisedAssertion;
+var Assertion = require('../assertion');
+
+module.exports = function(should) {
+  /**
+   * Assert given object is a Promise
+   *
+   * @name Promise
+   * @memberOf Assertion
+   * @category assertion promises
+   * @example
+   *
+   * promise.should.be.Promise()
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.a.Promise()
+   * (10).should.not.be.a.Promise()
+   */
+  Assertion.add('Promise', function() {
+    this.params = {operator: 'to be promise'};
+
+    var obj = this.obj;
+
+    should(obj).have.property('then')
+      .which.is.a.Function();
+  });
+
+  /**
+   * Assert given promise will be fulfilled
+   *
+   * @name fulfilled
+   * @memberOf Assertion
+   * @returns {Promise}
+   * @example
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilled()
+   */
+  Assertion.prototype.fulfilled = function Assertion$fulfilled() {
+    this.params = {operator: 'to be fulfilled'};
+
+    should(this.obj).be.a.Promise();
+
+    var that = this;
+    return this.obj.then(function next$onResolve(value) {
+      if (that.negate) {
+        that.fail();
+      }
+      return value;
+    }, function next$onReject(err) {
+      if (!that.negate) {
+        that.fail();
+      }
+      return err;
+    });
+  };
+
+  /**
+   * Assert given promise will be rejected
+   *
+   * @name rejected
+   * @memberOf Assertion
+   * @category assertion promises
+   * @returns {Promise}
+   * @example
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.not.be.rejected()
+   */
+  Assertion.prototype.rejected = function() {
+    this.params = {operator: 'to be rejected'};
+
+    should(this.obj).be.a.Promise();
+
+    var that = this;
+    return this.obj.then(function(value) {
+      if (!that.negate) {
+        that.fail();
+      }
+      return value;
+    }, function next$onError(err) {
+      if (that.negate) {
+        that.fail();
+      }
+      return err;
+    });
+  };
+
+  /**
+   * Assert given promise will be fulfilled with some expected value.
+   *
+   * @name fulfilledWith
+   * @memberOf Assertion
+   * @category assertion promises
+   * @returns {Promise}
+   * @example
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilledWith(10)
+   */
+  Assertion.prototype.fulfilledWith = function(expectedValue) {
+    this.params = {operator: 'to be fulfilled'};
+
+    should(this.obj).be.a.Promise();
+
+    var that = this;
+    return this.obj.then(function(value) {
+      if (that.negate) {
+        that.fail();
+      }
+      should(value).eql(expectedValue);
+      return value;
+    }, function next$onError(err) {
+      if (!that.negate) {
+        that.fail();
+      }
+      return err;
+    });
+  };
+
+  /**
+   * Assert given promise will be rejected with some sort of error. Arguments is the same for Assertion#throw
+   *
+   * @name rejectedWith
+   * @memberOf Assertion
+   * @category assertion promises
+   * @returns {Promise}
+   * @example
+   *
+   * function failedPromise() {
+  *   return new Promise(function(resolve, reject) {
+  *     reject(new Error('boom'))
+  *   })
+  * }
+   * failedPromise().should.be.rejectedWith(Error)
+   * failedPromise().should.be.rejectedWith('boom')
+   * failedPromise().should.be.rejectedWith(/boom/)
+   * failedPromise().should.be.rejectedWith(Error, { message: 'boom' })
+   * failedPromise().should.be.rejectedWith({ message: 'boom' })
+   */
+  Assertion.prototype.rejectedWith = function(message, properties) {
+    this.params = {operator: 'to be rejected'};
+
+    should(this.obj).be.a.Promise();
+
+    var that = this;
+    return this.obj.then(function(value) {
+      if (!that.negate) {
+        that.fail();
+      }
+      return value;
+    }, function next$onError(err) {
+      if (that.negate) {
+        that.fail();
+      }
+
+      var errorMatched = true;
+      var errorInfo = '';
+
+      if ('string' === typeof message) {
+        errorMatched = message === err.message;
+      } else if (message instanceof RegExp) {
+        errorMatched = message.test(err.message);
+      } else if ('function' === typeof message) {
+        errorMatched = err instanceof message;
+      } else if (message !== null && typeof message === 'object') {
+        try {
+          should(err).match(message);
+        } catch (e) {
+          if (e instanceof should.AssertionError) {
+            errorInfo = ': ' + e.message;
+            errorMatched = false;
+          } else {
+            throw e;
+          }
+        }
+      }
+
+      if (!errorMatched) {
+        if ( typeof message === 'string' || message instanceof RegExp) {
+          errorInfo = ' with a message matching ' + should.format(message) + ", but got '" + err.message + "'";
+        } else if ('function' === typeof message) {
+          errorInfo = ' of type ' + util.functionName(message) + ', but got ' + util.functionName(err.constructor);
+        }
+      } else if ('function' === typeof message && properties) {
+        try {
+          should(err).match(properties);
+        } catch (e) {
+          if (e instanceof should.AssertionError) {
+            errorInfo = ': ' + e.message;
+            errorMatched = false;
+          } else {
+            throw e;
+          }
+        }
+      }
+
+      that.params.operator += errorInfo;
+
+      that.assert(errorMatched);
+
+      return err;
+    });
+  };
+
+  /**
+   * Assert given object is promise and wrap it in PromisedAssertion, which has all properties of Assertion. That means you can chain as with usual Assertion.
+   *
+   * @name finally
+   * @memberOf Assertion
+   * @alias Assertion#eventually
+   * @category assertion promises
+   * @returns {PromisedAssertion} Like Assertion, but .then this.obj in Assertion
+   * @example
+   *
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.eventually.equal(10)
+   */
+  Object.defineProperty(Assertion.prototype, 'finally', {
+    get: function() {
+      should(this.obj).be.a.Promise();
+
+      var that = this;
+
+      return new PromisedAssertion(this.obj.then(function(obj) {
+        var a = should(obj);
+
+        a.negate = that.negate;
+        a.anyOne = that.anyOne;
+
+        return a;
+      }));
+    }
+  });
+
+  Assertion.alias('finally', 'eventually');
+};
+
+},{"../assertion":4,"../util":20}],16:[function(require,module,exports){
+/*
+ * Should
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -1919,10 +2263,10 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":18,"should-equal":20}],15:[function(require,module,exports){
+},{"../util":20,"should-equal":22}],17:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -1962,10 +2306,10 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -2188,10 +2532,10 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":18}],17:[function(require,module,exports){
+},{"../util":20}],19:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -2208,9 +2552,9 @@ var util = require('./util');
  * var should = require('should');
  * should('abc').be.a.String();
  */
-var should = function should(obj) {
+function should(obj) {
   return (new should.Assertion(obj));
-};
+}
 
 should.AssertionError = require('./assertion-error');
 should.Assertion = require('./assertion');
@@ -2242,7 +2586,7 @@ should.util = util;
  */
 should.config = require('./config');
 
-//Expose should to external world.
+// Expose should to external world.
 exports = module.exports = should;
 
 /**
@@ -2346,12 +2690,13 @@ should
   .use(require('./ext/property'))
   .use(require('./ext/error'))
   .use(require('./ext/match'))
-  .use(require('./ext/contain'));
+  .use(require('./ext/contain'))
+  .use(require('./ext/promise'));
 
-},{"./assertion":3,"./assertion-error":2,"./config":4,"./ext/assert":6,"./ext/bool":7,"./ext/chain":8,"./ext/contain":9,"./ext/eql":10,"./ext/error":11,"./ext/match":12,"./ext/number":13,"./ext/property":14,"./ext/string":15,"./ext/type":16,"./util":18,"should-type":23}],18:[function(require,module,exports){
+},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":25}],20:[function(require,module,exports){
 /*
  * Should
- * Copyright(c) 2010-2014 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
  * MIT Licensed
  */
 
@@ -2485,7 +2830,7 @@ exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":4,"should-format":21,"should-type":23}],19:[function(require,module,exports){
+},{"./config":5,"should-format":23,"should-type":25}],21:[function(require,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -2494,7 +2839,7 @@ module.exports = function format(msg) {
   return msg;
 }
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var getType = require('should-type');
 var format = require('./format');
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -2836,7 +3181,7 @@ module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":19,"should-type":23}],21:[function(require,module,exports){
+},{"./format":21,"should-type":25}],23:[function(require,module,exports){
 var getType = require('should-type');
 var util = require('./util');
 
@@ -3294,7 +3639,7 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":22,"should-type":23}],22:[function(require,module,exports){
+},{"./util":24,"should-type":25}],24:[function(require,module,exports){
 function addSpaces(v) {
   return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
 }
@@ -3324,7 +3669,7 @@ module.exports = {
   }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var types = require('./types');
@@ -3485,7 +3830,7 @@ Object.keys(types).forEach(function(typeName) {
 
 module.exports = getGlobalType;
 
-},{"./types":24}],24:[function(require,module,exports){
+},{"./types":26}],26:[function(require,module,exports){
 var types = {
   NUMBER: 'number',
   UNDEFINED: 'undefined',

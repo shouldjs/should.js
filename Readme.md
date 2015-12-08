@@ -10,9 +10,9 @@ _should_ is an expressive, readable, framework-agnostic assertion library. The m
 
 By default (when you `require('should')`) _should_ extends the `Object.prototype` with a single non-enumerable getter that allows you to express how that object should behave. It also returns itself when required with `require`.
 
-It is also possible to use should.js without getter (it will not even try to exetend Object.prototype), just `require('should/as-function')`. Or if you already use version that auto add getter, you can call `.noConflict` function.
+It is also possible to use should.js without getter (it will not even try to extend Object.prototype), just `require('should/as-function')`. Or if you already use version that auto add getter, you can call `.noConflict` function.
 
-**Results of `(something).should` getter and `should(something)` in most situations the same**
+**Results of `(something).should` getter and `should(something)` in most situations are the same**
 
 ### Upgrading instructions
 
@@ -81,26 +81,16 @@ $ npm install
 $ gulp script
 ```
 
-The script is exported to `window.Should`. It is the same as using `should` statically:
+The script is exported to `window.should`:
 
 ```js
-Should(5).be.exactly(5)
+should(10).be.exactly(10)
 ```
 
-Also, in the case of node.js, `Object.prototype` is extended with `should` (hence the capital S in `window.Should`):
-
-```js
-window.should.be.exactly(window);
-// the same
-// window is host object
-should.be.exactly(window);
-// you should not really care about it
-
-(5).should.be.exactly(5);
-```
 You can easy install it with npm or bower:
-```
-npm install should --save-dev
+
+```sh
+npm install should -D
 # or
 bower install shouldjs/should.js
 ```
