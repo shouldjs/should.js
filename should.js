@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.0.0
+ * @version v8.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -233,7 +233,8 @@ function PromisedAssertion(/* obj */) {
 
 /**
  * Make PromisedAssertion to look like promise. Delegate resolve and reject to given promise.
- *
+ * 
+ * @private
  * @returns {Promise}
  */
 PromisedAssertion.prototype.then = function(resolve, reject) {
@@ -247,6 +248,8 @@ PromisedAssertion.prototype.then = function(resolve, reject) {
  * All actions happen in subcontext and this method take care about negation.
  * Potentially we can add some more modifiers that does not depends from state of assertion.
  *
+ * @memberOf Assertion
+ * @static
  * @param {String} name Name of assertion. It will be used for defining method or getter on Assertion.prototype
  * @param {Function} func Function that will be called on executing assertion
  * @example
@@ -323,6 +326,9 @@ Assertion.add = function(name, func) {
 
 /**
  * Add chaining getter to Assertion like .a, .which etc
+ * 
+ * @memberOf Assertion
+ * @static
  * @param  {string} name   name of getter
  * @param  {function} [onCall] optional function to call
  */
@@ -352,6 +358,8 @@ Assertion.addChain = function(name, onCall) {
 /**
  * Create alias for some `Assertion` property
  *
+ * @memberOf Assertion
+ * @static
  * @param {String} from Name of to map
  * @param {String} to Name of alias
  * @example
@@ -1298,11 +1306,11 @@ module.exports = function(should, Assertion) {
    * If `other` is a function check if this function throws AssertionError on given object or return false - it will be assumed as not matched
    * If `other` is an object check if the same keys matched with above rules
    * All other cases failed.
-   * 
+   *
    * Usually it is right idea to add pre type assertions, like `.String()` or `.Object()` to be sure assertions will do what you are expecting.
-   * Object iteration happen by keys (properties with enumerable: true), thus some objects can cause small pain. Typical example is js 
+   * Object iteration happen by keys (properties with enumerable: true), thus some objects can cause small pain. Typical example is js
    * Error - it by default has 2 properties `name` and `message`, but they both non-enumerable. In this case make sure you specify checking props (see examples).
-   * 
+   *
    * @name match
    * @memberOf Assertion
    * @category assertion matching
@@ -1331,17 +1339,17 @@ module.exports = function(should, Assertion) {
    * .match({ '0': 10, '1': /c$/, '2': function(it) {
    *    return it.should.have.property('d', 10);
    * }});
-   * 
+   *
    * var myString = 'abc';
-   * 
+   *
    * myString.should.be.a.String().and.match(/abc/);
-   * 
+   *
    * myString = {};
-   * 
+   *
    * myString.should.match(/abc/); //yes this will pass
    * //better to do
    * myString.should.be.an.Object().and.not.empty().and.match(/abc/);//fixed
-   * 
+   *
    * (new Error('boom')).should.match(/abc/);//passed because no keys
    * (new Error('boom')).should.not.match({ message: /abc/ });//check specified property
    */
@@ -1386,7 +1394,7 @@ module.exports = function(should, Assertion) {
         if(typeof res == 'boolean') {
           this.assert(res); // if it is just boolean function assert on it
         }
-      } else if(other != null && typeof other == 'object') { // try to match properties (for Object and Array)
+      } else if(other != null && this.obj != null && typeof other == 'object') { // try to match properties (for Object and Array)
         notMatchedProps = [];
         matchedProps = [];
 
@@ -1693,6 +1701,7 @@ module.exports = function(should) {
    * @name fulfilled
    * @memberOf Assertion
    * @returns {Promise}
+   * @category assertion promises
    * @example
    * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilled()
    */
