@@ -101,6 +101,8 @@ describe('match', function() {
         return it.should.have.property('d', 10);
       }});
 
+    ({ nested: null }).should.not.match( { nested: { prop: /foo/ }} );
+
     [10, 'abc', { d: 10 }, 0].should
       .match({ '0': 10, '1': /c$/, '2': function(it) {
         return it.should.have.property('d', 10);
@@ -150,6 +152,11 @@ describe('match', function() {
 
   it('test matchAny(obj)', function() {
     [{}, {nested: {prop: 'foo'}}].should.matchAny( {nested: {prop: 'foo'}} );
+
+    [
+      { nested: undefined },
+      { nested: { prop: 'foo' } }
+    ].should.matchAny({ nested: { prop: /foo/ } });
   });
 
   it('test matchAny(function)', function() {
