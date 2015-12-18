@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.0.1
+ * @version v8.0.2
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -422,7 +422,7 @@ var config = {
 
 module.exports = config;
 
-},{"should-format":23}],6:[function(require,module,exports){
+},{"should-format":25}],6:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -551,6 +551,8 @@ assert.notEqual = function notEqual(actual, expected, message) {
 // assert.deepEqual(actual, expected, message_opt);
 /**
  * Node.js standard [`assert.deepEqual`](http://nodejs.org/api/assert.html#assert_assert_deepequal_actual_expected_message).
+ * But uses should.js .eql implementation instead of Node.js own deepEqual.
+ *
  * @static
  * @memberOf should
  * @category assertion assert
@@ -569,6 +571,8 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
 // assert.notDeepEqual(actual, expected, message_opt);
 /**
  * Node.js standard [`assert.notDeepEqual`](http://nodejs.org/api/assert.html#assert_assert_notdeepequal_actual_expected_message).
+ * But uses should.js .eql implementation instead of Node.js own deepEqual.
+ *
  * @static
  * @memberOf should
  * @category assertion assert
@@ -1173,7 +1177,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":20,"should-equal":22,"should-type":25}],12:[function(require,module,exports){
+},{"../util":20,"should-equal":22,"should-type":29}],12:[function(require,module,exports){
 /*
  * Should
  * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
@@ -2702,7 +2706,7 @@ should
   .use(require('./ext/contain'))
   .use(require('./ext/promise'));
 
-},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":25}],20:[function(require,module,exports){
+},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":29}],20:[function(require,module,exports){
 /*
  * Should
  * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
@@ -2839,7 +2843,7 @@ exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":5,"should-format":23,"should-type":25}],21:[function(require,module,exports){
+},{"./config":5,"should-format":25,"should-type":29}],21:[function(require,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -2886,17 +2890,29 @@ var REASON = {
   MAP_VALUE_EQUALITY: 'Values of the same key in A and B is not equal'
 };
 
-function eqInternal(a, b, opts, stackA, stackB, path) {
+
+function eqInternal(a, b, opts, stackA, stackB, path, fails) {
   var r = EQUALS;
 
   function result(comparison, reason) {
-    return makeResult(comparison, path, reason, a, b);
+    if(arguments.length > 2) {
+      var args = Array.prototype.slice.call(arguments, 2);
+      reason = format.apply(null, [reason].concat(args));
+    }
+    var res = makeResult(comparison, path, reason, a, b);
+    if(!comparison && opts.collectAllFails) {
+      fails.push(res);
+    }
+    return res;
   }
 
   function checkPropertyEquality(property) {
-    return eqInternal(a[property], b[property], opts, stackA, stackB, path.concat([property]));
+    return eqInternal(a[property], b[property], opts, stackA, stackB, path.concat([property]), fails);
   }
 
+  function checkAlso(a1, b1) {
+    return eqInternal(a1, b1, opts, stackA, stackB, path, fails);
+  }
 
   // equal a and b exit early
   if(a === b) {
@@ -2909,11 +2925,13 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
   var typeA = getType(a),
     typeB = getType(b);
 
-  // if objects has different types they are not equals
-  var typeDifferents = typeA.type !== typeB.type || typeA.cls !== typeB.cls;
+  var key;
 
-  if(typeDifferents || ((opts.checkSubType && typeA.sub !== typeB.sub) || !opts.checkSubType)) {
-    return result(false, format(REASON.DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
+  // if objects has different types they are not equal
+  var typeDifferent = typeA.type !== typeB.type || typeA.cls !== typeB.cls;
+
+  if(typeDifferent || ((opts.checkSubType && typeA.sub !== typeB.sub) || !opts.checkSubType)) {
+    return result(false, REASON.DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB));
   }
 
   //early checks for types
@@ -2929,11 +2947,11 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
       return result(a === b, REASON.EQUALITY);
 
     case 'function':
-      var fA = a.toString(), fB = b.toString();
-      r = eqInternal(fA, fB, opts, stackA, stackB, path);
+      // functions are compared by their source code
+      r = checkAlso(a.toString(), b.toString());
       if(!r.result) {
         r.reason = REASON.FUNCTION_SOURCES;
-        return r;
+        if(!opts.collectAllFails) return r;
       }
 
       break;//check user properties
@@ -2947,14 +2965,15 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
           p = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase'];
           while(p.length) {
             r = checkPropertyEquality(p.shift());
-            if(!r.result) return r;
+            if(!r.result && !opts.collectAllFails) return r;
           }
           break;//check user properties
 
-        //check by timestamp only
+        //check by timestamp only (using .valueOf)
         case 'date':
           if(+a !== +b) {
-            return result(false, REASON.EQUALITY);
+            r = result(false, REASON.EQUALITY);
+            if(!r.result && !opts.collectAllFails) return r;
           }
           break;//check user properties
 
@@ -2962,10 +2981,11 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
         case 'number':
         case 'boolean':
         case 'string':
-          r = eqInternal(a.valueOf(), b.valueOf(), opts, stackA, stackB, path);
+          //check their internal value
+          r = checkAlso(a.valueOf(), b.valueOf());
           if(!r.result) {
             r.reason = REASON.WRAPPED_VALUE;
-            return r;
+            if(!opts.collectAllFails) return r;
           }
           break;//check user properties
 
@@ -2973,12 +2993,12 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
         case 'buffer':
           //if length different it is obviously different
           r = checkPropertyEquality('length');
-          if(!r.result) return r;
+          if(!r.result && !opts.collectAllFails) return r;
 
           l = a.length;
           while(l--) {
             r = checkPropertyEquality(l);
-            if(!r.result) return r;
+            if(!r.result && !opts.collectAllFails) return r;
           }
 
           //we do not check for user properties because
@@ -2990,7 +3010,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
           p = ['name', 'message'];
           while(p.length) {
             r = checkPropertyEquality(p.shift());
-            if(!r.result) return r;
+            if(!r.result && !opts.collectAllFails) return r;
           }
 
           break;//check user properties
@@ -2999,20 +3019,20 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
         case 'arguments':
         case 'typed-array':
           r = checkPropertyEquality('length');
-          if(!r.result) return r;
+          if(!r.result && !opts.collectAllFails) return r;
 
           break;//check user properties
 
         case 'array-buffer':
           r = checkPropertyEquality('byteLength');
-          if(!r.result) return r;
+          if(!r.result && !opts.collectAllFails) return r;
 
           break;//check user properties
 
         case 'map':
         case 'set':
           r = checkPropertyEquality('size');
-          if(!r.result) return r;
+          if(!r.result && !opts.collectAllFails) return r;
 
           stackA.push(a);
           stackB.push(b);
@@ -3021,7 +3041,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
           var nextA = itA.next();
 
           while(!nextA.done) {
-            var key = nextA.value[0];
+            key = nextA.value[0];
             //first check for primitive key if we can do light check
             //using .has and .get
             if(getType(key).type != 'object') {
@@ -3029,13 +3049,13 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
                 if(typeA.cls == 'map') {
                   //for map we also check its value to be equal
                   var value = b.get(key);
-                  r = eqInternal(nextA.value[1], value, opts, stackA, stackB, path);
+                  r = checkAlso(nextA.value[1], value);
                   if(!r.result) {
                     r.a = nextA.value;
                     r.b = value;
                     r.reason = REASON.MAP_VALUE_EQUALITY;
 
-                    break;
+                    if(!opts.collectAllFails) break;
                   }
                 }
 
@@ -3044,7 +3064,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
                 r.a = key;
                 r.b = key;
 
-                break;
+                if(!opts.collectAllFails) break;
               }
             } else {
               //heavy check
@@ -3054,7 +3074,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
 
               while(!nextB.done) {
                 //first check for keys
-                r = eqInternal(nextA.value[0], nextB.value[0], opts, stackA, stackB, path);
+                r = checkAlso(nextA.value[0], nextB.value[0]);
 
                 if(!r.result) {
                   r.reason = REASON.SET_MAP_MISSING_KEY;
@@ -3062,7 +3082,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
                   r.b = key;
                 } else {
                   if(typeA.cls == 'map') {
-                    r = eqInternal(nextA.value[1], nextB.value[1], opts, stackA, stackB, path);
+                    r = checkAlso(nextA.value[1], nextB.value[1]);
 
                     if(!r.result) {
                       r.a = nextA.value;
@@ -3071,16 +3091,14 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
                     }
                   }
 
-                  break;
+                  if(!opts.collectAllFails) break;
                 }
 
                 nextB = itB.next();
               }
             }
 
-            if(!r.result) {
-              break;
-            }
+            if(!r.result && !opts.collectAllFails) break;
 
             nextA = itA.next();
           }
@@ -3090,7 +3108,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
 
           if(!r.result) {
             r.reason = REASON.SET_MAP_MISSING_ENTRY;
-            return r;
+            if(!opts.collectAllFails) return r;
           }
 
           break; //check user properties
@@ -3112,32 +3130,24 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
   stackA.push(a);
   stackB.push(b);
 
-  var key;
-
   for(key in b) {
     if(hasOwnProperty.call(b, key)) {
-      r = result(hasOwnProperty.call(a, key), format(REASON.MISSING_KEY, 'A', key));
-      if(!r.result) {
-        break;
-      }
+      r = result(hasOwnProperty.call(a, key), REASON.MISSING_KEY, 'A', key);
+      if(!r.result && !opts.collectAllFails) break;
 
       if(r.result) {
         r = checkPropertyEquality(key);
-        if(!r.result) {
-          break;
-        }
+        if(!r.result && !opts.collectAllFails) break;
       }
     }
   }
 
-  if(r.result) {
+  if(r.result || opts.collectAllFails) {
     // ensure both objects have the same number of properties
     for(key in a) {
       if(hasOwnProperty.call(a, key)) {
-        r = result(hasOwnProperty.call(b, key), format(REASON.MISSING_KEY, 'B', key));
-        if(!r.result) {
-          return r;
-        }
+        r = result(hasOwnProperty.call(b, key), REASON.MISSING_KEY, 'B', key);
+        if(!r.result && !opts.collectAllFails) return r;
       }
     }
   }
@@ -3145,7 +3155,7 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
   stackA.pop();
   stackB.pop();
 
-  if(!r.result) return r;
+  if(!r.result && !opts.collectAllFails) return r;
 
   var prototypesEquals = false, canComparePrototypes = false;
 
@@ -3153,15 +3163,12 @@ function eqInternal(a, b, opts, stackA, stackB, path) {
     if(Object.getPrototypeOf) {//TODO should i check prototypes for === or use eq?
       prototypesEquals = Object.getPrototypeOf(a) === Object.getPrototypeOf(b);
       canComparePrototypes = true;
-    } else if(a.__proto__ && b.__proto__) {
-      prototypesEquals = a.__proto__ === b.__proto__;
-      canComparePrototypes = true;
     }
 
     if(canComparePrototypes && !prototypesEquals) {
       r = result(prototypesEquals, REASON.EQUALITY_PROTOTYPE);
       r.showReason = true;
-      if(!r.result) {
+      if(!r.result && !opts.collectAllFails) {
         return r;
       }
     }
@@ -3177,20 +3184,227 @@ var defaultOptions = {
 
 function eq(a, b, opts) {
   opts = opts || {};
-  if(typeof opts.checkProtoEql !== 'boolean')
+  if(typeof opts.checkProtoEql !== 'boolean') {
     opts.checkProtoEql = defaultOptions.checkProtoEql;
-  if(typeof opts.checkSubType !== 'boolean')
+  }
+  if(typeof opts.checkSubType !== 'boolean') {
     opts.checkSubType = defaultOptions.checkSubType;
+  }
 
-  var r = eqInternal(a, b, opts, [], [], []);
-  return r;
+  var fails = [];
+  var r = eqInternal(a, b, opts, [], [], [], fails);
+  return opts.collectAllFails ? fails : r;
 }
 
 module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":21,"should-type":25}],23:[function(require,module,exports){
+},{"./format":21,"should-type":23}],23:[function(require,module,exports){
+var toString = Object.prototype.toString;
+
+var types = require('./types');
+
+/**
+ * Simple data function to store type information
+ * @param {string} type Usually what is returned from typeof
+ * @param {string} cls  Sanitized @Class via Object.prototype.toString
+ * @param {string} sub  If type and cls the same, and need to specify somehow
+ * @private
+ * @example
+ *
+ * //for null
+ * new Type('null');
+ *
+ * //for Date
+ * new Type('object', 'date');
+ *
+ * //for Uint8Array
+ *
+ * new Type('object', 'typed-array', 'uint8');
+ */
+function Type(type, cls, sub) {
+  this.type = type;
+  this.cls = cls;
+  this.sub = sub;
+}
+
+/**
+ * Function to store type checks
+ * @private
+ */
+function TypeChecker() {
+  this.checks = [];
+}
+
+TypeChecker.prototype = {
+  add: function(func) {
+    this.checks.push(func);
+    return this;
+  },
+
+  addTypeOf: function(type, res) {
+    return this.add(function(obj, tpeOf) {
+      if(tpeOf === type) {
+        return new Type(res);
+      }
+    });
+  },
+
+  addClass: function(cls, res, sub) {
+    return this.add(function(obj, tpeOf, objCls) {
+      if(objCls === cls) {
+        return new Type(types.OBJECT, res, sub);
+      }
+    });
+  },
+
+  getType: function(obj) {
+    var typeOf = typeof obj;
+    var cls = toString.call(obj);
+
+    for(var i = 0, l = this.checks.length; i < l; i++) {
+      var res = this.checks[i].call(this, obj, typeOf, cls);
+      if(typeof res !== 'undefined') return res;
+    }
+
+  }
+};
+
+var main = new TypeChecker();
+
+//TODO add iterators
+
+main
+  .addTypeOf(types.NUMBER, types.NUMBER)
+  .addTypeOf(types.UNDEFINED, types.UNDEFINED)
+  .addTypeOf(types.STRING, types.STRING)
+  .addTypeOf(types.BOOLEAN, types.BOOLEAN)
+  .addTypeOf(types.FUNCTION, types.FUNCTION)
+  .addTypeOf(types.SYMBOL, types.SYMBOL)
+  .add(function(obj, tpeOf) {
+    if(obj === null) return new Type(types.NULL);
+  })
+  .addClass('[object String]', types.STRING)
+  .addClass('[object Boolean]', types.BOOLEAN)
+  .addClass('[object Number]', types.NUMBER)
+  .addClass('[object Array]', types.ARRAY)
+  .addClass('[object RegExp]', types.REGEXP)
+  .addClass('[object Error]', types.ERROR)
+  .addClass('[object Date]', types.DATE)
+  .addClass('[object Arguments]', types.ARGUMENTS)
+  .addClass('[object Math]')
+  .addClass('[object JSON]')
+  .addClass('[object ArrayBuffer]', types.ARRAY_BUFFER)
+  .addClass('[object Int8Array]', types.TYPED_ARRAY, 'int8')
+  .addClass('[object Uint8Array]', types.TYPED_ARRAY, 'uint8')
+  .addClass('[object Uint8ClampedArray]', types.TYPED_ARRAY, 'uint8clamped')
+  .addClass('[object Int16Array]', types.TYPED_ARRAY, 'int16')
+  .addClass('[object Uint16Array]', types.TYPED_ARRAY, 'uint16')
+  .addClass('[object Int32Array]', types.TYPED_ARRAY, 'int32')
+  .addClass('[object Uint32Array]', types.TYPED_ARRAY, 'uint32')
+  .addClass('[object Float32Array]', types.TYPED_ARRAY, 'float32')
+  .addClass('[object Float64Array]', types.TYPED_ARRAY, 'float64')
+  .addClass('[object DataView]', types.DATA_VIEW)
+  .addClass('[object Map]', types.MAP)
+  .addClass('[object WeakMap]', types.WEAK_MAP)
+  .addClass('[object Set]', types.SET)
+  .addClass('[object WeakSet]', types.WEAK_SET)
+  .addClass('[object Promise]', types.PROMISE)
+  .addClass('[object Blob]', types.BLOB)
+  .addClass('[object File]', types.FILE)
+  .addClass('[object FileList]', types.FILE_LIST)
+  .addClass('[object XMLHttpRequest]', types.XHR)
+  .add(function(obj) {
+    if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
+        (typeof obj.then === types.FUNCTION)) {
+          return new Type(types.OBJECT, types.PROMISE);
+        }
+  })
+  .add(function(obj) {
+    if(typeof Buffer !== 'undefined' && obj instanceof Buffer) {
+      return new Type(types.OBJECT, types.BUFFER);
+    }
+  })
+  .add(function(obj) {
+    if(typeof Node !== 'undefined' && obj instanceof Node) {
+      return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
+    }
+  })
+  .add(function(obj) {
+    // probably at the begginging should be enough these checks
+    if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
+      return new Type(types.OBJECT, types.HOST);
+    }
+  })
+  .add(function() {
+    return new Type(types.OBJECT);
+  });
+
+/**
+ * Get type information of anything
+ *
+ * @param  {any} obj Anything that could require type information
+ * @return {Type}    type info
+ */
+function getGlobalType(obj) {
+  return main.getType(obj);
+}
+
+getGlobalType.checker = main;
+getGlobalType.TypeChecker = TypeChecker;
+getGlobalType.Type = Type;
+
+Object.keys(types).forEach(function(typeName) {
+  getGlobalType[typeName] = types[typeName];
+});
+
+module.exports = getGlobalType;
+
+},{"./types":24}],24:[function(require,module,exports){
+var types = {
+  NUMBER: 'number',
+  UNDEFINED: 'undefined',
+  STRING: 'string',
+  BOOLEAN: 'boolean',
+  OBJECT: 'object',
+  FUNCTION: 'function',
+  NULL: 'null',
+  ARRAY: 'array',
+  REGEXP: 'regexp',
+  DATE: 'date',
+  ERROR: 'error',
+  ARGUMENTS: 'arguments',
+  SYMBOL: 'symbol',
+  ARRAY_BUFFER: 'array-buffer',
+  TYPED_ARRAY: 'typed-array',
+  DATA_VIEW: 'data-view',
+  MAP: 'map',
+  SET: 'set',
+  WEAK_SET: 'weak-set',
+  WEAK_MAP: 'weak-map',
+  PROMISE: 'promise',
+
+// node buffer
+  BUFFER: 'buffer',
+
+// dom html element
+  HTML_ELEMENT: 'html-element',
+  HTML_ELEMENT_TEXT: 'html-element-text',
+  DOCUMENT: 'document',
+  WINDOW: 'window',
+  FILE: 'file',
+  FILE_LIST: 'file-list',
+  BLOB: 'blob',
+
+  HOST: 'host',
+
+  XHR: 'xhr'
+};
+
+module.exports = types;
+
+},{}],25:[function(require,module,exports){
 var getType = require('should-type');
 var util = require('./util');
 
@@ -3363,7 +3577,12 @@ Formatter.functionName = function functionName(f) {
   if(f.name) {
     return f.name;
   }
-  var name = f.toString().match(functionNameRE)[1];
+  var matches = f.toString().match(functionNameRE);
+  if (matches === null) {
+    // `functionNameRE` doesn't match arrow functions.
+    return '';
+  }
+  var name = matches[1];
   return name;
 };
 
@@ -3648,7 +3867,11 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":24,"should-type":25}],24:[function(require,module,exports){
+},{"./util":28,"should-type":26}],26:[function(require,module,exports){
+arguments[4][23][0].apply(exports,arguments)
+},{"./types":27,"dup":23}],27:[function(require,module,exports){
+arguments[4][24][0].apply(exports,arguments)
+},{"dup":24}],28:[function(require,module,exports){
 function addSpaces(v) {
   return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
 }
@@ -3678,209 +3901,9 @@ module.exports = {
   }
 };
 
-},{}],25:[function(require,module,exports){
-var toString = Object.prototype.toString;
-
-var types = require('./types');
-
-/**
- * Simple data function to store type information
- * @param {string} type Usually what is returned from typeof
- * @param {string} cls  Sanitized @Class via Object.prototype.toString
- * @param {string} sub  If type and cls the same, and need to specify somehow
- * @private
- * @example
- *
- * //for null
- * new Type('null');
- *
- * //for Date
- * new Type('object', 'date');
- *
- * //for Uint8Array
- *
- * new Type('object', 'typed-array', 'uint8');
- */
-function Type(type, cls, sub) {
-  this.type = type;
-  this.cls = cls;
-  this.sub = sub;
-}
-
-/**
- * Function to store type checks
- * @private
- */
-function TypeChecker() {
-  this.checks = [];
-}
-
-TypeChecker.prototype = {
-  add: function(func) {
-    this.checks.push(func);
-    return this;
-  },
-
-  addTypeOf: function(type, res) {
-    return this.add(function(obj, tpeOf) {
-      if(tpeOf === type) {
-        return new Type(res);
-      }
-    });
-  },
-
-  addClass: function(cls, res, sub) {
-    return this.add(function(obj, tpeOf, objCls) {
-      if(objCls === cls) {
-        return new Type(types.OBJECT, res, sub);
-      }
-    });
-  },
-
-  getType: function(obj) {
-    var typeOf = typeof obj;
-    var cls = toString.call(obj);
-
-    for(var i = 0, l = this.checks.length; i < l; i++) {
-      var res = this.checks[i].call(this, obj, typeOf, cls);
-      if(typeof res !== 'undefined') return res;
-    }
-
-  }
-};
-
-var main = new TypeChecker();
-
-//TODO add iterators
-
-main
-  .addTypeOf(types.NUMBER, types.NUMBER)
-  .addTypeOf(types.UNDEFINED, types.UNDEFINED)
-  .addTypeOf(types.STRING, types.STRING)
-  .addTypeOf(types.BOOLEAN, types.BOOLEAN)
-  .addTypeOf(types.FUNCTION, types.FUNCTION)
-  .addTypeOf(types.SYMBOL, types.SYMBOL)
-  .add(function(obj, tpeOf) {
-    if(obj === null) return new Type(types.NULL);
-  })
-  .addClass('[object String]', types.STRING)
-  .addClass('[object Boolean]', types.BOOLEAN)
-  .addClass('[object Number]', types.NUMBER)
-  .addClass('[object Array]', types.ARRAY)
-  .addClass('[object RegExp]', types.REGEXP)
-  .addClass('[object Error]', types.ERROR)
-  .addClass('[object Date]', types.DATE)
-  .addClass('[object Arguments]', types.ARGUMENTS)
-  .addClass('[object Math]')
-  .addClass('[object JSON]')
-  .addClass('[object ArrayBuffer]', types.ARRAY_BUFFER)
-  .addClass('[object Int8Array]', types.TYPED_ARRAY, 'int8')
-  .addClass('[object Uint8Array]', types.TYPED_ARRAY, 'uint8')
-  .addClass('[object Uint8ClampedArray]', types.TYPED_ARRAY, 'uint8clamped')
-  .addClass('[object Int16Array]', types.TYPED_ARRAY, 'int16')
-  .addClass('[object Uint16Array]', types.TYPED_ARRAY, 'uint16')
-  .addClass('[object Int32Array]', types.TYPED_ARRAY, 'int32')
-  .addClass('[object Uint32Array]', types.TYPED_ARRAY, 'uint32')
-  .addClass('[object Float32Array]', types.TYPED_ARRAY, 'float32')
-  .addClass('[object Float64Array]', types.TYPED_ARRAY, 'float64')
-  .addClass('[object DataView]', types.DATA_VIEW)
-  .addClass('[object Map]', types.MAP)
-  .addClass('[object WeakMap]', types.WEAK_MAP)
-  .addClass('[object Set]', types.SET)
-  .addClass('[object WeakSet]', types.WEAK_SET)
-  .addClass('[object Promise]', types.PROMISE)
-  .addClass('[object Blob]', types.BLOB)
-  .addClass('[object File]', types.FILE)
-  .addClass('[object FileList]', types.FILE_LIST)
-  .addClass('[object XMLHttpRequest]', types.XHR)
-  .add(function(obj) {
-    if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
-        (typeof obj.then === types.FUNCTION)) {
-          return new Type(types.OBJECT, types.PROMISE);
-        }
-  })
-  .add(function(obj) {
-    if(typeof Buffer !== 'undefined' && obj instanceof Buffer) {
-      return new Type(types.OBJECT, types.BUFFER);
-    }
-  })
-  .add(function(obj) {
-    if(typeof Node !== 'undefined' && obj instanceof Node) {
-      return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
-    }
-  })
-  .add(function(obj) {
-    // probably at the begginging should be enough these checks
-    if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
-      return new Type(types.OBJECT, types.HOST);
-    }
-  })
-  .add(function() {
-    return new Type(types.OBJECT);
-  });
-
-/**
- * Get type information of anything
- *
- * @param  {any} obj Anything that could require type information
- * @return {Type}    type info
- */
-function getGlobalType(obj) {
-  return main.getType(obj);
-}
-
-getGlobalType.checker = main;
-getGlobalType.TypeChecker = TypeChecker;
-getGlobalType.Type = Type;
-
-Object.keys(types).forEach(function(typeName) {
-  getGlobalType[typeName] = types[typeName];
-});
-
-module.exports = getGlobalType;
-
-},{"./types":26}],26:[function(require,module,exports){
-var types = {
-  NUMBER: 'number',
-  UNDEFINED: 'undefined',
-  STRING: 'string',
-  BOOLEAN: 'boolean',
-  OBJECT: 'object',
-  FUNCTION: 'function',
-  NULL: 'null',
-  ARRAY: 'array',
-  REGEXP: 'regexp',
-  DATE: 'date',
-  ERROR: 'error',
-  ARGUMENTS: 'arguments',
-  SYMBOL: 'symbol',
-  ARRAY_BUFFER: 'array-buffer',
-  TYPED_ARRAY: 'typed-array',
-  DATA_VIEW: 'data-view',
-  MAP: 'map',
-  SET: 'set',
-  WEAK_SET: 'weak-set',
-  WEAK_MAP: 'weak-map',
-  PROMISE: 'promise',
-
-// node buffer
-  BUFFER: 'buffer',
-
-// dom html element
-  HTML_ELEMENT: 'html-element',
-  HTML_ELEMENT_TEXT: 'html-element-text',
-  DOCUMENT: 'document',
-  WINDOW: 'window',
-  FILE: 'file',
-  FILE_LIST: 'file-list',
-  BLOB: 'blob',
-
-  HOST: 'host',
-
-  XHR: 'xhr'
-};
-
-module.exports = types;
-
-},{}]},{},[1])(1)
+},{}],29:[function(require,module,exports){
+arguments[4][23][0].apply(exports,arguments)
+},{"./types":30,"dup":23}],30:[function(require,module,exports){
+arguments[4][24][0].apply(exports,arguments)
+},{"dup":24}]},{},[1])(1)
 });

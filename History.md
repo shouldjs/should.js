@@ -1,3 +1,8 @@
+8.0.2 / 2015-12-18
+==================
+
+  * Update should-format to fix bug in formatting arrow functions
+
 8.0.1 / 2015-12-11
 ==================
 
