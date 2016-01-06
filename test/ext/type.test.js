@@ -184,6 +184,7 @@ describe('type', function() {
        '    expected Array [] to have type number',
        '        expected \'object\' to be \'number\'');
   });
+
   it('test Boolean', function() {
     (true).should.be.a.Boolean();
     (false).should.be.a.Boolean();
@@ -200,6 +201,7 @@ describe('type', function() {
        "    expected Array [] to have type boolean",
        "        expected 'object' to be 'boolean'");
   });
+
   it('test Error', function() {
     (new Error()).should.be.an.Error();
 
@@ -223,5 +225,18 @@ describe('type', function() {
       ([]).should.be.an.Error();
     }, 'expected Array [] to be an error',
        '    expected Array [] to be an instance of Error');
+  });
+
+  it('test Date', function() {
+    (new Date()).should.be.a.Date();
+    (new Date(Date.now())).should.be.a.Date();
+    (new Date('foo')).should.be.a.Date();
+
+    ('foo').should.not.be.a.Date();
+
+    err(function() {
+      ([]).should.be.a.Date();
+    }, 'expected Array [] to be a date',
+       '    expected Array [] to be an instance of Date');
   });
 });
