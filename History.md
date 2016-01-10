@@ -1,3 +1,8 @@
+8.1.0 / 2016-01-10
+==================
+
+  * Add .Date() assertion to test if given object is Date instance
+
 8.0.2 / 2015-12-18
 ==================
 

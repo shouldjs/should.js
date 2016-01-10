@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.0.2
+ * @version v8.1.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -2457,6 +2457,18 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to be an error'};
 
     this.have.instanceOf(Error);
+  });
+
+  /**
+   * Assert given object is a date
+   * @name Date
+   * @memberOf Assertion
+   * @category assertion types
+   */
+  Assertion.add('Date', function() {
+    this.params = {operator: 'to be a date'};
+
+    this.have.instanceOf(Date);
   });
 
   /**
