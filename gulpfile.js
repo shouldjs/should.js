@@ -27,7 +27,6 @@ gulp.task('script', function() {
     builtins: null,
     insertGlobals: false,
     detectGlobals: false,
-    standalone: 'Should',
     fullPaths: false
   })
     .bundle();
