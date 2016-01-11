@@ -1,3 +1,8 @@
+8.1.1 / 2016-01-10
+==================
+
+  * Fix browser build to do not loose window.Should
+
 8.1.0 / 2016-01-10
 ==================
 
