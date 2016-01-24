@@ -1,7 +1,7 @@
 {
   "name": "should",
   "description": "test framework agnostic BDD-style assertions",
-  "version": "8.1.1",
+  "version": "8.2.0",
   "author": "TJ Holowaychuk <tj@vision-media.ca> and contributors",
   "repository": {
     "type": "git",
@@ -37,7 +37,7 @@
   "main": "./index.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "0.6.0",
+    "should-equal": "0.7.1",
     "should-format": "0.3.2",
     "should-type": "0.2.0"
   }

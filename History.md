@@ -1,3 +1,8 @@
+8.2.0 / 2016-01-24
+==================
+
+  * Add option to should.equal to treat -0 and +0 as equals
+
 8.1.1 / 2016-01-10
 ==================
 

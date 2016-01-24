@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.1.1
+ * @version v8.2.0
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1700,14 +1700,22 @@ module.exports = function(should) {
   });
 
   /**
-   * Assert given promise will be fulfilled
+   * Assert given promise will be fulfilled. Result of assertion is still .thenable and should be handled accordingly.
    *
    * @name fulfilled
    * @memberOf Assertion
    * @returns {Promise}
    * @category assertion promises
    * @example
-   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilled()
+   * 
+   * // don't forget to handle async nature
+   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilled();
+   * 
+   * // test example with mocha it is possible to return promise
+   * it('is async', () => {
+   *    return new Promise(resolve => resolve(10))
+   *      .should.be.fulfilled();
+   * });
    */
   Assertion.prototype.fulfilled = function Assertion$fulfilled() {
     this.params = {operator: 'to be fulfilled'};
@@ -1729,14 +1737,23 @@ module.exports = function(should) {
   };
 
   /**
-   * Assert given promise will be rejected
+   * Assert given promise will be rejected. Result of assertion is still .thenable and should be handled accordingly.
    *
    * @name rejected
    * @memberOf Assertion
    * @category assertion promises
    * @returns {Promise}
    * @example
-   * (new Promise(function(resolve, reject) { resolve(10); })).should.not.be.rejected()
+   * 
+   * // don't forget to handle async nature
+   * (new Promise(function(resolve, reject) { resolve(10); }))
+   *    .should.not.be.rejected();
+   * 
+   * // test example with mocha it is possible to return promise
+   * it('is async', () => {
+   *    return new Promise((resolve, reject) => reject(new Error('boom')))
+   *      .should.be.rejected();
+   * });
    */
   Assertion.prototype.rejected = function() {
     this.params = {operator: 'to be rejected'};
@@ -1758,14 +1775,24 @@ module.exports = function(should) {
   };
 
   /**
-   * Assert given promise will be fulfilled with some expected value.
+   * Assert given promise will be fulfilled with some expected value (value compared using .eql).
+   * Result of assertion is still .thenable and should be handled accordingly.
    *
    * @name fulfilledWith
    * @memberOf Assertion
    * @category assertion promises
    * @returns {Promise}
    * @example
-   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilledWith(10)
+   * 
+   * // don't forget to handle async nature
+   * (new Promise(function(resolve, reject) { resolve(10); }))
+   *    .should.be.fulfilledWith(10);
+   * 
+   * // test example with mocha it is possible to return promise
+   * it('is async', () => {
+   *    return new Promise((resolve, reject) => resolve(10))
+   *       .should.be.fulfilledWith(10);
+   * });
    */
   Assertion.prototype.fulfilledWith = function(expectedValue) {
     this.params = {operator: 'to be fulfilled'};
@@ -1788,7 +1815,8 @@ module.exports = function(should) {
   };
 
   /**
-   * Assert given promise will be rejected with some sort of error. Arguments is the same for Assertion#throw
+   * Assert given promise will be rejected with some sort of error. Arguments is the same for Assertion#throw.
+   * Result of assertion is still .thenable and should be handled accordingly.
    *
    * @name rejectedWith
    * @memberOf Assertion
@@ -1797,15 +1825,20 @@ module.exports = function(should) {
    * @example
    *
    * function failedPromise() {
-  *   return new Promise(function(resolve, reject) {
-  *     reject(new Error('boom'))
-  *   })
-  * }
-   * failedPromise().should.be.rejectedWith(Error)
-   * failedPromise().should.be.rejectedWith('boom')
-   * failedPromise().should.be.rejectedWith(/boom/)
-   * failedPromise().should.be.rejectedWith(Error, { message: 'boom' })
-   * failedPromise().should.be.rejectedWith({ message: 'boom' })
+   *   return new Promise(function(resolve, reject) {
+   *     reject(new Error('boom'))
+   *   })
+   * }
+   * failedPromise().should.be.rejectedWith(Error);
+   * failedPromise().should.be.rejectedWith('boom');
+   * failedPromise().should.be.rejectedWith(/boom/);
+   * failedPromise().should.be.rejectedWith(Error, { message: 'boom' });
+   * failedPromise().should.be.rejectedWith({ message: 'boom' });
+   * 
+   * // test example with mocha it is possible to return promise
+   * it('is async', () => {
+   *    return failedPromise().should.be.rejectedWith({ message: 'boom' });
+   * });
    */
   Assertion.prototype.rejectedWith = function(message, properties) {
     this.params = {operator: 'to be rejected'};
@@ -1873,7 +1906,9 @@ module.exports = function(should) {
   };
 
   /**
-   * Assert given object is promise and wrap it in PromisedAssertion, which has all properties of Assertion. That means you can chain as with usual Assertion.
+   * Assert given object is promise and wrap it in PromisedAssertion, which has all properties of Assertion. 
+   * That means you can chain as with usual Assertion.
+   * Result of assertion is still .thenable and should be handled accordingly.
    *
    * @name finally
    * @memberOf Assertion
@@ -1882,7 +1917,14 @@ module.exports = function(should) {
    * @returns {PromisedAssertion} Like Assertion, but .then this.obj in Assertion
    * @example
    *
-   * (new Promise(function(resolve, reject) { resolve(10); })).should.be.eventually.equal(10)
+   * (new Promise(function(resolve, reject) { resolve(10); }))
+   *    .should.be.eventually.equal(10);
+   * 
+   * // test example with mocha it is possible to return promise
+   * it('is async', () => {
+   *    return new Promise(resolve => resolve(10))
+   *      .should.be.finally.equal(10);
+   * });
    */
   Object.defineProperty(Assertion.prototype, 'finally', {
     get: function() {
@@ -2617,6 +2659,8 @@ exports = module.exports = should;
 /**
  * Allow to extend given prototype with should property using given name. This getter will **unwrap** all standard wrappers like `Number`, `Boolean`, `String`.
  * Using `should(obj)` is the equivalent of using `obj.should` with known issues (like nulls and method calls etc).
+ * 
+ * To add new assertions, need to use Assertion.add method.
  *
  * @param {string} [propertyName] Name of property to add. Default is `'should'`.
  * @param {Object} [proto] Prototype to extend with. Default is `Object.prototype`.
@@ -2929,7 +2973,7 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
   // equal a and b exit early
   if(a === b) {
     // check for +0 !== -0;
-    return result(a !== 0 || (1 / a == 1 / b), REASON.PLUS_0_AND_MINUS_0);
+    return result(a !== 0 || (1 / a == 1 / b) || opts.plusZeroAndMinusZeroEqual, REASON.PLUS_0_AND_MINUS_0);
   }
 
   var l, p;
@@ -2952,7 +2996,8 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
       // NaN !== NaN
       return (a !== a) ? result(b !== b, REASON.NAN_NUMBER)
         // but treat `+0` vs. `-0` as not equal
-        : (a === 0 ? result(1 / a === 1 / b, REASON.PLUS_0_AND_MINUS_0) : result(a === b, REASON.EQUALITY));
+        : (a === 0 ? result((1 / a == 1 / b) || opts.plusZeroAndMinusZeroEqual, REASON.PLUS_0_AND_MINUS_0)
+        : result(a === b, REASON.EQUALITY));
 
     case 'boolean':
     case 'string':
@@ -3191,7 +3236,8 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
 
 var defaultOptions = {
   checkProtoEql: true,
-  checkSubType: true
+  checkSubType: true,
+  plusZeroAndMinusZeroEqual: false
 };
 
 function eq(a, b, opts) {
@@ -3201,6 +3247,9 @@ function eq(a, b, opts) {
   }
   if(typeof opts.checkSubType !== 'boolean') {
     opts.checkSubType = defaultOptions.checkSubType;
+  }
+  if(typeof opts.plusZeroAndMinusZeroEqual !== 'boolean') {
+    opts.plusZeroAndMinusZeroEqual = defaultOptions.plusZeroAndMinusZeroEqual;
   }
 
   var fails = [];
