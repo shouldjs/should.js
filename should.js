@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.2.0
+ * @version v8.2.1
  * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -422,7 +422,7 @@ var config = {
 
 module.exports = config;
 
-},{"should-format":25}],6:[function(require,module,exports){
+},{"should-format":23}],6:[function(require,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -1177,7 +1177,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":20,"should-equal":22,"should-type":29}],12:[function(require,module,exports){
+},{"../util":20,"should-equal":22,"should-type":27}],12:[function(require,module,exports){
 /*
  * Should
  * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
@@ -2344,7 +2344,7 @@ module.exports = function(should, Assertion) {
   });
 
   /**
-   * Assert given string starts with prefix
+   * Assert given string ends with prefix
    * @name endWith
    * @memberOf Assertion
    * @category assertion strings
@@ -2634,6 +2634,7 @@ should.util = util;
  * Object with configuration.
  * It contains such properties:
  * * `checkProtoEql` boolean - Affect if `.eql` will check objects prototypes
+ * * `plusZeroAndMinusZeroEqual` boolean - Affect if `.eql` will treat +0 and -0 as equal
  * Also it can contain options for should-format.
  *
  * @type {Object}
@@ -2659,7 +2660,7 @@ exports = module.exports = should;
 /**
  * Allow to extend given prototype with should property using given name. This getter will **unwrap** all standard wrappers like `Number`, `Boolean`, `String`.
  * Using `should(obj)` is the equivalent of using `obj.should` with known issues (like nulls and method calls etc).
- * 
+ *
  * To add new assertions, need to use Assertion.add method.
  *
  * @param {string} [propertyName] Name of property to add. Default is `'should'`.
@@ -2762,7 +2763,7 @@ should
   .use(require('./ext/contain'))
   .use(require('./ext/promise'));
 
-},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":29}],20:[function(require,module,exports){
+},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":27}],20:[function(require,module,exports){
 /*
  * Should
  * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
@@ -2899,7 +2900,7 @@ exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":5,"should-format":25,"should-type":29}],21:[function(require,module,exports){
+},{"./config":5,"should-format":23,"should-type":27}],21:[function(require,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -2995,9 +2996,7 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
     case 'number':
       // NaN !== NaN
       return (a !== a) ? result(b !== b, REASON.NAN_NUMBER)
-        // but treat `+0` vs. `-0` as not equal
-        : (a === 0 ? result((1 / a == 1 / b) || opts.plusZeroAndMinusZeroEqual, REASON.PLUS_0_AND_MINUS_0)
-        : result(a === b, REASON.EQUALITY));
+        : result(a === b, REASON.EQUALITY);
 
     case 'boolean':
     case 'string':
@@ -3261,211 +3260,7 @@ module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":21,"should-type":23}],23:[function(require,module,exports){
-var toString = Object.prototype.toString;
-
-var types = require('./types');
-
-/**
- * Simple data function to store type information
- * @param {string} type Usually what is returned from typeof
- * @param {string} cls  Sanitized @Class via Object.prototype.toString
- * @param {string} sub  If type and cls the same, and need to specify somehow
- * @private
- * @example
- *
- * //for null
- * new Type('null');
- *
- * //for Date
- * new Type('object', 'date');
- *
- * //for Uint8Array
- *
- * new Type('object', 'typed-array', 'uint8');
- */
-function Type(type, cls, sub) {
-  this.type = type;
-  this.cls = cls;
-  this.sub = sub;
-}
-
-/**
- * Function to store type checks
- * @private
- */
-function TypeChecker() {
-  this.checks = [];
-}
-
-TypeChecker.prototype = {
-  add: function(func) {
-    this.checks.push(func);
-    return this;
-  },
-
-  addTypeOf: function(type, res) {
-    return this.add(function(obj, tpeOf) {
-      if(tpeOf === type) {
-        return new Type(res);
-      }
-    });
-  },
-
-  addClass: function(cls, res, sub) {
-    return this.add(function(obj, tpeOf, objCls) {
-      if(objCls === cls) {
-        return new Type(types.OBJECT, res, sub);
-      }
-    });
-  },
-
-  getType: function(obj) {
-    var typeOf = typeof obj;
-    var cls = toString.call(obj);
-
-    for(var i = 0, l = this.checks.length; i < l; i++) {
-      var res = this.checks[i].call(this, obj, typeOf, cls);
-      if(typeof res !== 'undefined') return res;
-    }
-
-  }
-};
-
-var main = new TypeChecker();
-
-//TODO add iterators
-
-main
-  .addTypeOf(types.NUMBER, types.NUMBER)
-  .addTypeOf(types.UNDEFINED, types.UNDEFINED)
-  .addTypeOf(types.STRING, types.STRING)
-  .addTypeOf(types.BOOLEAN, types.BOOLEAN)
-  .addTypeOf(types.FUNCTION, types.FUNCTION)
-  .addTypeOf(types.SYMBOL, types.SYMBOL)
-  .add(function(obj, tpeOf) {
-    if(obj === null) return new Type(types.NULL);
-  })
-  .addClass('[object String]', types.STRING)
-  .addClass('[object Boolean]', types.BOOLEAN)
-  .addClass('[object Number]', types.NUMBER)
-  .addClass('[object Array]', types.ARRAY)
-  .addClass('[object RegExp]', types.REGEXP)
-  .addClass('[object Error]', types.ERROR)
-  .addClass('[object Date]', types.DATE)
-  .addClass('[object Arguments]', types.ARGUMENTS)
-  .addClass('[object Math]')
-  .addClass('[object JSON]')
-  .addClass('[object ArrayBuffer]', types.ARRAY_BUFFER)
-  .addClass('[object Int8Array]', types.TYPED_ARRAY, 'int8')
-  .addClass('[object Uint8Array]', types.TYPED_ARRAY, 'uint8')
-  .addClass('[object Uint8ClampedArray]', types.TYPED_ARRAY, 'uint8clamped')
-  .addClass('[object Int16Array]', types.TYPED_ARRAY, 'int16')
-  .addClass('[object Uint16Array]', types.TYPED_ARRAY, 'uint16')
-  .addClass('[object Int32Array]', types.TYPED_ARRAY, 'int32')
-  .addClass('[object Uint32Array]', types.TYPED_ARRAY, 'uint32')
-  .addClass('[object Float32Array]', types.TYPED_ARRAY, 'float32')
-  .addClass('[object Float64Array]', types.TYPED_ARRAY, 'float64')
-  .addClass('[object DataView]', types.DATA_VIEW)
-  .addClass('[object Map]', types.MAP)
-  .addClass('[object WeakMap]', types.WEAK_MAP)
-  .addClass('[object Set]', types.SET)
-  .addClass('[object WeakSet]', types.WEAK_SET)
-  .addClass('[object Promise]', types.PROMISE)
-  .addClass('[object Blob]', types.BLOB)
-  .addClass('[object File]', types.FILE)
-  .addClass('[object FileList]', types.FILE_LIST)
-  .addClass('[object XMLHttpRequest]', types.XHR)
-  .add(function(obj) {
-    if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
-        (typeof obj.then === types.FUNCTION)) {
-          return new Type(types.OBJECT, types.PROMISE);
-        }
-  })
-  .add(function(obj) {
-    if(typeof Buffer !== 'undefined' && obj instanceof Buffer) {
-      return new Type(types.OBJECT, types.BUFFER);
-    }
-  })
-  .add(function(obj) {
-    if(typeof Node !== 'undefined' && obj instanceof Node) {
-      return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
-    }
-  })
-  .add(function(obj) {
-    // probably at the begginging should be enough these checks
-    if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
-      return new Type(types.OBJECT, types.HOST);
-    }
-  })
-  .add(function() {
-    return new Type(types.OBJECT);
-  });
-
-/**
- * Get type information of anything
- *
- * @param  {any} obj Anything that could require type information
- * @return {Type}    type info
- */
-function getGlobalType(obj) {
-  return main.getType(obj);
-}
-
-getGlobalType.checker = main;
-getGlobalType.TypeChecker = TypeChecker;
-getGlobalType.Type = Type;
-
-Object.keys(types).forEach(function(typeName) {
-  getGlobalType[typeName] = types[typeName];
-});
-
-module.exports = getGlobalType;
-
-},{"./types":24}],24:[function(require,module,exports){
-var types = {
-  NUMBER: 'number',
-  UNDEFINED: 'undefined',
-  STRING: 'string',
-  BOOLEAN: 'boolean',
-  OBJECT: 'object',
-  FUNCTION: 'function',
-  NULL: 'null',
-  ARRAY: 'array',
-  REGEXP: 'regexp',
-  DATE: 'date',
-  ERROR: 'error',
-  ARGUMENTS: 'arguments',
-  SYMBOL: 'symbol',
-  ARRAY_BUFFER: 'array-buffer',
-  TYPED_ARRAY: 'typed-array',
-  DATA_VIEW: 'data-view',
-  MAP: 'map',
-  SET: 'set',
-  WEAK_SET: 'weak-set',
-  WEAK_MAP: 'weak-map',
-  PROMISE: 'promise',
-
-// node buffer
-  BUFFER: 'buffer',
-
-// dom html element
-  HTML_ELEMENT: 'html-element',
-  HTML_ELEMENT_TEXT: 'html-element-text',
-  DOCUMENT: 'document',
-  WINDOW: 'window',
-  FILE: 'file',
-  FILE_LIST: 'file-list',
-  BLOB: 'blob',
-
-  HOST: 'host',
-
-  XHR: 'xhr'
-};
-
-module.exports = types;
-
-},{}],25:[function(require,module,exports){
+},{"./format":21,"should-type":27}],23:[function(require,module,exports){
 var getType = require('should-type');
 var util = require('./util');
 
@@ -3928,11 +3723,211 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":28,"should-type":26}],26:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"./types":27,"dup":23}],27:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"dup":24}],28:[function(require,module,exports){
+},{"./util":26,"should-type":24}],24:[function(require,module,exports){
+var toString = Object.prototype.toString;
+
+var types = require('./types');
+
+/**
+ * Simple data function to store type information
+ * @param {string} type Usually what is returned from typeof
+ * @param {string} cls  Sanitized @Class via Object.prototype.toString
+ * @param {string} sub  If type and cls the same, and need to specify somehow
+ * @private
+ * @example
+ *
+ * //for null
+ * new Type('null');
+ *
+ * //for Date
+ * new Type('object', 'date');
+ *
+ * //for Uint8Array
+ *
+ * new Type('object', 'typed-array', 'uint8');
+ */
+function Type(type, cls, sub) {
+  this.type = type;
+  this.cls = cls;
+  this.sub = sub;
+}
+
+/**
+ * Function to store type checks
+ * @private
+ */
+function TypeChecker() {
+  this.checks = [];
+}
+
+TypeChecker.prototype = {
+  add: function(func) {
+    this.checks.push(func);
+    return this;
+  },
+
+  addTypeOf: function(type, res) {
+    return this.add(function(obj, tpeOf) {
+      if(tpeOf === type) {
+        return new Type(res);
+      }
+    });
+  },
+
+  addClass: function(cls, res, sub) {
+    return this.add(function(obj, tpeOf, objCls) {
+      if(objCls === cls) {
+        return new Type(types.OBJECT, res, sub);
+      }
+    });
+  },
+
+  getType: function(obj) {
+    var typeOf = typeof obj;
+    var cls = toString.call(obj);
+
+    for(var i = 0, l = this.checks.length; i < l; i++) {
+      var res = this.checks[i].call(this, obj, typeOf, cls);
+      if(typeof res !== 'undefined') return res;
+    }
+
+  }
+};
+
+var main = new TypeChecker();
+
+//TODO add iterators
+
+main
+  .addTypeOf(types.NUMBER, types.NUMBER)
+  .addTypeOf(types.UNDEFINED, types.UNDEFINED)
+  .addTypeOf(types.STRING, types.STRING)
+  .addTypeOf(types.BOOLEAN, types.BOOLEAN)
+  .addTypeOf(types.FUNCTION, types.FUNCTION)
+  .addTypeOf(types.SYMBOL, types.SYMBOL)
+  .add(function(obj, tpeOf) {
+    if(obj === null) return new Type(types.NULL);
+  })
+  .addClass('[object String]', types.STRING)
+  .addClass('[object Boolean]', types.BOOLEAN)
+  .addClass('[object Number]', types.NUMBER)
+  .addClass('[object Array]', types.ARRAY)
+  .addClass('[object RegExp]', types.REGEXP)
+  .addClass('[object Error]', types.ERROR)
+  .addClass('[object Date]', types.DATE)
+  .addClass('[object Arguments]', types.ARGUMENTS)
+  .addClass('[object Math]')
+  .addClass('[object JSON]')
+  .addClass('[object ArrayBuffer]', types.ARRAY_BUFFER)
+  .addClass('[object Int8Array]', types.TYPED_ARRAY, 'int8')
+  .addClass('[object Uint8Array]', types.TYPED_ARRAY, 'uint8')
+  .addClass('[object Uint8ClampedArray]', types.TYPED_ARRAY, 'uint8clamped')
+  .addClass('[object Int16Array]', types.TYPED_ARRAY, 'int16')
+  .addClass('[object Uint16Array]', types.TYPED_ARRAY, 'uint16')
+  .addClass('[object Int32Array]', types.TYPED_ARRAY, 'int32')
+  .addClass('[object Uint32Array]', types.TYPED_ARRAY, 'uint32')
+  .addClass('[object Float32Array]', types.TYPED_ARRAY, 'float32')
+  .addClass('[object Float64Array]', types.TYPED_ARRAY, 'float64')
+  .addClass('[object DataView]', types.DATA_VIEW)
+  .addClass('[object Map]', types.MAP)
+  .addClass('[object WeakMap]', types.WEAK_MAP)
+  .addClass('[object Set]', types.SET)
+  .addClass('[object WeakSet]', types.WEAK_SET)
+  .addClass('[object Promise]', types.PROMISE)
+  .addClass('[object Blob]', types.BLOB)
+  .addClass('[object File]', types.FILE)
+  .addClass('[object FileList]', types.FILE_LIST)
+  .addClass('[object XMLHttpRequest]', types.XHR)
+  .add(function(obj) {
+    if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
+        (typeof obj.then === types.FUNCTION)) {
+          return new Type(types.OBJECT, types.PROMISE);
+        }
+  })
+  .add(function(obj) {
+    if(typeof Buffer !== 'undefined' && obj instanceof Buffer) {
+      return new Type(types.OBJECT, types.BUFFER);
+    }
+  })
+  .add(function(obj) {
+    if(typeof Node !== 'undefined' && obj instanceof Node) {
+      return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
+    }
+  })
+  .add(function(obj) {
+    // probably at the begginging should be enough these checks
+    if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
+      return new Type(types.OBJECT, types.HOST);
+    }
+  })
+  .add(function() {
+    return new Type(types.OBJECT);
+  });
+
+/**
+ * Get type information of anything
+ *
+ * @param  {any} obj Anything that could require type information
+ * @return {Type}    type info
+ */
+function getGlobalType(obj) {
+  return main.getType(obj);
+}
+
+getGlobalType.checker = main;
+getGlobalType.TypeChecker = TypeChecker;
+getGlobalType.Type = Type;
+
+Object.keys(types).forEach(function(typeName) {
+  getGlobalType[typeName] = types[typeName];
+});
+
+module.exports = getGlobalType;
+
+},{"./types":25}],25:[function(require,module,exports){
+var types = {
+  NUMBER: 'number',
+  UNDEFINED: 'undefined',
+  STRING: 'string',
+  BOOLEAN: 'boolean',
+  OBJECT: 'object',
+  FUNCTION: 'function',
+  NULL: 'null',
+  ARRAY: 'array',
+  REGEXP: 'regexp',
+  DATE: 'date',
+  ERROR: 'error',
+  ARGUMENTS: 'arguments',
+  SYMBOL: 'symbol',
+  ARRAY_BUFFER: 'array-buffer',
+  TYPED_ARRAY: 'typed-array',
+  DATA_VIEW: 'data-view',
+  MAP: 'map',
+  SET: 'set',
+  WEAK_SET: 'weak-set',
+  WEAK_MAP: 'weak-map',
+  PROMISE: 'promise',
+
+// node buffer
+  BUFFER: 'buffer',
+
+// dom html element
+  HTML_ELEMENT: 'html-element',
+  HTML_ELEMENT_TEXT: 'html-element-text',
+  DOCUMENT: 'document',
+  WINDOW: 'window',
+  FILE: 'file',
+  FILE_LIST: 'file-list',
+  BLOB: 'blob',
+
+  HOST: 'host',
+
+  XHR: 'xhr'
+};
+
+module.exports = types;
+
+},{}],26:[function(require,module,exports){
 function addSpaces(v) {
   return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
 }
@@ -3962,8 +3957,8 @@ module.exports = {
   }
 };
 
-},{}],29:[function(require,module,exports){
-arguments[4][23][0].apply(exports,arguments)
-},{"./types":30,"dup":23}],30:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"dup":24}]},{},[1]);
+},{"./types":28,"dup":24}],28:[function(require,module,exports){
+arguments[4][25][0].apply(exports,arguments)
+},{"dup":25}]},{},[1]);
