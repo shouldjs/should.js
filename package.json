@@ -17,7 +17,6 @@
     "bluebird": "^3.0.6",
     "browserify": "latest",
     "eslint": "^1.10.3",
-    "eslint-config-eslint": "^1.0.1",
     "gulp": "^3.8.10",
     "gulp-header": "^1.2.2",
     "gulp-rename": "^1.2.0",
