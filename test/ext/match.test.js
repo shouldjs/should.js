@@ -113,6 +113,12 @@ describe('match', function() {
         return it.should.have.property('d', 10);
       }]);
 
+    var d = new Date();
+    var ds = d.toString();
+
+    d.should.not.match(ds);
+    ds.should.not.match(d);
+
     err(function() {
       ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should
         .match({ a: 11, b: /c$/, c: function(it) {
