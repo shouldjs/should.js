@@ -1,5 +1,5 @@
 var err = require('../util').err;
-var should = require('../../');
+require('../../');
 
 describe('match', function() {
 
@@ -8,19 +8,19 @@ describe('match', function() {
     'foobar'.should.not.match(/^bar/);
 
     err(function() {
-      'foobar'.should.match(/^bar/i)
+      'foobar'.should.match(/^bar/i);
     }, "expected 'foobar' to match /^bar/i");
 
     err(function() {
-      'foobar'.should.not.match(/^foo/i)
+      'foobar'.should.not.match(/^foo/i);
     }, "expected 'foobar' not to match /^foo/i (false negative fail)");
 
     err(function() {
-      'foobar'.should.match(/^bar/i, 'foo')
+      'foobar'.should.match(/^bar/i, 'foo');
     }, "foo");
 
     err(function() {
-      'foobar'.should.not.match(/^foo/i, 'foo')
+      'foobar'.should.not.match(/^foo/i, 'foo');
     }, "foo");
   });
 
@@ -141,7 +141,7 @@ describe('match', function() {
 
     [10, 10].should.matchEach(10);
 
-    ({ a: 10, b: 11, c: 12}).should.matchEach(function(value, key) {
+    ({ a: 10, b: 11, c: 12}).should.matchEach(function(value) {
       value.should.be.a.Number();
     });
 
@@ -174,11 +174,11 @@ describe('match', function() {
           return it == 2;
       });
 
-      ({ a: 10, b: 11, c: 12}).should.matchAny(function(value, key) {
+      ({ a: 10, b: 11, c: 12}).should.matchAny(function(value) {
           value.should.be.a.Number();
       });
 
-      ({ a: 10, b: 'eleven', c: 'twelve'}).should.matchAny(function(value, key) {
+      ({ a: 10, b: 'eleven', c: 'twelve'}).should.matchAny(function(value) {
           value.should.be.a.Number();
       });
   });

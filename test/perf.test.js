@@ -1,4 +1,4 @@
-var should = require('../');
+require('../');
 
 function mockComplexObject(prefix, depth, width) {
   if (depth <= 0) {

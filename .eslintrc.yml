@@ -6,21 +6,11 @@ extends: eslint:recommended
 env:
   node: true
   mocha: true
+  browser: true
 
 # enable ECMAScript features
 ecmaFeatures:
-  arrowFunctions: true
-  binaryLiterals: true
-  blockBindings: true
-  classes: true
-  forOf: true
-  generators: true
-  objectLiteralShorthandMethods: true
-  objectLiteralShorthandProperties: true
-  objectLiteralComputedProperties: true
-  octalLiterals: true
-  templateStrings: true
-  spread: true
+  modules: true
 
 rules:
   quotes: 0
@@ -37,13 +27,14 @@ rules:
   new-cap: 0
   callback-return: 0
   no-loop-func: 0
-  strict: [2, "global"]
   semi: [1, "always"]
+  strict: 0
   space-after-keywords: 0
   space-before-function-paren: [1, "never"]
   space-before-blocks: [1, "always"]
   space-before-keywords: [1, "always"]
   no-sequences: 2
+  comma-style: [2, "last"]
   dot-notation: 1
   dot-location: [2, "property"]
 

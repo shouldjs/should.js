@@ -1,5 +1,5 @@
 var err = require('../util').err;
-var should = require('../../');
+require('../../');
 
 describe('property', function() {
   it('test enumerable(name)', function() {
@@ -255,5 +255,5 @@ describe('property', function() {
       ({ a: { b: 10}}).should.not.have.propertyByPath('a');
     }, "expected Object { a: Object { b: 10 } } not to have property by path a (false negative fail)");
 
-  })
+  });
 });

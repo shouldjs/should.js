@@ -174,7 +174,7 @@ describe('assert', function() {
   }
 
   it('Testing the throwing', function() {
-    var aethrow = makeBlock(thrower, assert.AssertionError);
+    makeBlock(thrower, assert.AssertionError);
 
     // the basic calls work
     assert.throws(makeBlock(thrower, assert.AssertionError), assert.AssertionError, 'message');
@@ -220,13 +220,13 @@ describe('assert', function() {
 
   it('.ifError', function() {
     assert.throws(function() {
-      assert.ifError(new Error('test error'))
+      assert.ifError(new Error('test error'));
     });
     assert.doesNotThrow(function() {
-      assert.ifError(null)
+      assert.ifError(null);
     });
     assert.doesNotThrow(function() {
-      assert.ifError()
+      assert.ifError();
     });
   });
 

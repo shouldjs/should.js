@@ -3,23 +3,11 @@
  * Module dependencies.
  */
 
-var should = require('../')
-  , assert = require('assert');
+var should = require('../');
+var assert = require('assert');
 
-function err(fn, msg) {
-  try {
-    fn();
-    should.fail('expected an error');
-  } catch (err) {
-    should.equal(msg, err.message);
-  }
-}
 
 describe('should', function() {
-  it('test double require', function() {
-    require('../').should.equal(should);
-  });
-
   it('test assertion', function() {
     'test'.should.be.a.String;
     should.equal('foo', 'foo');

@@ -1,5 +1,5 @@
 var err = require('../util').err;
-var should = require('../../');
+require('../../');
 
 describe('bool', function() {
   it('test true', function() {
@@ -7,13 +7,13 @@ describe('bool', function() {
     false.should.not.be.true();
     (1).should.not.be.true();
 
-    err(function(){
+    err(function() {
       'test'.should.be.true();
-    }, "expected 'test' to be true")
+    }, "expected 'test' to be true");
 
-    err(function(){
+    err(function() {
       true.should.not.be.true();
-    }, "expected true not to be true (false negative fail)")
+    }, "expected true not to be true (false negative fail)");
   });
 
   it('test false', function() {
@@ -21,13 +21,13 @@ describe('bool', function() {
     true.should.not.be.false();
     (0).should.not.be.false();
 
-    err(function(){
+    err(function() {
       ''.should.be.false();
-    }, "expected '' to be false")
+    }, "expected '' to be false");
 
-    err(function(){
+    err(function() {
       false.should.not.be.false();
-    }, "expected false not to be false (false negative fail)")
+    }, "expected false not to be false (false negative fail)");
   });
 
   it('test ok', function() {
@@ -36,11 +36,11 @@ describe('bool', function() {
     (1).should.be.ok();
     (0).should.not.be.ok();
 
-    err(function(){
+    err(function() {
       ''.should.be.ok();
     }, "expected '' to be truthy");
 
-    err(function(){
+    err(function() {
       'test'.should.not.be.ok();
     }, "expected 'test' not to be truthy (false negative fail)");
   });

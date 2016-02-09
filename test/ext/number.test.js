@@ -1,5 +1,5 @@
 var err = require('../util').err;
-var should = require('../../');
+require('../../');
 
 describe('number', function() {
   it('test NaN', function() {
@@ -12,13 +12,13 @@ describe('number', function() {
     'foo'.should.not.be.NaN();
     /^$/.should.not.be.NaN();
 
-    err(function(){
+    err(function() {
       Infinity.should.be.NaN();
-    }, "expected Infinity to be NaN")
+    }, "expected Infinity to be NaN");
 
-    err(function(){
+    err(function() {
       NaN.should.not.be.NaN();
-    }, "expected NaN not to be NaN (false negative fail)")
+    }, "expected NaN not to be NaN (false negative fail)");
   });
 
   it('test Infinity', function() {
@@ -32,13 +32,13 @@ describe('number', function() {
     'foo'.should.not.be.Infinity();
     /^$/.should.not.be.Infinity();
 
-    err(function(){
+    err(function() {
       NaN.should.be.Infinity();
-    }, "expected NaN to be Infinity\n    expected NaN not to be NaN (false negative fail)")
+    }, "expected NaN to be Infinity\n    expected NaN not to be NaN (false negative fail)");
 
-    err(function(){
+    err(function() {
       Infinity.should.not.be.Infinity();
-    }, "expected Infinity not to be Infinity (false negative fail)")
+    }, "expected Infinity not to be Infinity (false negative fail)");
   });
 
   it('test within(start, finish)', function() {
@@ -47,19 +47,19 @@ describe('number', function() {
     (5).should.be.within(3,5);
     (5).should.not.be.within(1,3);
 
-    err(function(){
+    err(function() {
       (5).should.not.be.within(4,6);
     }, "expected 5 not to be within 4..6 (false negative fail)");
 
-    err(function(){
+    err(function() {
       (10).should.be.within(50,100);
     }, "expected 10 to be within 50..100");
 
-    err(function(){
+    err(function() {
       (5).should.not.be.within(4,6, 'foo');
     }, "foo");
 
-    err(function(){
+    err(function() {
       (10).should.be.within(50,100, 'foo');
     }, "foo");
   });
@@ -69,11 +69,11 @@ describe('number', function() {
     (1.5).should.be.approximately(1.5, 10E-10);
     (1.5).should.not.be.approximately(1.4, 1E-2);
 
-    err(function(){
+    err(function() {
       (99.99).should.not.be.approximately(100, 0.1);
     }, "expected 99.99 not to be approximately 100 ±0.1 (false negative fail)");
 
-    err(function(){
+    err(function() {
       (99.99).should.be.approximately(105, 0.1);
     }, "expected 99.99 to be approximately 105 ±0.1");
   });
@@ -85,19 +85,19 @@ describe('number', function() {
     (5).should.not.be.above(5);
     (5).should.not.be.above(6);
 
-    err(function(){
+    err(function() {
       (5).should.be.above(6);
     }, "expected 5 to be above 6");
 
-    err(function(){
+    err(function() {
       (10).should.not.be.above(6);
     }, "expected 10 not to be above 6 (false negative fail)");
 
-    err(function(){
+    err(function() {
       (5).should.be.above(6, 'foo');
     }, "foo");
 
-    err(function(){
+    err(function() {
       (10).should.not.be.above(6, 'foo');
     }, "foo");
   });
@@ -108,19 +108,19 @@ describe('number', function() {
     (5).should.not.be.below(5);
     (6).should.not.be.below(5);
 
-    err(function(){
+    err(function() {
       (6).should.be.below(5);
     }, "expected 6 to be below 5");
 
-    err(function(){
+    err(function() {
       (6).should.not.be.below(10);
     }, "expected 6 not to be below 10 (false negative fail)");
 
-    err(function(){
+    err(function() {
       (6).should.be.below(5, 'foo');
     }, "foo");
 
-    err(function(){
+    err(function() {
       (6).should.not.be.below(10, 'foo');
     }, "foo");
   });

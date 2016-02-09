@@ -6,12 +6,12 @@ var util = require('util');
 
 describe('type', function() {
   it('test arguments', function() {
-    var args = (function(){ return arguments; })(1,2,3);
+    var args = (function() { return arguments; })(1,2,3);
     args.should.be.arguments();
     [].should.not.be.arguments();
 
     err(function() {
-      ((function(){ return arguments; })(1,2,3)).should.not.be.arguments();
+      ((function() { return arguments; })(1,2,3)).should.not.be.arguments();
     }, "expected Arguments [ 1, 2, 3 ] not to be arguments (false negative fail)");
 
     err(function() {
@@ -23,31 +23,31 @@ describe('type', function() {
   it('test typeof', function() {
     'test'.should.have.type('string');
 
-    err(function(){
+    err(function() {
       'test'.should.not.have.type('string');
     }, "expected 'test' not to have type string (false negative fail)");
 
-    err(function(){
+    err(function() {
       'test'.should.not.have.type('string', 'foo');
     }, "foo");
 
-    err(function(){
+    err(function() {
       (10).should.have.type('string');
     }, "expected 10 to have type string\n    expected 'number' to be 'string'");
 
     (5).should.have.type('number');
 
-    err(function(){
+    err(function() {
       (5).should.not.have.type('number');
     }, "expected 5 not to have type number (false negative fail)");
 
-    err(function(){
+    err(function() {
       (5).should.not.have.type('number', 'foo');
     }, "foo");
   });
 
   it('test instanceof', function() {
-    function Foo(){}
+    function Foo() {}
     new Foo().should.be.an.instanceof(Foo);
 
     new Date().should.be.an.instanceof(Date);
@@ -55,7 +55,7 @@ describe('type', function() {
     var tobi = { name: 'Tobi', age: 2 };
     tobi.should.be.an.instanceof(Object);
 
-    var getSomething = function() {return "something"};
+    var getSomething = function() {return "something";};
     getSomething.should.be.an.instanceof(Function);
 
     var number = Object(5);
@@ -70,21 +70,21 @@ describe('type', function() {
     (string instanceof String).should.be.true();
     string.should.be.an.instanceof(String);
 
-    err(function(){
+    err(function() {
       (3).should.an.instanceof(Foo);
     }, "expected 3 to be an instance of Foo");
 
-    err(function(){
+    err(function() {
       (3).should.an.instanceof(Foo, 'foo');
     }, "foo");
 
-    err(function(){
+    err(function() {
       ({}).should.not.be.an.instanceof(Object);
     }, "expected Object {} not to be an instance of Object (false negative fail)");
   });
 
   it('test instanceOf (non-reserved)', function() {
-    function Foo(){}
+    function Foo() {}
     new Foo().should.be.an.instanceOf(Foo);
 
     new Date().should.be.an.instanceOf(Date);
@@ -92,19 +92,19 @@ describe('type', function() {
     var tobi = { name: 'Tobi', age: 2 };
     tobi.should.be.an.instanceOf(Object);
 
-    var getSomething = function() {return "something"};
+    var getSomething = function() {return "something";};
     getSomething.should.be.an.instanceOf(Function);
 
-    err(function(){
+    err(function() {
       (9).should.an.instanceOf(Foo);
     }, "expected 9 to be an instance of Foo");
 
-    err(function(){
+    err(function() {
       (9).should.an.instanceOf(Foo, 'foo');
     }, "foo");
 
-    function Foo2(){}
-    Foo2.prototype.valueOf = function (){ return 'foo'; };
+    function Foo2() {}
+    Foo2.prototype.valueOf = function() { return 'foo'; };
     new Foo2().should.be.an.instanceOf(Foo2);
   });
 

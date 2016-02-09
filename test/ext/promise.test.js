@@ -1,10 +1,9 @@
-var err = require('../util').err;
 var should = require('../../');
 
 var Promise = require('bluebird');
 
 function promised(value) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function(resolve) {
     resolve(value);
   });
 }
@@ -20,7 +19,7 @@ function promiseFailTimeout() {
     setTimeout(function() {
       reject(new Error('boom'));
     }, 1000);
-  })
+  });
 }
 
 
@@ -61,12 +60,12 @@ it('should be possible to use .eventually as an alias for .finally', function() 
 it('should allow to check if promise fulfilled', function() {
   return Promise.all([
     promised(10).should.be.fulfilled(), //positive
-    promiseFail().should.be.fulfilled().then(function(value) {//negative
+    promiseFail().should.be.fulfilled().then(function() {//negative
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled'});
     }),
-    promised(10).should.not.be.fulfilled().then(function(value) {//positive fail
+    promised(10).should.not.be.fulfilled().then(function() {//positive fail
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] not to be fulfilled'});
@@ -78,12 +77,12 @@ it('should allow to check if promise fulfilled', function() {
 it('should be allow to check if promise is fulfilledWith a value', function() {
   return Promise.all([
     promised(10).should.be.fulfilledWith(10), //positive
-    promiseFail().should.be.fulfilledWith(10).then(function(value) {//negative
+    promiseFail().should.be.fulfilledWith(10).then(function() {//negative
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled'});
     }),
-    promised(10).should.not.be.fulfilledWith(10).then(function(value) {//positive fail
+    promised(10).should.not.be.fulfilledWith(10).then(function() {//positive fail
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] not to be fulfilled'});
@@ -95,12 +94,12 @@ it('should be allow to check if promise is fulfilledWith a value', function() {
 it('should be allow to check if promise rejected', function() {
   return Promise.all([
     promiseFail().should.be.rejected(), //positive
-    promised(10).should.be.rejected().then(function(value) {//negative
+    promised(10).should.be.rejected().then(function() {//negative
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] to be rejected'});
     }),
-    promiseFail().should.not.be.rejected().then(function(value) {//positive fail
+    promiseFail().should.not.be.rejected().then(function() {//positive fail
       should.fail();
     }, function(err) {
       err.should.be.Error().and.match({message: 'expected [Promise] not to be rejected'});
@@ -121,24 +120,24 @@ it('should allow to match rejected error', function() {
     promiseFail().should.be.rejectedWith(/boom/),
     promiseFail().should.be.rejectedWith(Error, { message: 'boom' }),
     promiseFail().should.be.rejectedWith({ message: 'boom' }),
-    promiseFail().should.not.be.rejectedWith().then(function(value) {//positive fail
+    promiseFail().should.not.be.rejectedWith().then(function() {//positive fail
       return should.fail();
     }, function(err) {
       return err.should.be.Error().and.match({message: 'expected [Promise] not to be rejected'});
     }),
-    promised(10).should.be.rejectedWith().then(function(value) {//negative fail
+    promised(10).should.be.rejectedWith().then(function() {//negative fail
       return should.fail();
     }, function(err) {
       return err.should.be.Error().and.match({message: 'expected [Promise] to be rejected'});
     }),
-    promiseFail().should.not.be.rejectedWith(Error).then(function(value) {//negative fail
+    promiseFail().should.not.be.rejectedWith(Error).then(function() {//negative fail
       return should.fail();
     }, function(err) {
       return err.should.be.Error().and.match({message: 'expected [Promise] not to be rejected'});
-    }),
+    })
   ]);
 });
 
 it('should properly check async promise', function() {
   return promiseFailTimeout().should.be.rejectedWith(Error, { message: 'boom' });
-})
+});

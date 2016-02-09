@@ -22,5 +22,5 @@ it('should throw when used last managed context', function() {
 
   util.err(function() {
     (10).should.not.be._10();
-  }, 'expected 10 not to be a number 10 (false negative fail)')
+  }, 'expected 10 not to be a number 10 (false negative fail)');
 });
