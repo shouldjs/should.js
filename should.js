@@ -1,7 +1,7 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.2.1
- * @author TJ Holowaychuk <tj@vision-media.ca> and contributors
+ * @version v8.2.2
+ * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
@@ -32,8 +32,9 @@ module.exports = should;
 
 },{"./lib/should":19}],3:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -126,8 +127,9 @@ module.exports = AssertionError;
 
 },{"./util":20}],4:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -405,8 +407,9 @@ module.exports.PromisedAssertion = PromisedAssertion;
 
 },{"./assertion-error":3}],5:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -677,7 +680,7 @@ function _throws(shouldThrow, block, expected, message) {
  * @param {Function} [error]
  * @param {String} [message]
  */
-assert.throws = function(block, /*optional*/error, /*optional*/message) {
+assert.throws = function(/*block, error, message*/) {
   _throws.apply(this, [true].concat(pSlice.call(arguments)));
 };
 
@@ -690,7 +693,7 @@ assert.throws = function(block, /*optional*/error, /*optional*/message) {
  * @param {Function} block
  * @param {String} [message]
  */
-assert.doesNotThrow = function(block, /*optional*/message) {
+assert.doesNotThrow = function(/*block, message*/) {
   _throws.apply(this, [false].concat(pSlice.call(arguments)));
 };
 
@@ -709,14 +712,15 @@ assert.ifError = function(err) {
 
 },{"./../assertion":4,"should-equal":22}],7:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
-var util = require('../util')
-  , assert = require('./_assert')
-  , AssertionError = require('../assertion-error');
+var util = require('../util');
+var assert = require('./_assert');
+var AssertionError = require('../assertion-error');
 
 module.exports = function(should) {
   var i = should.format;
@@ -778,10 +782,12 @@ module.exports = function(should) {
     }
   };
 };
+
 },{"../assertion-error":3,"../util":20,"./_assert":6}],8:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -849,8 +855,9 @@ module.exports = function(should, Assertion) {
 
 },{}],9:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -881,8 +888,9 @@ module.exports = function(should, Assertion) {
 
 },{}],10:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1041,8 +1049,9 @@ module.exports = function(should, Assertion) {
 
 },{"../util":20,"should-equal":22}],11:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1177,10 +1186,11 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":20,"should-equal":22,"should-type":27}],12:[function(require,module,exports){
+},{"../util":20,"should-equal":22,"should-type":25}],12:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 var util = require('../util');
@@ -1213,10 +1223,10 @@ module.exports = function(should, Assertion) {
    * }).should.throw();
    */
   Assertion.add('throw', function(message, properties) {
-    var fn = this.obj
-      , err = {}
-      , errorInfo = ''
-      , thrown = false;
+    var fn = this.obj;
+    var err = {};
+    var errorInfo = '';
+    var thrown = false;
 
     if(util.isGeneratorFunction(fn)) {
       return should(fn()).throw(message, properties);
@@ -1290,8 +1300,9 @@ module.exports = function(should, Assertion) {
 
 },{"../util":20}],13:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1398,7 +1409,7 @@ module.exports = function(should, Assertion) {
         if(typeof res == 'boolean') {
           this.assert(res); // if it is just boolean function assert on it
         }
-      } else if(other != null && this.obj != null && typeof other == 'object') { // try to match properties (for Object and Array)
+      } else if(other != null && this.obj != null && typeof other == 'object' && typeof this.obj == 'object') { // try to match properties (for Object and Array)
         notMatchedProps = [];
         matchedProps = [];
 
@@ -1500,8 +1511,9 @@ module.exports = function(should, Assertion) {
 
 },{"../util":20,"should-equal":22}],14:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1668,8 +1680,9 @@ module.exports = function(should, Assertion) {
 
 },{}],15:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1948,8 +1961,9 @@ module.exports = function(should) {
 
 },{"../assertion":4,"../util":20}],16:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2033,7 +2047,7 @@ module.exports = function(should, Assertion) {
    *
    * ({ a: 10, b: 10 }).should.have.enumerables('a');
    */
-  Assertion.add('enumerables', function(names) {
+  Assertion.add('enumerables', function(/*names*/) {
     var args = processPropsArgs.apply(null, arguments);
 
     this.params = {
@@ -2306,7 +2320,8 @@ module.exports = function(should, Assertion) {
     var foundProperties = [];
 
     var currentProperty;
-    while(currentProperty = properties.shift()) {
+    while(properties.length) {
+      currentProperty = properties.shift();
       this.params = {operator: 'to have property by path ' + allProps.join(', ') + ' - failed on ' + util.formatProp(currentProperty)};
       obj = obj.have.property(currentProperty);
       foundProperties.push(currentProperty);
@@ -2320,8 +2335,9 @@ module.exports = function(should, Assertion) {
 
 },{"../util":20,"should-equal":22}],17:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2363,8 +2379,9 @@ module.exports = function(should, Assertion) {
 
 },{}],18:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2601,8 +2618,9 @@ module.exports = function(should, Assertion) {
 
 },{"../util":20}],19:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2763,10 +2781,11 @@ should
   .use(require('./ext/contain'))
   .use(require('./ext/promise'));
 
-},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":27}],20:[function(require,module,exports){
+},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":25}],20:[function(require,module,exports){
 /*
- * Should
- * Copyright(c) 2010-2015 TJ Holowaychuk <tj@vision-media.ca>
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2900,7 +2919,7 @@ exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":5,"should-format":23,"should-type":27}],21:[function(require,module,exports){
+},{"./config":5,"should-format":23,"should-type":25}],21:[function(require,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -3260,7 +3279,7 @@ module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":21,"should-type":27}],23:[function(require,module,exports){
+},{"./format":21,"should-type":25}],23:[function(require,module,exports){
 var getType = require('should-type');
 var util = require('./util');
 
@@ -3723,7 +3742,37 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":26,"should-type":24}],24:[function(require,module,exports){
+},{"./util":24,"should-type":25}],24:[function(require,module,exports){
+function addSpaces(v) {
+  return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
+}
+
+function pad(str, value, filler) {
+  str = String(str)
+  var isRight = false;
+
+  if(value < 0) {
+    isRight = true;
+    value = -value;
+  }
+
+  if(str.length < value) {
+    var padding = new Array(value - str.length + 1).join(filler);
+    return isRight ? str + padding : padding + str;
+  } else{
+    return str;
+  }
+}
+
+module.exports = {
+  addSpaces: addSpaces,
+  pad: pad,
+  pad0: function(str, value) {
+    return pad(str, value, '0');
+  }
+};
+
+},{}],25:[function(require,module,exports){
 var toString = Object.prototype.toString;
 
 var types = require('./types');
@@ -3884,7 +3933,7 @@ Object.keys(types).forEach(function(typeName) {
 
 module.exports = getGlobalType;
 
-},{"./types":25}],25:[function(require,module,exports){
+},{"./types":26}],26:[function(require,module,exports){
 var types = {
   NUMBER: 'number',
   UNDEFINED: 'undefined',
@@ -3927,38 +3976,4 @@ var types = {
 
 module.exports = types;
 
-},{}],26:[function(require,module,exports){
-function addSpaces(v) {
-  return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
-}
-
-function pad(str, value, filler) {
-  str = String(str)
-  var isRight = false;
-
-  if(value < 0) {
-    isRight = true;
-    value = -value;
-  }
-
-  if(str.length < value) {
-    var padding = new Array(value - str.length + 1).join(filler);
-    return isRight ? str + padding : padding + str;
-  } else{
-    return str;
-  }
-}
-
-module.exports = {
-  addSpaces: addSpaces,
-  pad: pad,
-  pad0: function(str, value) {
-    return pad(str, value, '0');
-  }
-};
-
-},{}],27:[function(require,module,exports){
-arguments[4][24][0].apply(exports,arguments)
-},{"./types":28,"dup":24}],28:[function(require,module,exports){
-arguments[4][25][0].apply(exports,arguments)
-},{"dup":25}]},{},[1]);
+},{}]},{},[1]);

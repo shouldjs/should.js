@@ -1,3 +1,9 @@
+8.2.2 / 2016-02-09
+==================
+
+  * Fix bug with .match when called primitive to match object
+  * Various linting issues
+
 8.2.1 / 2016-01-27
 ==================
 
