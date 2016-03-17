@@ -14,6 +14,10 @@ describe('bool', function() {
     err(function() {
       true.should.not.be.true();
     }, "expected true not to be true (false negative fail)");
+
+    err(function() {
+      (false).should.be.true('My text');
+    }, 'My text');
   });
 
   it('test false', function() {
@@ -28,6 +32,10 @@ describe('bool', function() {
     err(function() {
       false.should.not.be.false();
     }, "expected false not to be false (false negative fail)");
+
+    err(function() {
+      (true).should.be.false('My text');
+    }, 'My text');
   });
 
   it('test ok', function() {
