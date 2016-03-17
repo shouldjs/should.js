@@ -188,7 +188,7 @@ describe('assert', function() {
     var threw = false;
     try {
       assert.throws(makeBlock(thrower, TypeError), assert.AssertionError);
-    } catch(e) {
+    } catch (e) {
       threw = true;
       assert.ok(e instanceof TypeError, 'type');
     }
@@ -200,7 +200,7 @@ describe('assert', function() {
     // doesNotThrow should pass through all errors
     try {
       assert.doesNotThrow(makeBlock(thrower, TypeError), assert.AssertionError);
-    } catch(e) {
+    } catch (e) {
       threw = true;
       assert.ok(e instanceof TypeError);
     }
@@ -210,7 +210,7 @@ describe('assert', function() {
     // key difference is that throwing our correct error makes an assertion error
     try {
       assert.doesNotThrow(makeBlock(thrower, TypeError), TypeError);
-    } catch(e) {
+    } catch (e) {
       threw = true;
       assert.ok(e instanceof assert.AssertionError);
     }
@@ -239,7 +239,7 @@ describe('assert', function() {
         },
         Array
       );
-    } catch(e) {
+    } catch (e) {
       threw = true;
     }
     assert.ok(threw, 'wrong constructor validation');
@@ -251,7 +251,7 @@ describe('assert', function() {
 
   it('se a fn to validate error object', function() {
     assert.throws(makeBlock(thrower, TypeError), function(err) {
-      if((err instanceof TypeError) && /test/.test(err)) {
+      if ((err instanceof TypeError) && /test/.test(err)) {
         return true;
       }
     });
@@ -267,7 +267,7 @@ describe('assert', function() {
     var gotError = false;
     try {
       assert.deepEqual(b, c);
-    } catch(e) {
+    } catch (e) {
       gotError = true;
     }
 
@@ -279,7 +279,7 @@ describe('assert', function() {
     function testAssertionMessage(actual, expected) {
       try {
         assert.equal(actual, '');
-      } catch(e) {
+      } catch (e) {
         assert.equal(e.toString(),
           ['AssertionError: expected', expected, '==', "''"].join(' '));
       }
@@ -314,7 +314,7 @@ describe('assert', function() {
       assert.throws(function() {
         assert.ifError(null);
       });
-    } catch(e) {
+    } catch (e) {
       threw = true;
       assert.equal(e.message, 'Missing expected exception..');
     }
@@ -322,13 +322,13 @@ describe('assert', function() {
 
     try {
       assert.equal(1, 2);
-    } catch(e) {
+    } catch (e) {
       assert.equal(e.toString().split('\n')[0], 'AssertionError: expected 1 == 2');
     }
 
     try {
       assert.equal(1, 2, 'oh no');
-    } catch(e) {
+    } catch (e) {
       assert.equal(e.toString().split('\n')[0], 'AssertionError: oh no');
     }
   });

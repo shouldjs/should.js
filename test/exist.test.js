@@ -8,7 +8,7 @@ function err(fn, msg) {
   try {
     fn();
     should.fail('expected an error');
-  } catch(err) {
+  } catch (err) {
     should.equal(msg, err.message);
   }
 }
