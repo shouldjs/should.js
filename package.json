@@ -16,7 +16,7 @@
   "devDependencies": {
     "bluebird": "^3.0.6",
     "browserify": "latest",
-    "eslint": "^1.10.3",
+    "eslint": "^2.4.0",
     "gulp": "^3.8.10",
     "gulp-header": "^1.2.2",
     "gulp-rename": "^1.2.0",
