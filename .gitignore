@@ -4,3 +4,4 @@ desktop.ini
 .idea
 should.js.for-tests
 *.swp
+npm-debug.log
