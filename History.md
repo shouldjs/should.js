@@ -1,3 +1,9 @@
+8.3.0 / 2016-03-23
+==================
+
+  * .true() and .false() can accept optional message to be used in assertion Error
+  * Add more useful messages to promise assertions
+
 8.2.2 / 2016-02-09
 ==================
 

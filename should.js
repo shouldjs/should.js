@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.2.2
+ * @version v8.3.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -50,10 +50,10 @@ var util = require('./util');
 var AssertionError = function AssertionError(options) {
   util.merge(this, options);
 
-  if(!options.message) {
+  if (!options.message) {
     Object.defineProperty(this, 'message', {
         get: function() {
-          if(!this._message) {
+          if (!this._message) {
             this._message = this.generateMessage();
             this.generatedMessage = true;
           }
@@ -65,19 +65,19 @@ var AssertionError = function AssertionError(options) {
     );
   }
 
-  if(Error.captureStackTrace) {
+  if (Error.captureStackTrace) {
     Error.captureStackTrace(this, this.stackStartFunction);
   } else {
     // non v8 browsers so we can have a stacktrace
     var err = new Error();
-    if(err.stack) {
+    if (err.stack) {
       var out = err.stack;
 
-      if(this.stackStartFunction) {
+      if (this.stackStartFunction) {
         // try to strip useless frames
         var fn_name = util.functionName(this.stackStartFunction);
         var idx = out.indexOf('\n' + fn_name);
-        if(idx >= 0) {
+        if (idx >= 0) {
           // once we have located the function frame
           // we need to strip out everything before it (and its line)
           var next_line = out.indexOf('\n', idx + 1);
@@ -109,7 +109,7 @@ AssertionError.prototype = Object.create(Error.prototype, {
 
   generateMessage: {
     value: function() {
-      if(!this.operator && this.previous) {
+      if (!this.operator && this.previous) {
         return this.previous.message;
       }
       var actual = util.format(this.actual);
@@ -180,15 +180,15 @@ Assertion.prototype = {
    * //throws AssertionError: expected 42 to be magic number
    */
   assert: function(expr) {
-    if(expr) {
+    if (expr) {
       return this;
     }
 
     var params = this.params;
 
-    if('obj' in params && !('actual' in params)) {
+    if ('obj' in params && !('actual' in params)) {
       params.actual = params.obj;
-    } else if(!('obj' in params) && !('actual' in params)) {
+    } else if (!('obj' in params) && !('actual' in params)) {
       params.actual = this.obj;
     }
 
@@ -235,7 +235,7 @@ function PromisedAssertion(/* obj */) {
 
 /**
  * Make PromisedAssertion to look like promise. Delegate resolve and reject to given promise.
- * 
+ *
  * @private
  * @returns {Promise}
  */
@@ -328,7 +328,7 @@ Assertion.add = function(name, func) {
 
 /**
  * Add chaining getter to Assertion like .a, .which etc
- * 
+ *
  * @memberOf Assertion
  * @static
  * @param  {string} name   name of getter
@@ -512,7 +512,7 @@ assert.fail = fail;
  * @param {string} [message]
  */
 function ok(value, message) {
-  if(!value) fail(value, true, message, '==', assert.ok);
+  if (!value) fail(value, true, message, '==', assert.ok);
 }
 assert.ok = ok;
 
@@ -530,7 +530,7 @@ assert.ok = ok;
  * @param {string} [message]
  */
 assert.equal = function equal(actual, expected, message) {
-  if(actual != expected) fail(actual, expected, message, '==', assert.equal);
+  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
 };
 
 // 6. The non-equality assertion tests for whether two objects are not equal
@@ -545,7 +545,7 @@ assert.equal = function equal(actual, expected, message) {
  * @param {string} [message]
  */
 assert.notEqual = function notEqual(actual, expected, message) {
-  if(actual == expected) {
+  if (actual == expected) {
     fail(actual, expected, message, '!=', assert.notEqual);
   }
 };
@@ -564,7 +564,7 @@ assert.notEqual = function notEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.deepEqual = function deepEqual(actual, expected, message) {
-  if(!_deepEqual(actual, expected).result) {
+  if (!_deepEqual(actual, expected).result) {
     fail(actual, expected, message, 'deepEqual', assert.deepEqual);
   }
 };
@@ -584,7 +584,7 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if(_deepEqual(actual, expected).result) {
+  if (_deepEqual(actual, expected).result) {
     fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
   }
 };
@@ -601,7 +601,7 @@ assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.strictEqual = function strictEqual(actual, expected, message) {
-  if(actual !== expected) {
+  if (actual !== expected) {
     fail(actual, expected, message, '===', assert.strictEqual);
   }
 };
@@ -618,21 +618,21 @@ assert.strictEqual = function strictEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
-  if(actual === expected) {
+  if (actual === expected) {
     fail(actual, expected, message, '!==', assert.notStrictEqual);
   }
 };
 
 function expectedException(actual, expected) {
-  if(!actual || !expected) {
+  if (!actual || !expected) {
     return false;
   }
 
-  if(Object.prototype.toString.call(expected) == '[object RegExp]') {
+  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
     return expected.test(actual);
-  } else if(actual instanceof expected) {
+  } else if (actual instanceof expected) {
     return true;
-  } else if(expected.call({}, actual) === true) {
+  } else if (expected.call({}, actual) === true) {
     return true;
   }
 
@@ -642,29 +642,29 @@ function expectedException(actual, expected) {
 function _throws(shouldThrow, block, expected, message) {
   var actual;
 
-  if(typeof expected == 'string') {
+  if (typeof expected == 'string') {
     message = expected;
     expected = null;
   }
 
   try {
     block();
-  } catch(e) {
+  } catch (e) {
     actual = e;
   }
 
   message = (expected && expected.name ? ' (' + expected.name + ')' : '.') +
   (message ? ' ' + message : '.');
 
-  if(shouldThrow && !actual) {
+  if (shouldThrow && !actual) {
     fail(actual, expected, 'Missing expected exception' + message);
   }
 
-  if(!shouldThrow && expectedException(actual, expected)) {
+  if (!shouldThrow && expectedException(actual, expected)) {
     fail(actual, expected, 'Got unwanted exception' + message);
   }
 
-  if((shouldThrow && actual && expected && !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+  if ((shouldThrow && actual && expected && !expectedException(actual, expected)) || (!shouldThrow && actual)) {
     throw actual;
   }
 }
@@ -705,7 +705,7 @@ assert.doesNotThrow = function(/*block, message*/) {
  * @param {Error} err
  */
 assert.ifError = function(err) {
-  if(err) {
+  if (err) {
     throw err;
   }
 };
@@ -751,7 +751,7 @@ module.exports = function(should) {
    * should.exist(new Date());
    */
   should.exist = should.exists = function(obj, msg) {
-    if(null == obj) {
+    if (null == obj) {
       throw new AssertionError({
         message: msg || ('expected ' + i(obj) + ' to exist'), stackStartFunction: should.exist
       });
@@ -775,7 +775,7 @@ module.exports = function(should) {
    * should.not.exist(void 0);
    */
   should.not.exist = should.not.exists = function(obj, msg) {
-    if(null != obj) {
+    if (null != obj) {
       throw new AssertionError({
         message: msg || ('expected ' + i(obj) + ' to not exist'), stackStartFunction: should.not.exist
       });
@@ -799,6 +799,7 @@ module.exports = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion bool
    * @alias Assertion#True
+   * @param {string} [message] Optional message
    * @example
    *
    * (true).should.be.true();
@@ -806,8 +807,8 @@ module.exports = function(should, Assertion) {
    *
    * ({ a: 10}).should.not.be.true();
    */
-  Assertion.add('true', function() {
-    this.is.exactly(true);
+  Assertion.add('true', function(message) {
+    this.is.exactly(true, message);
   });
 
   Assertion.alias('true', 'True');
@@ -819,13 +820,14 @@ module.exports = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion bool
    * @alias Assertion#False
+   * @param {string} [message] Optional message
    * @example
    *
    * (true).should.not.be.false();
    * false.should.be.false();
    */
-  Assertion.add('false', function() {
-    this.is.exactly(false);
+  Assertion.add('false', function(message) {
+    this.is.exactly(false, message);
   });
 
   Assertion.alias('false', 'False');
@@ -931,9 +933,9 @@ module.exports = function(should, Assertion) {
 
     var obj = this.obj;
 
-    if(typeof obj == 'string') {
+    if (typeof obj == 'string') {
       this.assert(obj.indexOf(String(other)) >= 0);
-    } else if(util.isIndexable(obj)) {
+    } else if (util.isIndexable(obj)) {
       this.assert(util.some(obj, function(v) {
         return eql(v, other).result;
       }));
@@ -965,15 +967,15 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to contain ' + i(other)};
 
     var obj = this.obj;
-    if(typeof obj == 'string') {// expect other to be string
+    if (typeof obj == 'string') {// expect other to be string
       this.is.equal(String(other));
-    } else if(util.isIndexable(obj) && util.isIndexable(other)) {
-      for(var objIdx = 0, otherIdx = 0, objLength = util.length(obj), otherLength = util.length(other); objIdx < objLength && otherIdx < otherLength; objIdx++) {
+    } else if (util.isIndexable(obj) && util.isIndexable(other)) {
+      for (var objIdx = 0, otherIdx = 0, objLength = util.length(obj), otherLength = util.length(other); objIdx < objLength && otherIdx < otherLength; objIdx++) {
         try {
           should(obj[objIdx]).containDeepOrdered(other[otherIdx]);
           otherIdx++;
-        } catch(e) {
-          if(e instanceof should.AssertionError) {
+        } catch (e) {
+          if (e instanceof should.AssertionError) {
             continue;
           }
           throw e;
@@ -981,13 +983,13 @@ module.exports = function(should, Assertion) {
       }
 
       this.assert(otherIdx === otherLength);
-    } else if(obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
+    } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
       util.forEach(other, function(value, key) {
         should(obj[key]).containDeepOrdered(value);
       });
 
       // if both objects is empty means we finish traversing - and we need to compare for hidden values
-      if(util.isEmptyObject(other)) {
+      if (util.isEmptyObject(other)) {
         this.eql(other);
       }
     } else {
@@ -1011,33 +1013,33 @@ module.exports = function(should, Assertion) {
     this.params = {operator: 'to contain ' + i(other)};
 
     var obj = this.obj;
-    if(typeof obj == 'string') {// expect other to be string
+    if (typeof obj == 'string') {// expect other to be string
       this.is.equal(String(other));
-    } else if(util.isIndexable(obj) && util.isIndexable(other)) {
+    } else if (util.isIndexable(obj) && util.isIndexable(other)) {
       var usedKeys = {};
       util.forEach(other, function(otherItem) {
         this.assert(util.some(obj, function(item, index) {
-          if(index in usedKeys) return false;
+          if (index in usedKeys) return false;
 
           try {
             should(item).containDeep(otherItem);
             usedKeys[index] = true;
             return true;
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
               return false;
             }
             throw e;
           }
         }));
       }, this);
-    } else if(obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
+    } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
       util.forEach(other, function(value, key) {
         should(obj[key]).containDeep(value);
       });
 
       // if both objects is empty means we finish traversing - and we need to compare for hidden values
-      if(util.isEmptyObject(other)) {
+      if (util.isEmptyObject(other)) {
         this.eql(other);
       }
     } else {
@@ -1128,7 +1130,7 @@ module.exports = function(should, Assertion) {
 
   function addOneOf(name, message, method) {
     Assertion.add(name, function(vals) {
-      if(arguments.length !== 1) {
+      if (arguments.length !== 1) {
         vals = Array.prototype.slice.call(arguments);
       } else {
         should(vals).be.Array();
@@ -1144,8 +1146,8 @@ module.exports = function(should, Assertion) {
           should(val)[method](obj);
           found = true;
           return false;
-        } catch(e) {
-          if(e instanceof should.AssertionError) {
+        } catch (e) {
+          if (e instanceof should.AssertionError) {
             return;//do nothing
           }
           throw e;
@@ -1228,9 +1230,9 @@ module.exports = function(should, Assertion) {
     var errorInfo = '';
     var thrown = false;
 
-    if(util.isGeneratorFunction(fn)) {
+    if (util.isGeneratorFunction(fn)) {
       return should(fn()).throw(message, properties);
-    } else if(util.isGeneratorObject(fn)) {
+    } else if (util.isGeneratorObject(fn)) {
       return should(fn.next.bind(fn)).throw(message, properties);
     }
 
@@ -1240,24 +1242,24 @@ module.exports = function(should, Assertion) {
 
     try {
       fn();
-    } catch(e) {
+    } catch (e) {
       thrown = true;
       err = e;
     }
 
-    if(thrown) {
-      if(message) {
-        if('string' == typeof message) {
+    if (thrown) {
+      if (message) {
+        if ('string' == typeof message) {
           errorMatched = message == err.message;
-        } else if(message instanceof RegExp) {
+        } else if (message instanceof RegExp) {
           errorMatched = message.test(err.message);
-        } else if('function' == typeof message) {
+        } else if ('function' == typeof message) {
           errorMatched = err instanceof message;
-        } else if(null != message) {
+        } else if (null != message) {
           try {
             should(err).match(message);
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
               errorInfo = ": " + e.message;
               errorMatched = false;
             } else {
@@ -1266,17 +1268,17 @@ module.exports = function(should, Assertion) {
           }
         }
 
-        if(!errorMatched) {
-          if('string' == typeof message || message instanceof RegExp) {
+        if (!errorMatched) {
+          if ('string' == typeof message || message instanceof RegExp) {
             errorInfo = " with a message matching " + i(message) + ", but got '" + err.message + "'";
-          } else if('function' == typeof message) {
+          } else if ('function' == typeof message) {
             errorInfo = " of type " + util.functionName(message) + ", but got " + util.functionName(err.constructor);
           }
-        } else if('function' == typeof message && properties) {
+        } else if ('function' == typeof message && properties) {
           try {
             should(err).match(properties);
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
               errorInfo = ": " + e.message;
               errorMatched = false;
             } else {
@@ -1371,32 +1373,32 @@ module.exports = function(should, Assertion) {
   Assertion.add('match', function(other, description) {
     this.params = {operator: 'to match ' + i(other), message: description};
 
-    if(!eql(this.obj, other).result) {
-      if(other instanceof RegExp) { // something - regex
+    if (!eql(this.obj, other).result) {
+      if (other instanceof RegExp) { // something - regex
 
-        if(typeof this.obj == 'string') {
+        if (typeof this.obj == 'string') {
 
           this.assert(other.exec(this.obj));
-        } else if(util.isIndexable(this.obj)) {
+        } else if (util.isIndexable(this.obj)) {
           util.forEach(this.obj, function(item) {
             this.assert(other.exec(item));// should we try to convert to String and exec?
           }, this);
-        } else if(null != this.obj && typeof this.obj == 'object') {
+        } else if (null != this.obj && typeof this.obj == 'object') {
 
           var notMatchedProps = [], matchedProps = [];
           util.forEach(this.obj, function(value, name) {
-            if(other.exec(value)) matchedProps.push(util.formatProp(name));
+            if (other.exec(value)) matchedProps.push(util.formatProp(name));
             else notMatchedProps.push(util.formatProp(name) + ' (' + i(value) + ')');
           }, this);
 
-          if(notMatchedProps.length)
+          if (notMatchedProps.length)
             this.params.operator += '\n    not matched properties: ' + notMatchedProps.join(', ');
-          if(matchedProps.length)
+          if (matchedProps.length)
             this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
 
           this.assert(notMatchedProps.length === 0);
         } // should we try to convert to String and exec?
-      } else if(typeof other == 'function') {
+      } else if (typeof other == 'function') {
         var res;
 
         res = other(this.obj);
@@ -1406,10 +1408,10 @@ module.exports = function(should, Assertion) {
         //}
 
         //if we throw exception ok - it is used .should inside
-        if(typeof res == 'boolean') {
+        if (typeof res == 'boolean') {
           this.assert(res); // if it is just boolean function assert on it
         }
-      } else if(other != null && this.obj != null && typeof other == 'object' && typeof this.obj == 'object') { // try to match properties (for Object and Array)
+      } else if (other != null && this.obj != null && typeof other == 'object' && typeof this.obj == 'object') { // try to match properties (for Object and Array)
         notMatchedProps = [];
         matchedProps = [];
 
@@ -1417,8 +1419,8 @@ module.exports = function(should, Assertion) {
           try {
             should(this.obj).have.property(key).which.match(value);
             matchedProps.push(util.formatProp(key));
-          } catch(e) {
-            if(e instanceof should.AssertionError) {
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
               notMatchedProps.push(util.formatProp(key) + ' (' + i(this.obj[key]) + ')');
             } else {
               throw e;
@@ -1426,9 +1428,9 @@ module.exports = function(should, Assertion) {
           }
         }, this);
 
-        if(notMatchedProps.length)
+        if (notMatchedProps.length)
           this.params.operator += '\n    not matched properties: ' + notMatchedProps.join(', ');
-        if(matchedProps.length)
+        if (matchedProps.length)
           this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
 
         this.assert(notMatchedProps.length === 0);
@@ -1495,8 +1497,8 @@ module.exports = function(should, Assertion) {
       try {
         should(value).match(other);
         return true;
-      } catch(e) {
-        if(e instanceof should.AssertionError) {
+      } catch (e) {
+        if (e instanceof should.AssertionError) {
           // Caught an AssertionError, return false to the iterator
           return false;
         }
@@ -1720,10 +1722,10 @@ module.exports = function(should) {
    * @returns {Promise}
    * @category assertion promises
    * @example
-   * 
+   *
    * // don't forget to handle async nature
    * (new Promise(function(resolve, reject) { resolve(10); })).should.be.fulfilled();
-   * 
+   *
    * // test example with mocha it is possible to return promise
    * it('is async', () => {
    *    return new Promise(resolve => resolve(10))
@@ -1743,6 +1745,7 @@ module.exports = function(should) {
       return value;
     }, function next$onReject(err) {
       if (!that.negate) {
+        that.params.operator += ', but it was rejected with ' + should.format(err);
         that.fail();
       }
       return err;
@@ -1757,11 +1760,11 @@ module.exports = function(should) {
    * @category assertion promises
    * @returns {Promise}
    * @example
-   * 
+   *
    * // don't forget to handle async nature
    * (new Promise(function(resolve, reject) { resolve(10); }))
    *    .should.not.be.rejected();
-   * 
+   *
    * // test example with mocha it is possible to return promise
    * it('is async', () => {
    *    return new Promise((resolve, reject) => reject(new Error('boom')))
@@ -1776,6 +1779,10 @@ module.exports = function(should) {
     var that = this;
     return this.obj.then(function(value) {
       if (!that.negate) {
+        that.params.operator += ', but it was fulfilled';
+        if (arguments.length != 0) {
+          that.params.operator += ' with ' + should.format(value);
+        }
         that.fail();
       }
       return value;
@@ -1796,11 +1803,11 @@ module.exports = function(should) {
    * @category assertion promises
    * @returns {Promise}
    * @example
-   * 
+   *
    * // don't forget to handle async nature
    * (new Promise(function(resolve, reject) { resolve(10); }))
    *    .should.be.fulfilledWith(10);
-   * 
+   *
    * // test example with mocha it is possible to return promise
    * it('is async', () => {
    *    return new Promise((resolve, reject) => resolve(10))
@@ -1808,7 +1815,7 @@ module.exports = function(should) {
    * });
    */
   Assertion.prototype.fulfilledWith = function(expectedValue) {
-    this.params = {operator: 'to be fulfilled'};
+    this.params = {operator: 'to be fulfilled with ' + should.format(expectedValue)};
 
     should(this.obj).be.a.Promise();
 
@@ -1821,6 +1828,7 @@ module.exports = function(should) {
       return value;
     }, function next$onError(err) {
       if (!that.negate) {
+        that.params.operator += ', but it was rejected with ' + should.format(err);
         that.fail();
       }
       return err;
@@ -1847,7 +1855,7 @@ module.exports = function(should) {
    * failedPromise().should.be.rejectedWith(/boom/);
    * failedPromise().should.be.rejectedWith(Error, { message: 'boom' });
    * failedPromise().should.be.rejectedWith({ message: 'boom' });
-   * 
+   *
    * // test example with mocha it is possible to return promise
    * it('is async', () => {
    *    return failedPromise().should.be.rejectedWith({ message: 'boom' });
@@ -1919,7 +1927,7 @@ module.exports = function(should) {
   };
 
   /**
-   * Assert given object is promise and wrap it in PromisedAssertion, which has all properties of Assertion. 
+   * Assert given object is promise and wrap it in PromisedAssertion, which has all properties of Assertion.
    * That means you can chain as with usual Assertion.
    * Result of assertion is still .thenable and should be handled accordingly.
    *
@@ -1932,7 +1940,7 @@ module.exports = function(should) {
    *
    * (new Promise(function(resolve, reject) { resolve(10); }))
    *    .should.be.eventually.equal(10);
-   * 
+   *
    * // test example with mocha it is possible to return promise
    * it('is async', () => {
    *    return new Promise(resolve => resolve(10))
@@ -1995,13 +2003,13 @@ module.exports = function(should, Assertion) {
 
   function processPropsArgs() {
     var args = {};
-    if(arguments.length > 1) {
+    if (arguments.length > 1) {
       args.names = aSlice.call(arguments);
     } else {
       var arg = arguments[0];
-      if(typeof arg === 'string') {
+      if (typeof arg === 'string') {
         args.names = [arg];
-      } else if(util.isIndexable(arg)) {
+      } else if (util.isIndexable(arg)) {
         args.names = arg;
       } else {
         args.names = Object.keys(arg);
@@ -2032,7 +2040,7 @@ module.exports = function(should, Assertion) {
     };
 
     var desc = { enumerable: true };
-    if(arguments.length > 1) desc.value = val;
+    if (arguments.length > 1) desc.value = val;
     this.have.propertyWithDescriptor(name, desc);
   });
 
@@ -2074,7 +2082,7 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('property', function(name, val) {
     name = util.convertPropertyName(name);
-    if(arguments.length > 1) {
+    if (arguments.length > 1) {
       var p = {};
       p[name] = val;
       this.have.properties(p);
@@ -2099,10 +2107,10 @@ module.exports = function(should, Assertion) {
    */
   Assertion.add('properties', function(names) {
     var values = {};
-    if(arguments.length > 1) {
+    if (arguments.length > 1) {
       names = aSlice.call(arguments);
-    } else if(!Array.isArray(names)) {
-      if(typeof names == 'string' || typeof names == 'symbol') {
+    } else if (!Array.isArray(names)) {
+      if (typeof names == 'string' || typeof names == 'symbol') {
         names = [names];
       } else {
         values = names;
@@ -2114,13 +2122,13 @@ module.exports = function(should, Assertion) {
 
     //just enumerate properties and check if they all present
     names.forEach(function(name) {
-      if(!(name in obj)) missingProperties.push(util.formatProp(name));
+      if (!(name in obj)) missingProperties.push(util.formatProp(name));
     });
 
     var props = missingProperties;
-    if(props.length === 0) {
+    if (props.length === 0) {
       props = names.map(util.formatProp);
-    } else if(this.anyOne) {
+    } else if (this.anyOne) {
       props = names.filter(function(name) {
         return missingProperties.indexOf(util.formatProp(name)) < 0;
       }).map(util.formatProp);
@@ -2137,21 +2145,21 @@ module.exports = function(should, Assertion) {
 
     // check if values in object matched expected
     var valueCheckNames = Object.keys(values);
-    if(valueCheckNames.length) {
+    if (valueCheckNames.length) {
       var wrongValues = [];
       props = [];
 
       // now check values, as there we have all properties
       valueCheckNames.forEach(function(name) {
         var value = values[name];
-        if(!eql(obj[name], value).result) {
+        if (!eql(obj[name], value).result) {
           wrongValues.push(util.formatProp(name) + ' of ' + i(value) + ' (got ' + i(obj[name]) + ')');
         } else {
           props.push(util.formatProp(name) + ' of ' + i(value));
         }
       });
 
-      if((wrongValues.length !== 0 && !this.anyOne) || (this.anyOne && props.length === 0)) {
+      if ((wrongValues.length !== 0 && !this.anyOne) || (this.anyOne && props.length === 0)) {
         props = wrongValues;
       }
 
@@ -2230,11 +2238,11 @@ module.exports = function(should, Assertion) {
   Assertion.add('empty', function() {
     this.params = {operator: 'to be empty'};
 
-    if(util.length(this.obj) !== void 0) {
+    if (util.length(this.obj) !== void 0) {
       should(this.obj).have.property('length', 0);
     } else {
       var obj = Object(this.obj); // wrap to reference for booleans and numbers
-      for(var prop in obj) {
+      for (var prop in obj) {
         should(this.obj).not.have.ownProperty(prop);
       }
     }
@@ -2256,9 +2264,9 @@ module.exports = function(should, Assertion) {
    * ({}).should.have.keys();
    */
   Assertion.add('keys', function(keys) {
-    if(arguments.length > 1) keys = aSlice.call(arguments);
-    else if(arguments.length === 1 && typeof keys === 'string') keys = [keys];
-    else if(arguments.length === 0) keys = [];
+    if (arguments.length > 1) keys = aSlice.call(arguments);
+    else if (arguments.length === 1 && typeof keys === 'string') keys = [keys];
+    else if (arguments.length === 0) keys = [];
 
     keys = keys.map(String);
 
@@ -2267,14 +2275,14 @@ module.exports = function(should, Assertion) {
     // first check if some keys are missing
     var missingKeys = [];
     keys.forEach(function(key) {
-      if(!hasOwnProperty.call(this.obj, key))
+      if (!hasOwnProperty.call(this.obj, key))
         missingKeys.push(util.formatProp(key));
     }, this);
 
     // second check for extra keys
     var extraKeys = [];
     Object.keys(obj).forEach(function(key) {
-      if(keys.indexOf(key) < 0) {
+      if (keys.indexOf(key) < 0) {
         extraKeys.push(util.formatProp(key));
       }
     });
@@ -2284,10 +2292,10 @@ module.exports = function(should, Assertion) {
 
     this.params = {operator: verb + keys.map(util.formatProp).join(', ')};
 
-    if(missingKeys.length > 0)
+    if (missingKeys.length > 0)
       this.params.operator += '\n\tmissing keys: ' + missingKeys.join(', ');
 
-    if(extraKeys.length > 0)
+    if (extraKeys.length > 0)
       this.params.operator += '\n\textra keys: ' + extraKeys.join(', ');
 
     this.assert(missingKeys.length === 0 && extraKeys.length === 0);
@@ -2307,9 +2315,9 @@ module.exports = function(should, Assertion) {
    * ({ a: {b: 10}}).should.have.propertyByPath('a', 'b').eql(10);
    */
   Assertion.add('propertyByPath', function(properties) {
-    if(arguments.length > 1) properties = aSlice.call(arguments);
-    else if(arguments.length === 1 && typeof properties == 'string') properties = [properties];
-    else if(arguments.length === 0) properties = [];
+    if (arguments.length > 1) properties = aSlice.call(arguments);
+    else if (arguments.length === 1 && typeof properties == 'string') properties = [properties];
+    else if (arguments.length === 0) properties = [];
 
     var allProps = properties.map(util.formatProp);
 
@@ -2320,7 +2328,7 @@ module.exports = function(should, Assertion) {
     var foundProperties = [];
 
     var currentProperty;
-    while(properties.length) {
+    while (properties.length) {
       currentProperty = properties.shift();
       this.params = {operator: 'to have property by path ' + allProps.join(', ') + ' - failed on ' + util.formatProp(currentProperty)};
       obj = obj.have.property(currentProperty);
@@ -2735,10 +2743,10 @@ should.extend = function(propertyName, proto) {
 should.noConflict = function(desc) {
   desc = desc || should._prevShould;
 
-  if(desc) {
+  if (desc) {
     delete desc.proto[desc.name];
 
-    if(desc.descriptor) {
+    if (desc.descriptor) {
       Object.defineProperty(desc.proto, desc.name, desc.descriptor);
     }
   }
@@ -2803,8 +2811,8 @@ exports.isWrapperType = function(obj) {
 };
 
 exports.merge = function(a, b) {
-  if(a && b) {
-    for(var key in b) {
+  if (a && b) {
+    for (var key in b) {
       a[key] = b[key];
     }
   }
@@ -2814,19 +2822,19 @@ exports.merge = function(a, b) {
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 exports.forEach = function forEach(obj, f, context) {
-  if(exports.isGeneratorFunction(obj)) {
+  if (exports.isGeneratorFunction(obj)) {
     return forEach(obj(), f, context);
   } else if (exports.isGeneratorObject(obj)) {
     var value = obj.next();
-    while(!value.done) {
-      if(f.call(context, value.value, 'value', obj) === false)
+    while (!value.done) {
+      if (f.call(context, value.value, 'value', obj) === false)
         return;
       value = obj.next();
     }
   } else {
-    for(var prop in obj) {
-      if(hasOwnProperty.call(obj, prop)) {
-        if(f.call(context, obj[prop], prop, obj) === false)
+    for (var prop in obj) {
+      if (hasOwnProperty.call(obj, prop)) {
+        if (f.call(context, obj[prop], prop, obj) === false)
           return;
       }
     }
@@ -2836,7 +2844,7 @@ exports.forEach = function forEach(obj, f, context) {
 exports.some = function(obj, f, context) {
   var res = false;
   exports.forEach(obj, function(value, key) {
-    if(f.call(context, value, key, obj)) {
+    if (f.call(context, value, key, obj)) {
       res = true;
       return false;
     }
@@ -2845,8 +2853,8 @@ exports.some = function(obj, f, context) {
 };
 
 exports.isEmptyObject = function(obj) {
-  for(var prop in obj) {
-    if(hasOwnProperty.call(obj, prop)) {
+  for (var prop in obj) {
+    if (hasOwnProperty.call(obj, prop)) {
       return false;
     }
   }
@@ -2867,11 +2875,11 @@ exports.isIndexable = function(obj) {
 
 exports.length = function(obj) {
   var t = type(obj);
-  switch(t.type) {
+  switch (t.type) {
     case type.STRING:
       return obj.length;
     case type.OBJECT:
-      switch(t.cls) {
+      switch (t.cls) {
         case type.ARRAY_BUFFER:
         case type.TYPED_ARRAY:
         case type.DATA_VIEW:
@@ -2887,7 +2895,7 @@ exports.length = function(obj) {
 };
 
 exports.convertPropertyName = function(name) {
-  if(typeof name == 'symbol') {
+  if (typeof name == 'symbol') {
     return name;
   } else {
     return String(name);
@@ -2895,7 +2903,7 @@ exports.convertPropertyName = function(name) {
 };
 
 exports.isGeneratorObject = function(obj) {
-  if(!obj) return false;
+  if (!obj) return false;
 
   return typeof obj.next == 'function' &&
           typeof obj[Symbol.iterator] == 'function' &&
@@ -2904,7 +2912,7 @@ exports.isGeneratorObject = function(obj) {
 
 //TODO find better way
 exports.isGeneratorFunction = function(f) {
-  if(typeof f != 'function') return false;
+  if (typeof f != 'function') return false;
 
   return /^function\s*\*\s*/.test(f.toString());
 };
