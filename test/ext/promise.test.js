@@ -63,7 +63,7 @@ it('should allow to check if promise fulfilled', function() {
     promiseFail().should.be.fulfilled().then(function() {//negative
       should.fail();
     }, function(err) {
-      err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled'});
+      err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled, but it was rejected with Error { message: \'boom\' }'});
     }),
     promised(10).should.not.be.fulfilled().then(function() {//positive fail
       should.fail();
@@ -80,12 +80,12 @@ it('should be allow to check if promise is fulfilledWith a value', function() {
     promiseFail().should.be.fulfilledWith(10).then(function() {//negative
       should.fail();
     }, function(err) {
-      err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled'});
+      err.should.be.Error().and.match({message: 'expected [Promise] to be fulfilled with 10, but it was rejected with Error { message: \'boom\' }'});
     }),
     promised(10).should.not.be.fulfilledWith(10).then(function() {//positive fail
       should.fail();
     }, function(err) {
-      err.should.be.Error().and.match({message: 'expected [Promise] not to be fulfilled'});
+      err.should.be.Error().and.match({message: 'expected [Promise] not to be fulfilled with 10'});
     }),
     promiseFail().should.not.be.fulfilledWith(10)//negative fail
   ]);
@@ -97,7 +97,7 @@ it('should be allow to check if promise rejected', function() {
     promised(10).should.be.rejected().then(function() {//negative
       should.fail();
     }, function(err) {
-      err.should.be.Error().and.match({message: 'expected [Promise] to be rejected'});
+      err.should.be.Error().and.match({message: 'expected [Promise] to be rejected, but it was fulfilled with 10'});
     }),
     promiseFail().should.not.be.rejected().then(function() {//positive fail
       should.fail();
