@@ -1,5 +1,5 @@
 dir: lib
 packageJson: package.json
 files:
- 	- index.js
- 	- as-function.js
+  - index.js
+  - as-function.js
