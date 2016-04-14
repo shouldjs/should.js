@@ -1,21 +1,33 @@
+
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.3.0
+ * @version v8.3.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-window.Should = require('./index');
+ 
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.Should = factory();
 
-Object.defineProperty(window, 'should', {
-  enumerable: false,
-  configurable: true,
-  value: window.Should
-});
+    Object.defineProperty(root, 'should', {
+      enumerable: false,
+      configurable: true,
+      value: root.Should
+    });
+  }
+}(this, function () {
+  var should, require = null;
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+should = _dereq_(2);
 
-},{"./index":2}],2:[function(require,module,exports){
-var should = require('./lib/should');
+},{"2":2}],2:[function(_dereq_,module,exports){
+var should = _dereq_(19);
 
 var defaultProto = Object.prototype;
 var defaultProperty = 'should';
@@ -30,7 +42,7 @@ try {
 
 module.exports = should;
 
-},{"./lib/should":19}],3:[function(require,module,exports){
+},{"19":19}],3:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -38,7 +50,7 @@ module.exports = should;
  * MIT Licensed
  */
 
-var util = require('./util');
+var util = _dereq_(20);
 
 /**
  * should AssertionError
@@ -125,7 +137,7 @@ AssertionError.prototype = Object.create(Error.prototype, {
 
 module.exports = AssertionError;
 
-},{"./util":20}],4:[function(require,module,exports){
+},{"20":20}],4:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -133,7 +145,7 @@ module.exports = AssertionError;
  * MIT Licensed
  */
 
-var AssertionError = require('./assertion-error');
+var AssertionError = _dereq_(3);
 
 /**
  * should Assertion
@@ -405,7 +417,7 @@ Assertion.addChain('any', function() {
 module.exports = Assertion;
 module.exports.PromisedAssertion = PromisedAssertion;
 
-},{"./assertion-error":3}],5:[function(require,module,exports){
+},{"3":3}],5:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -413,7 +425,7 @@ module.exports.PromisedAssertion = PromisedAssertion;
  * MIT Licensed
  */
 
-var Formatter = require('should-format').Formatter;
+var Formatter = _dereq_(23).Formatter;
 
 var config = {
   checkProtoEql: false,
@@ -425,7 +437,7 @@ var config = {
 
 module.exports = config;
 
-},{"should-format":23}],6:[function(require,module,exports){
+},{"23":23}],6:[function(_dereq_,module,exports){
 // implement assert interface using already written peaces of should.js
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -455,9 +467,9 @@ module.exports = config;
 // when used in node, this will actually load the util module we depend on
 // versus loading the builtin util module as happens otherwise
 // this is a bug in node module loading as far as I am concerned
-var Assertion = require('./../assertion');
+var Assertion = _dereq_(4);
 
-var _deepEqual = require('should-equal');
+var _deepEqual = _dereq_(22);
 
 var pSlice = Array.prototype.slice;
 
@@ -710,7 +722,7 @@ assert.ifError = function(err) {
   }
 };
 
-},{"./../assertion":4,"should-equal":22}],7:[function(require,module,exports){
+},{"22":22,"4":4}],7:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -718,9 +730,9 @@ assert.ifError = function(err) {
  * MIT Licensed
  */
 
-var util = require('../util');
-var assert = require('./_assert');
-var AssertionError = require('../assertion-error');
+var util = _dereq_(20);
+var assert = _dereq_(6);
+var AssertionError = _dereq_(3);
 
 module.exports = function(should) {
   var i = should.format;
@@ -783,7 +795,7 @@ module.exports = function(should) {
   };
 };
 
-},{"../assertion-error":3,"../util":20,"./_assert":6}],8:[function(require,module,exports){
+},{"20":20,"3":3,"6":6}],8:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -855,7 +867,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],9:[function(require,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -888,7 +900,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],10:[function(require,module,exports){
+},{}],10:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -896,8 +908,8 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var util = require('../util');
-var eql = require('should-equal');
+var util = _dereq_(20);
+var eql = _dereq_(22);
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -1049,7 +1061,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":20,"should-equal":22}],11:[function(require,module,exports){
+},{"20":20,"22":22}],11:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -1057,9 +1069,9 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var eql = require('should-equal');
-var type = require('should-type');
-var util = require('../util');
+var eql = _dereq_(22);
+var type = _dereq_(25);
+var util = _dereq_(20);
 
 function formatEqlResult(r, a, b) {
   return ((r.path.length > 0 ? 'at ' + r.path.map(util.formatProp).join(' -> ') : '') +
@@ -1188,14 +1200,14 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{"../util":20,"should-equal":22,"should-type":25}],12:[function(require,module,exports){
+},{"20":20,"22":22,"25":25}],12:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
  * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
-var util = require('../util');
+var util = _dereq_(20);
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -1300,7 +1312,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('throw', 'throwError');
 };
 
-},{"../util":20}],13:[function(require,module,exports){
+},{"20":20}],13:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -1308,8 +1320,8 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var util = require('../util');
-var eql = require('should-equal');
+var util = _dereq_(20);
+var eql = _dereq_(22);
 
 module.exports = function(should, Assertion) {
   var i = should.format;
@@ -1450,7 +1462,7 @@ module.exports = function(should, Assertion) {
    * @name matchEach
    * @memberOf Assertion
    * @category assertion matching
-   * @alias Assertion#matchSome
+   * @alias Assertion#matchEvery
    * @param {*} other Object to match
    * @param {string} [description] Optional message
    * @example
@@ -1480,7 +1492,7 @@ module.exports = function(should, Assertion) {
   * @memberOf Assertion
   * @category assertion matching
   * @param {*} other Object to match
-  * @alias Assertion#matchEvery
+  * @alias Assertion#matchSome
   * @param {string} [description] Optional message
   * @example
   * [ 'a', 'b', 'c'].should.matchAny(/\w+/);
@@ -1511,7 +1523,7 @@ module.exports = function(should, Assertion) {
   Assertion.alias('matchEach', 'matchEvery');
 };
 
-},{"../util":20,"should-equal":22}],14:[function(require,module,exports){
+},{"20":20,"22":22}],14:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -1680,7 +1692,7 @@ module.exports = function(should, Assertion) {
 
 };
 
-},{}],15:[function(require,module,exports){
+},{}],15:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -1688,9 +1700,9 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var util = require('../util');
-var PromisedAssertion = require('../assertion').PromisedAssertion;
-var Assertion = require('../assertion');
+var util = _dereq_(20);
+var PromisedAssertion = _dereq_(4).PromisedAssertion;
+var Assertion = _dereq_(4);
 
 module.exports = function(should) {
   /**
@@ -1967,7 +1979,7 @@ module.exports = function(should) {
   Assertion.alias('finally', 'eventually');
 };
 
-},{"../assertion":4,"../util":20}],16:[function(require,module,exports){
+},{"20":20,"4":4}],16:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -1975,8 +1987,8 @@ module.exports = function(should) {
  * MIT Licensed
  */
 
-var util = require('../util');
-var eql = require('should-equal');
+var util = _dereq_(20);
+var eql = _dereq_(22);
 
 var aSlice = Array.prototype.slice;
 
@@ -2341,7 +2353,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":20,"should-equal":22}],17:[function(require,module,exports){
+},{"20":20,"22":22}],17:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -2385,7 +2397,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{}],18:[function(require,module,exports){
+},{}],18:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -2393,7 +2405,7 @@ module.exports = function(should, Assertion) {
  * MIT Licensed
  */
 
-var util = require('../util');
+var util = _dereq_(20);
 
 module.exports = function(should, Assertion) {
   /**
@@ -2624,7 +2636,7 @@ module.exports = function(should, Assertion) {
   });
 };
 
-},{"../util":20}],19:[function(require,module,exports){
+},{"20":20}],19:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -2633,7 +2645,7 @@ module.exports = function(should, Assertion) {
  */
 
 
-var util = require('./util');
+var util = _dereq_(20);
 
 /**
  * Our function should
@@ -2649,11 +2661,11 @@ function should(obj) {
   return (new should.Assertion(obj));
 }
 
-should.AssertionError = require('./assertion-error');
-should.Assertion = require('./assertion');
+should.AssertionError = _dereq_(3);
+should.Assertion = _dereq_(4);
 
 should.format = util.format;
-should.type = require('should-type');
+should.type = _dereq_(25);
 should.util = util;
 
 /**
@@ -2678,7 +2690,7 @@ should.util = util;
  * a.should.be.eql(b);
  * //throws AssertionError: expected { a: 10 } to equal { a: 10 } (because A and B have different prototypes)
  */
-should.config = require('./config');
+should.config = _dereq_(5);
 
 // Expose should to external world.
 exports = module.exports = should;
@@ -2776,20 +2788,20 @@ should.use = function(f) {
 };
 
 should
-  .use(require('./ext/assert'))
-  .use(require('./ext/chain'))
-  .use(require('./ext/bool'))
-  .use(require('./ext/number'))
-  .use(require('./ext/eql'))
-  .use(require('./ext/type'))
-  .use(require('./ext/string'))
-  .use(require('./ext/property'))
-  .use(require('./ext/error'))
-  .use(require('./ext/match'))
-  .use(require('./ext/contain'))
-  .use(require('./ext/promise'));
+  .use(_dereq_(7))
+  .use(_dereq_(9))
+  .use(_dereq_(8))
+  .use(_dereq_(14))
+  .use(_dereq_(11))
+  .use(_dereq_(18))
+  .use(_dereq_(17))
+  .use(_dereq_(16))
+  .use(_dereq_(12))
+  .use(_dereq_(13))
+  .use(_dereq_(10))
+  .use(_dereq_(15));
 
-},{"./assertion":4,"./assertion-error":3,"./config":5,"./ext/assert":7,"./ext/bool":8,"./ext/chain":9,"./ext/contain":10,"./ext/eql":11,"./ext/error":12,"./ext/match":13,"./ext/number":14,"./ext/promise":15,"./ext/property":16,"./ext/string":17,"./ext/type":18,"./util":20,"should-type":25}],20:[function(require,module,exports){
+},{"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"20":20,"25":25,"3":3,"4":4,"5":5,"7":7,"8":8,"9":9}],20:[function(_dereq_,module,exports){
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
@@ -2797,8 +2809,8 @@ should
  * MIT Licensed
  */
 
-var type = require('should-type');
-var config = require('./config');
+var type = _dereq_(25);
+var config = _dereq_(5);
 
 /**
  * Check if given obj just a primitive type wrapper
@@ -2921,13 +2933,13 @@ exports.format = function(value, opts) {
   return config.getFormatter(opts).format(value);
 };
 
-exports.functionName = require('should-format').Formatter.functionName;
+exports.functionName = _dereq_(23).Formatter.functionName;
 
 exports.formatProp = function(value) {
   return config.getFormatter().formatPropertyName(String(value));
 };
 
-},{"./config":5,"should-format":23,"should-type":25}],21:[function(require,module,exports){
+},{"23":23,"25":25,"5":5}],21:[function(_dereq_,module,exports){
 module.exports = function format(msg) {
   var args = arguments;
   for(var i = 1, l = args.length; i < l; i++) {
@@ -2936,9 +2948,9 @@ module.exports = function format(msg) {
   return msg;
 }
 
-},{}],22:[function(require,module,exports){
-var getType = require('should-type');
-var format = require('./format');
+},{}],22:[function(_dereq_,module,exports){
+var getType = _dereq_(25);
+var format = _dereq_(21);
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function makeResult(r, path, reason, a, b) {
@@ -3287,9 +3299,9 @@ module.exports = eq;
 
 eq.r = REASON;
 
-},{"./format":21,"should-type":25}],23:[function(require,module,exports){
-var getType = require('should-type');
-var util = require('./util');
+},{"21":21,"25":25}],23:[function(_dereq_,module,exports){
+var getType = _dereq_(25);
+var util = _dereq_(24);
 
 function genKeysFunc(f) {
   return function(value) {
@@ -3750,7 +3762,7 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 module.exports = defaultFormat;
 
-},{"./util":24,"should-type":25}],24:[function(require,module,exports){
+},{"24":24,"25":25}],24:[function(_dereq_,module,exports){
 function addSpaces(v) {
   return v.split('\n').map(function(vv) { return '  ' + vv; }).join('\n');
 }
@@ -3780,10 +3792,10 @@ module.exports = {
   }
 };
 
-},{}],25:[function(require,module,exports){
+},{}],25:[function(_dereq_,module,exports){
 var toString = Object.prototype.toString;
 
-var types = require('./types');
+var types = _dereq_(26);
 
 /**
  * Simple data function to store type information
@@ -3941,7 +3953,7 @@ Object.keys(types).forEach(function(typeName) {
 
 module.exports = getGlobalType;
 
-},{"./types":26}],26:[function(require,module,exports){
+},{"26":26}],26:[function(_dereq_,module,exports){
 var types = {
   NUMBER: 'number',
   UNDEFINED: 'undefined',
@@ -3985,3 +3997,6 @@ var types = {
 module.exports = types;
 
 },{}]},{},[1]);
+
+  return should;
+}));
