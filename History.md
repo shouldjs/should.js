@@ -1,3 +1,8 @@
+8.3.2 / 2016-05-18
+==================
+
+  * Fix for `should-equal` to do not call .toString when checking circular usage
+
 8.3.1 / 2016-04-15
 ==================
 

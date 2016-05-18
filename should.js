@@ -1,7 +1,7 @@
 
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.3.1
+ * @version v8.3.2
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -3216,8 +3216,8 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
 
   l = stackA.length;
   while(l--) {
-    if(stackA[l] == a) {
-      return result(stackB[l] == b, REASON.CIRCULAR_VALUES);
+    if(stackA[l] === a) {
+      return result(stackB[l] === b, REASON.CIRCULAR_VALUES);
     }
   }
 
@@ -3280,18 +3280,15 @@ var defaultOptions = {
 
 function eq(a, b, opts) {
   opts = opts || {};
-  if(typeof opts.checkProtoEql !== 'boolean') {
-    opts.checkProtoEql = defaultOptions.checkProtoEql;
-  }
-  if(typeof opts.checkSubType !== 'boolean') {
-    opts.checkSubType = defaultOptions.checkSubType;
-  }
-  if(typeof opts.plusZeroAndMinusZeroEqual !== 'boolean') {
-    opts.plusZeroAndMinusZeroEqual = defaultOptions.plusZeroAndMinusZeroEqual;
-  }
+
+  var newOpts = {
+    checkProtoEql: typeof opts.checkProtoEql !== 'boolean' ? defaultOptions.checkProtoEql : opts.checkProtoEql,
+    checkSubType: typeof opts.checkSubType !== 'boolean' ? defaultOptions.checkSubType : opts.checkSubType,
+    plusZeroAndMinusZeroEqual: typeof opts.plusZeroAndMinusZeroEqual !== 'boolean' ? defaultOptions.plusZeroAndMinusZeroEqual : opts.plusZeroAndMinusZeroEqual,
+  };
 
   var fails = [];
-  var r = eqInternal(a, b, opts, [], [], [], fails);
+  var r = eqInternal(a, b, newOpts, [], [], [], fails);
   return opts.collectAllFails ? fails : r;
 }
 
