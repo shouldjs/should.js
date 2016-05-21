@@ -1,7 +1,7 @@
 
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v8.3.2
+ * @version v8.4.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -3037,6 +3037,7 @@ function eqInternal(a, b, opts, stackA, stackB, path, fails) {
       return (a !== a) ? result(b !== b, REASON.NAN_NUMBER)
         : result(a === b, REASON.EQUALITY);
 
+    case 'symbol':
     case 'boolean':
     case 'string':
       return result(a === b, REASON.EQUALITY);
