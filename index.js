@@ -1,4 +1,4 @@
-var should = require('./lib/should');
+var should = require('./cjs/should');
 
 var defaultProto = Object.prototype;
 var defaultProperty = 'should';

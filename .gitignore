@@ -5,3 +5,5 @@ desktop.ini
 should.js.for-tests
 *.swp
 npm-debug.log
+cjs/
+es6/
