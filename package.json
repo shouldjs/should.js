@@ -43,4 +43,13 @@
     "should-format": "0.3.2",
     "should-type": "0.2.0"
   }
+  "files": [
+    "cjs/*",
+    "es6/*",
+    "as-function.js",
+    "index.js",
+    "should.js",
+    "LICENSE",
+    "*.md"
+  ]
 }
