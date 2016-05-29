@@ -43,6 +43,8 @@ describe('eql', function() {
   });
 
   it('should allow to test with prototypes', function() {
+    should.config.checkProtoEql = false;
+    
     var b = {a: 2};
     var a = Object.create(null);
     a.a = 2;
@@ -55,7 +57,7 @@ describe('eql', function() {
       b.should.be.eql(a);
     }, 'expected Object { a: 2 } to equal { a: 2 } (because A and B have different prototypes)');
 
-    should.config.checkProtoEql = false;
+
   });
 
   it('should check one of equal', function() {
