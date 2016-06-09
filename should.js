@@ -1,13 +1,15 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v9.0.0
+ * @version v9.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
 
-(function () {
+(function (root) {
   'use strict';
+
+  root = 'default' in root ? root['default'] : root;
 
   var types = {
     NUMBER: 'number',
@@ -3813,13 +3815,13 @@
   } else if (typeof module === 'object' && module.exports) {
     module.exports = should;
   } else {
-    this.Should = should;
+    root.Should = should;
 
-    Object.defineProperty(this, 'should', {
+    Object.defineProperty(root, 'should', {
       enumerable: false,
       configurable: true,
       value: should
     });
   }
 
-}());
+}(this));

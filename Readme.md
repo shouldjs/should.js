@@ -78,7 +78,7 @@ If you want to use _should_ in browser, use the `should.js` file in the root of 
 
 ```bash
 $ npm install
-$ gulp script
+$ npm run browser
 ```
 
 The script is exported to `window.should`:
