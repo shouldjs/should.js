@@ -14,25 +14,9 @@ const banner = `/*!
  */
 `;
 
-const outro = `
-if (typeof define === 'function' && define.amd) {
-  define([], function() { return should });
-} else if (typeof module === 'object' && module.exports) {
-  module.exports = should;
-} else {
-  this.Should = should;
-
-  Object.defineProperty(this, 'should', {
-    enumerable: false,
-    configurable: true,
-    value: should
-  });
-}`;
-
 module.exports = {
   entry: 'browser-entry.js',
   banner,
-  outro,
   format: 'iife',
   plugins: [
     nodeResolve({
@@ -40,5 +24,9 @@ module.exports = {
       main: true,
       preferBuiltins: false
     })
-  ]
+  ],
+  external: ['root'],
+  globals: {
+    root: 'this'
+  }
 };

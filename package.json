@@ -23,7 +23,7 @@
     "eslint": "^2.4.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
-    "rollup": "^0.26.3",
+    "rollup": "^0.29.0",
     "rollup-plugin-node-resolve": "^1.5.0",
     "zuul": "latest"
   },
