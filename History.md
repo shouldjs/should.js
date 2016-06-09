@@ -1,3 +1,11 @@
+9.0.0 / 2016-05-30
+==================
+
+  * Set should.config values to be more obvious. Pls check breacking changes page for exact values.
+  * Add support for SIMD data types.
+  * Fixed minor bugs in .eql
+  * Allow to show all equality check fails in .eql
+
 8.4.0 / 2016-05-21
 ==================
 
