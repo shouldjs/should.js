@@ -1,3 +1,8 @@
+9.0.2 / 2016-06-10
+==================
+
+  * Small test fixes for function expressions without names in Chrome
+
 9.0.1 / 2016-06-09
 ==================
 
