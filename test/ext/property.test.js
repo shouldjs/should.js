@@ -51,11 +51,11 @@ describe('property', function() {
     }, "expected 'asd' not to have property length of 3 (false negative fail)");
 
     err(function() {
-      var obj = { f: function() {} };
-      var f1 = function() {};
+      var obj = { f: function f() {} };
+      var f1 = function f1() {};
       f1.a = 1;
       obj.should.have.property('f', f1);
-    }, "expected Object { f: Function { name: '' } } to have property f of Function { a: 1, name: '' } (got Function { name: '' })");
+    }, "expected Object { f: Function { name: 'f' } } to have property f of Function { a: 1, name: 'f1' } (got Function { name: 'f' })");
 
     err(function() {
       ({a: {b: 1}}).should.have.property('a')

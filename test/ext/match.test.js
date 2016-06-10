@@ -121,17 +121,17 @@ describe('match', function() {
 
     err(function() {
       ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should
-        .match({ a: 11, b: /c$/, c: function(it) {
+        .match({ a: 11, b: /c$/, c: function c(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } to match Object { a: 11, b: /c$/, c: Function { name: '' } }\n    not matched properties: a (10)\n    matched properties: b, c");
+    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } to match Object { a: 11, b: /c$/, c: Function { name: 'c' } }\n    not matched properties: a (10)\n    matched properties: b, c");
 
     err(function() {
       ({ a: 10, b: 'abc', c: { d: 10 }, d: 0 }).should.not
-        .match({ a: 10, b: /c$/, c: function(it) {
+        .match({ a: 10, b: /c$/, c: function c(it) {
           return it.should.have.property('d', 10);
         }});
-    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } not to match Object { a: 10, b: /c$/, c: Function { name: '' } }\n    matched properties: a, b, c (false negative fail)");
+    }, "expected Object { a: 10, b: 'abc', c: Object { d: 10 }, d: 0 } not to match Object { a: 10, b: /c$/, c: Function { name: 'c' } }\n    matched properties: a, b, c (false negative fail)");
   });
 
   it('test each property match(function)', function() {
