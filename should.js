@@ -9,8 +9,6 @@
 (function (root) {
   'use strict';
 
-  root = 'default' in root ? root['default'] : root;
-
   var types = {
     NUMBER: 'number',
     UNDEFINED: 'undefined',
@@ -3810,14 +3808,17 @@
     //ignore errors
   }
 
+
   if (typeof define === 'function' && define.amd) {
     define([], function() { return should });
   } else if (typeof module === 'object' && module.exports) {
     module.exports = should;
   } else {
-    root.Should = should;
+    var _root = root;
 
-    Object.defineProperty(root, 'should', {
+    _root.Should = should;
+
+    Object.defineProperty(_root, 'should', {
       enumerable: false,
       configurable: true,
       value: should

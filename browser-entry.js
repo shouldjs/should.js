@@ -1,5 +1,5 @@
 import should from './es6/should';
-import root from 'root';
+import * as root from 'root';
 
 var defaultProto = Object.prototype;
 var defaultProperty = 'should';
@@ -12,14 +12,17 @@ try {
   //ignore errors
 }
 
+
 if (typeof define === 'function' && define.amd) {
   define([], function() { return should });
 } else if (typeof module === 'object' && module.exports) {
   module.exports = should;
 } else {
-  root.Should = should;
+  var _root = root;
 
-  Object.defineProperty(root, 'should', {
+  _root.Should = should;
+
+  Object.defineProperty(_root, 'should', {
     enumerable: false,
     configurable: true,
     value: should
