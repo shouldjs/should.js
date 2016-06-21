@@ -1940,7 +1940,7 @@
     Assertion.alias('false', 'False');
 
     /**
-     * Assert given object is thuthy according javascript type conversions.
+     * Assert given object is truthy according javascript type conversions.
      *
      * @name ok
      * @memberOf Assertion
