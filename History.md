@@ -1,3 +1,8 @@
+10.0.0 / 2016-07-18
+===================
+
+  * Possible breaking change/bugfix in should-format when in objects used keys that looks like a numbers
+
 9.0.2 / 2016-06-10
 ==================
 

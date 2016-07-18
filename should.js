@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v9.0.2
+ * @version v10.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -94,7 +94,7 @@
 
     addTypeOf: function(type, res) {
       return this.add(function(obj, tpeOf) {
-        if(tpeOf === type) {
+        if (tpeOf === type) {
           return new Type(res);
         }
       });
@@ -102,7 +102,7 @@
 
     addClass: function(cls, res, sub) {
       return this.add(function(obj, tpeOf, objCls) {
-        if(objCls === cls) {
+        if (objCls === cls) {
           return new Type(types.OBJECT, res, sub);
         }
       });
@@ -112,9 +112,11 @@
       var typeOf = typeof obj;
       var cls = toString.call(obj);
 
-      for(var i = 0, l = this.checks.length; i < l; i++) {
+      for (var i = 0, l = this.checks.length; i < l; i++) {
         var res = this.checks[i].call(this, obj, typeOf, cls);
-        if(typeof res !== 'undefined') return res;
+        if (typeof res !== 'undefined') {
+          return res;
+        }
       }
 
     }
@@ -131,8 +133,10 @@
     .addTypeOf(types.BOOLEAN, types.BOOLEAN)
     .addTypeOf(types.FUNCTION, types.FUNCTION)
     .addTypeOf(types.SYMBOL, types.SYMBOL)
-    .add(function(obj, tpeOf) {
-      if(obj === null) return new Type(types.NULL);
+    .add(function(obj) {
+      if (obj === null) {
+        return new Type(types.NULL);
+      }
     })
     .addClass('[object String]', types.STRING)
     .addClass('[object Boolean]', types.BOOLEAN)
@@ -176,24 +180,24 @@
     .addClass('[object FileList]', types.FILE_LIST)
     .addClass('[object XMLHttpRequest]', types.XHR)
     .add(function(obj) {
-      if((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
+      if ((typeof Promise === types.FUNCTION && obj instanceof Promise) ||
           (typeof obj.then === types.FUNCTION)) {
             return new Type(types.OBJECT, types.PROMISE);
           }
     })
     .add(function(obj) {
-      if(typeof Buffer !== 'undefined' && obj instanceof Buffer) {
+      if (typeof Buffer !== 'undefined' && obj instanceof Buffer) {// eslint-disable-line no-undef
         return new Type(types.OBJECT, types.BUFFER);
       }
     })
     .add(function(obj) {
-      if(typeof Node !== 'undefined' && obj instanceof Node) {
+      if (typeof Node !== 'undefined' && obj instanceof Node) {
         return new Type(types.OBJECT, types.HTML_ELEMENT, obj.nodeName);
       }
     })
     .add(function(obj) {
       // probably at the begginging should be enough these checks
-      if(obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
+      if (obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
         return new Type(types.OBJECT, types.HOST);
       }
     })
@@ -252,10 +256,28 @@
     return pad(str, value, '0');
   }
 
+  function looksLikeANumber(n) {
+    return !!n.match(/\d+/);
+  }
+
+  function keyCompare(a, b) {
+    var aNum = looksLikeANumber(a);
+    var bNum = looksLikeANumber(b);
+    if(aNum && bNum) {
+      return 1*a - 1*b;
+    } else if(aNum && !bNum) {
+      return -1;
+    } else if(!aNum && bNum) {
+      return 1;
+    } else {
+      return a.localeCompare(b);
+    }
+  }
+
   function genKeysFunc(f) {
     return function(value) {
       var k = f(value);
-      k.sort();
+      k.sort(keyCompare);
       return k;
     };
   }
