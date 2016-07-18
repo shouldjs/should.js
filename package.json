@@ -37,7 +37,7 @@
   "license": "MIT",
   "dependencies": {
     "should-equal": "^1.0.0",
-    "should-format": "^1.0.0",
+    "should-format": "^2.0.0",
     "should-type": "^1.0.0"
   },
   "files": [

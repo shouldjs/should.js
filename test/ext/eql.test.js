@@ -44,7 +44,7 @@ describe('eql', function() {
 
   it('should allow to test with prototypes', function() {
     should.config.checkProtoEql = false;
-    
+
     var b = {a: 2};
     var a = Object.create(null);
     a.a = 2;
@@ -72,5 +72,26 @@ describe('eql', function() {
     ({ a: 'ab' }).should.not.be.oneOf(['a', 10, 'ab']);
     ({ a: 'ab' }).should.be.oneOf('a', 10, 'ab', { a: 'ab' });
     ({ a: 'ab' }).should.be.oneOf(['a', 10, 'ab', { a: 'ab' }]);
+  });
+
+  it('should correct print arrays in error message', function() {
+    var toTest = [
+      0, 1, 0, 4,
+      0, 0, 0, 3,
+      0, 4, 5, 0,
+      0, 0, 0, 6,
+    ];
+
+    var expected = [
+        0, 1, 0, 3,
+        0, 0, 0, 3,
+        0, 4, 5, 0,
+        0, 0, 0, 6,
+    ];
+
+
+    err(function() {
+      toTest.should.eql(expected);
+    },  'expected Array [ 0, 1, 0, 4, 0, 0, 0, 3, 0, 4, 5, 0, 0, 0, 0, 6 ] to equal Array [ 0, 1, 0, 3, 0, 0, 0, 3, 0, 4, 5, 0, 0, 0, 0, 6 ] (at \'3\', A has 4 and B has 3)');
   });
 });
