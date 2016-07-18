@@ -10,7 +10,7 @@
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
     "cjs": "rollup --format=cjs --output=cjs/should.js lib/should.js",
-    "es6": "rollup --format=es6 --output=es6/should.js lib/should.js",
+    "es6": "rollup --format=es --output=es6/should.js lib/should.js",
     "build": "npm run cjs && npm run es6",
     "prepublish": "npm run build && npm run browser",
     "pretest": "npm run build",
@@ -20,10 +20,10 @@
   },
   "devDependencies": {
     "bluebird": "^3.0.6",
-    "eslint": "^2.4.0",
+    "eslint": "^3.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
-    "rollup": "^0.29.0",
+    "rollup": "0.34.1",
     "rollup-plugin-node-resolve": "^1.5.0",
     "zuul": "latest"
   },
