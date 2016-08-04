@@ -46,11 +46,11 @@ describe('match', function() {
 
     err(function() {
       ['a', 'b', 'c'].should.not.match(/[a-z]/);
-    }, "expected Array [ 'a', 'b', 'c' ] not to match /[a-z]/ (false negative fail)");
+    }, "expected Array [ 'a', 'b', 'c' ] not to match /[a-z]/\n    matched properties: '0', '1', '2' (false negative fail)");
 
     err(function() {
       ['a', 'b', 'c'].should.match(/[d-z]/);
-    }, "expected Array [ 'a', 'b', 'c' ] to match /[d-z]/");
+    }, "expected Array [ 'a', 'b', 'c' ] to match /[d-z]/\n    not matched properties: \'0\' (\'a\'), \'1\' (\'b\'), \'2\' (\'c\')");
   });
 
   it('test match(function)', function() {
