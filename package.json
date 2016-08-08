@@ -23,8 +23,8 @@
     "eslint": "^3.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
-    "rollup": "0.34.1",
-    "rollup-plugin-node-resolve": "^1.5.0",
+    "rollup": "0.34.4",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "zuul": "latest"
   },
   "keywords": [
@@ -38,7 +38,7 @@
   "dependencies": {
     "should-equal": "^1.0.0",
     "should-format": "^2.0.0",
-    "should-type": "^1.0.0"
+    "should-type": "^1.1.0"
   },
   "files": [
     "cjs/*",

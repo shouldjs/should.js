@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-(function (root) {
+(function(root) {
   'use strict';
 
   var types = {
@@ -77,6 +77,19 @@
     this.cls = cls;
     this.sub = sub;
   }
+
+  Type.prototype = {
+    toString: function() {
+      var str = [this.type];
+      if (this.cls) {
+        str.push(this.cls);
+      }
+      if (this.sub) {
+        str.push(this.sub);
+      }
+      return str.join(';');
+    }
+  };
 
   /**
    * Function to store type checks
@@ -236,18 +249,18 @@
   }
 
   function pad(str, value, filler) {
-    str = String(str)
+    str = String(str);
     var isRight = false;
 
-    if(value < 0) {
+    if (value < 0) {
       isRight = true;
       value = -value;
     }
 
-    if(str.length < value) {
+    if (str.length < value) {
       var padding = new Array(value - str.length + 1).join(filler);
       return isRight ? str + padding : padding + str;
-    } else{
+    } else {
       return str;
     }
   }
@@ -263,11 +276,11 @@
   function keyCompare(a, b) {
     var aNum = looksLikeANumber(a);
     var bNum = looksLikeANumber(b);
-    if(aNum && bNum) {
+    if (aNum && bNum) {
       return 1*a - 1*b;
-    } else if(aNum && !bNum) {
+    } else if (aNum && !bNum) {
       return -1;
-    } else if(!aNum && bNum) {
+    } else if (!aNum && bNum) {
       return 1;
     } else {
       return a.localeCompare(b);
@@ -294,9 +307,9 @@
 
     this.seen = [];
     var keysFunc;
-    if(typeof opts.keysFunc === 'function') {
+    if (typeof opts.keysFunc === 'function') {
       keysFunc = opts.keysFunc;
-    } else if(opts.keys === false) {
+    } else if (opts.keys === false) {
       keysFunc = Object.getOwnPropertyNames;
     } else {
       keysFunc = Object.keys;
@@ -316,11 +329,11 @@
     format: function(value) {
       var t = getGlobalType(value);
       var name1 = t.type, name2 = t.type;
-      if(t.cls) {
+      if (t.cls) {
         name1 += '_' + t.cls;
         name2 += '_' + t.cls;
       }
-      if(t.sub) {
+      if (t.sub) {
         name2 += '_' + t.sub;
       }
       var f = this['_format_' + name2] || this['_format_' + name1] || this['_format_' + t.type] || this.defaultFormat;
@@ -342,7 +355,7 @@
       var keys = [];
 
       mainKeys.forEach(function(key) {
-        if(!keyFilter(key)) return;
+        if (!keyFilter(key)) return;
 
         var fName = formatPropertyName.call(this, key);
 
@@ -359,10 +372,10 @@
       }, this);
 
       var prefix = opts.prefix || Formatter.constructorName(value) || '';
-      if(prefix.length > 0) prefix += ' ';
+      if (prefix.length > 0) prefix += ' ';
 
       var lbracket, rbracket;
-      if(Array.isArray(opts.brackets)) {
+      if (Array.isArray(opts.brackets)) {
         lbracket = opts.brackets && opts.brackets[0];
         rbracket = opts.brackets && opts.brackets[1];
       } else {
@@ -372,10 +385,10 @@
 
       var rootValue = opts.value || '';
 
-      if(keys.length === 0)
+      if (keys.length === 0)
         return rootValue || (prefix + lbracket + rbracket);
 
-      if(len <= this.maxLineLength) {
+      if (len <= this.maxLineLength) {
         return prefix + lbracket + ' ' + (rootValue ? rootValue + ' ' : '') + keys.join(this.propSep + ' ') + ' ' + rbracket;
       } else {
         return prefix + lbracket + '\n' + (rootValue ? '  ' + rootValue + '\n' : '') + keys.map(addSpaces).join(this.propSep + '\n') + '\n' + rbracket;
@@ -425,7 +438,7 @@
   var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
 
   Formatter.functionName = function functionName(f) {
-    if(f.name) {
+    if (f.name) {
       return f.name;
     }
     var matches = f.toString().match(functionNameRE);
@@ -444,7 +457,7 @@
           typeof descriptor.value === 'function') {
 
           var name = Formatter.functionName(descriptor.value);
-          if(name !== '') {
+          if (name !== '') {
             return name;
           }
       }
@@ -457,7 +470,7 @@
     var desc;
     try {
       desc = Object.getOwnPropertyDescriptor(obj, value) || {value: obj[value]};
-    } catch(e) {
+    } catch (e) {
       desc = {value: e};
     }
     return desc;
@@ -469,19 +482,19 @@
       var length = value[lengthProp];
       var formattedValues = [];
       var len = 0;
-      for(var i = 0; i < max && i < length; i++) {
+      for (var i = 0; i < max && i < length; i++) {
         var b = value[i] || 0;
         var v = pad0(b.toString(16), padding);
         len += v.length;
         formattedValues.push(v);
       }
       var prefix = value.constructor.name || name || '';
-      if(prefix) prefix += ' ';
+      if (prefix) prefix += ' ';
 
-      if(formattedValues.length === 0)
+      if (formattedValues.length === 0)
         return prefix + '[]';
 
-      if(len <= this.maxLineLength) {
+      if (len <= this.maxLineLength) {
         return prefix + '[ ' + formattedValues.join(this.propSep + ' ') + ' ' + ']';
       } else {
         return prefix + '[\n' + formattedValues.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
@@ -489,10 +502,10 @@
     };
   };
 
-  Formatter.add('undefined', function() { return 'undefined' });
-  Formatter.add('null', function() { return 'null' });
-  Formatter.add('boolean', function(value) { return value ? 'true': 'false' });
-  Formatter.add('symbol', function(value) { return value.toString() });
+  Formatter.add('undefined', function() { return 'undefined'; });
+  Formatter.add('null', function() { return 'null'; });
+  Formatter.add('boolean', function(value) { return value ? 'true': 'false'; });
+  Formatter.add('symbol', function(value) { return value.toString(); });
 
   ['number', 'boolean'].forEach(function(name) {
     Formatter.add('object', name, function(value) {
@@ -521,7 +534,7 @@
   });
 
   Formatter.add('number', function(value) {
-    if(value === 0 && 1 / value < 0) return '-0';
+    if (value === 0 && 1 / value < 0) return '-0';
     return String(value);
   });
 
@@ -539,7 +552,7 @@
     return this._formatObject(value, {
       prefix: 'Arguments',
       formatPropertyName: function(key) {
-        if(!key.match(/\d+/)) {
+        if (!key.match(/\d+/)) {
           return this.formatPropertyName(key);
         }
       },
@@ -550,7 +563,7 @@
   Formatter.add('object', 'array', function(value) {
     return this._formatObject(value, {
       formatPropertyName: function(key) {
-        if(!key.match(/\d+/)) {
+        if (!key.match(/\d+/)) {
           return this.formatPropertyName(key);
         }
       },
@@ -651,7 +664,7 @@
     var props = [];
 
     var next = iter.next();
-    while(!next.done) {
+    while (!next.done) {
       var val = next.value;
       var f = this.format(val);
       len += f.length;
@@ -662,9 +675,9 @@
 
     this.seen.pop();
 
-    if(props.length === 0) return 'Set {}';
+    if (props.length === 0) return 'Set {}';
 
-    if(len <= this.maxLineLength) {
+    if (len <= this.maxLineLength) {
       return 'Set { ' + props.join(this.propSep + ' ') + ' }';
     } else {
       return 'Set {\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + '}';
@@ -680,13 +693,13 @@
     var props = [];
 
     var next = iter.next();
-    while(!next.done) {
+    while (!next.done) {
       var val = next.value;
       var fK = this.format(val[0]);
       var fV = this.format(val[1]);
 
       var f;
-      if((fK.length + fV.length + 4) <= this.maxLineLength) {
+      if ((fK.length + fV.length + 4) <= this.maxLineLength) {
         f = fK + ' => ' + fV;
       } else {
         f = fK + ' =>\n' + fV;
@@ -700,9 +713,9 @@
 
     this.seen.pop();
 
-    if(props.length === 0) return 'Map {}';
+    if (props.length === 0) return 'Map {}';
 
-    if(len <= this.maxLineLength) {
+    if (len <= this.maxLineLength) {
       return 'Map { ' + props.join(this.propSep + ' ') + ' }';
     } else {
       return 'Map {\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + '}';
@@ -717,18 +730,18 @@
       var len = 0;
       var props = [];
 
-      for(var i = 0; i < length; i ++) {
+      for (var i = 0; i < length; i ++) {
         var key = this.format(extractLane(value, i));
         len += key.length;
         props.push(key);
       }
 
-      if(len <= this.maxLineLength) {
+      if (len <= this.maxLineLength) {
         return constructorName + ' [ ' + props.join(this.propSep + ' ') + ' ]';
       } else {
         return constructorName + ' [\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
       }
-    }
+    };
   }
 
   Formatter.add('object', 'simd', 'bool16x8', simdVectorFormat('Bool16x8', 8));
@@ -1062,11 +1075,16 @@
 
   eq.EQ = EQ;
 
-  var config = {
-    getFormatter: function(opts) {
-      return new defaultFormat.Formatter(opts || config);
-    }
-  };
+  var _hasOwnProperty = Object.prototype.hasOwnProperty;
+  var _propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+  function hasOwnProperty(obj, key) {
+    return _hasOwnProperty.call(obj, key);
+  }
+
+  function propertyIsEnumerable(obj, key) {
+    return _propertyIsEnumerable.call(obj, key);
+  }
 
   /**
    * Check if given obj just a primitive type wrapper
@@ -1089,12 +1107,196 @@
     return a;
   }
 
-  var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+  function convertPropertyName(name) {
+    return (typeof name === 'symbol') ? name : String(name);
+  }
+
+  function isIterator(obj) {
+    if (!obj) {
+      return false;
+    }
+
+    if (obj.__shouldIterator__) {
+      return true;
+    }
+
+    return typeof obj.next === 'function' &&
+      typeof Symbol === 'function' &&
+      typeof Symbol.iterator === 'symbol' &&
+      typeof obj[Symbol.iterator] === 'function' &&
+      obj[Symbol.iterator]() === obj;
+  }
+
+  //TODO find better way
+  function isGeneratorFunction(f) {
+    return typeof f === 'function' && /^function\s*\*\s*/.test(f.toString());
+  }
+
+  var functionName = defaultFormat.Formatter.functionName;
+
+  function ObjectIterator(obj) {
+    this._obj = obj;
+  }
+
+  ObjectIterator.prototype = {
+    __shouldIterator__: true, // special marker
+
+    next: function() {
+      if (this._done) {
+        throw new Error('Iterator already reached the end');
+      }
+
+      if (!this._keys) {
+        this._keys = Object.keys(this._obj);
+        this._index = 0;
+      }
+
+      var key = this._keys[this._index];
+      this._done = this._index === this._keys.length;
+      this._index += 1;
+
+      return {
+        value: this._done ? void 0: [key, this._obj[key]],
+        done: this._done
+      };
+    }
+  };
+
+  if (typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol') {
+    ObjectIterator.prototype[Symbol.iterator] = function() {
+      return this;
+    };
+  }
+
+
+  function TypeAdaptorStorage() {
+    this._typeAdaptors = [];
+    this._iterableTypes = {};
+  }
+
+  TypeAdaptorStorage.prototype = {
+    add: function(type, cls, sub, adaptor) {
+      return this.addType(new getGlobalType.Type(type, cls, sub), adaptor);
+    },
+
+    addType: function(type, adaptor) {
+      this._typeAdaptors[type.toString()] = adaptor;
+    },
+
+    getAdaptor: function(tp, funcName) {
+      var tries = [new getGlobalType.Type(tp.type, tp.cls, tp.sub), new getGlobalType.Type(tp.type, tp.cls), new getGlobalType.Type(tp.type)];
+      while (tries.length) {
+        var toTry = tries.shift();
+        var ad = this._typeAdaptors[toTry];
+        if (ad && ad[funcName]) {
+          return ad[funcName];
+        }
+      }
+    },
+
+    requireAdaptor: function(tp, funcName) {
+      var a = this.getAdaptor(tp, funcName);
+      if (!a) {
+        throw new Error('There is no type adaptor `' + funcName + '` for ' + tp.toString());
+      }
+      return a;
+    },
+
+    addIterableType: function(tp) {
+      this._iterableTypes[tp.toString()] = true;
+    },
+
+    isIterableType: function(tp) {
+      return !!this._iterableTypes[tp.toString()];
+    }
+  };
+
+  var defaultTypeAdaptorStorage = new TypeAdaptorStorage();
+
+  // default for objects
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), {
+    forEach: function(obj, f, context) {
+      for (var prop in obj) {
+        if (hasOwnProperty(obj, prop) && propertyIsEnumerable(obj, prop)) {
+          if (f.call(context, obj[prop], prop, obj) === false) {
+            return;
+          }
+        }
+      }
+    },
+
+    has: function(obj, prop) {
+      return hasOwnProperty(obj, prop);
+    },
+
+    get: function(obj, prop) {
+      return obj[prop];
+    },
+
+    iterator: function(obj) {
+      return new ObjectIterator(obj);
+    }
+  });
+
+  var mapAdaptor = {
+    has: function(obj, key) {
+      return obj.has(key);
+    },
+
+    get: function(obj, key) {
+      return obj.get(key);
+    },
+
+    forEach: function(obj, f, context) {
+      var iter = obj.entries();
+      forEach(iter, function(value) {
+        return f.call(context, value[1], value[0], obj);
+      });
+    },
+
+    size: function(obj) {
+      return obj.size;
+    },
+
+    isEmpty: function(obj) {
+      return obj.size === 0;
+    },
+
+    iterator: function(obj) {
+      return obj.entries();
+    }
+  };
+
+  var setAdaptor = merge({}, mapAdaptor);
+  setAdaptor.get = function(obj, key) {
+    if (obj.has(key)) {
+      return key;
+    }
+  };
+
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), mapAdaptor);
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), setAdaptor);
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), setAdaptor);
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), mapAdaptor);
+
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.STRING), {
+    isEmpty: function(obj) {
+      return obj === '';
+    },
+
+    size: function(obj) {
+      return obj.length;
+    }
+  });
+
+  defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY));
+  defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS));
 
   function forEach(obj, f, context) {
     if (isGeneratorFunction(obj)) {
       return forEach(obj(), f, context);
-    } else if (isGeneratorObject(obj)) {
+    } else if (isIterator(obj)) {
       var value = obj.next();
       while (!value.done) {
         if (f.call(context, value.value, 'value', obj) === false) {
@@ -1103,14 +1305,54 @@
         value = obj.next();
       }
     } else {
-      for (var prop in obj) {
-        if (hasOwnProperty.call(obj, prop)) {
-          if (f.call(context, obj[prop], prop, obj) === false) {
-            return;
-          }
-        }
-      }
+      var type = getGlobalType(obj);
+      var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'forEach');
+      func(obj, f, context);
     }
+  }
+
+
+  function size(obj) {
+    var type = getGlobalType(obj);
+    var func = defaultTypeAdaptorStorage.getAdaptor(type, 'size');
+    if (func) {
+      return func(obj);
+    } else {
+      var len = 0;
+      forEach(obj, function() {
+        len += 1;
+      });
+      return len;
+    }
+  }
+
+  function isEmpty(obj) {
+    var type = getGlobalType(obj);
+    var func = defaultTypeAdaptorStorage.getAdaptor(type, 'isEmpty');
+    if (func) {
+      return func(obj);
+    } else {
+      var res = true;
+      forEach(obj, function() {
+        res = false;
+        return false;
+      });
+      return res;
+    }
+  }
+
+  // return boolean if obj has such 'key'
+  function hasKey(obj, key) {
+    var type = getGlobalType(obj);
+    var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'has');
+    return func(obj, key);
+  }
+
+  // return value for given key
+  function getValue(obj, key) {
+    var type = getGlobalType(obj);
+    var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'get');
+    return func(obj, key);
   }
 
   function some(obj, f, context) {
@@ -1124,95 +1366,29 @@
     return res;
   }
 
-  function isEmptyObject(obj) {
-    for (var prop in obj) {
-      if (hasOwnProperty.call(obj, prop)) {
-        return false;
-      }
+  function isIterable(obj) {
+    return defaultTypeAdaptorStorage.isIterableType(getGlobalType(obj));
+  }
+
+  function iterator(obj) {
+    return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType(obj), 'iterator')(obj);
+  }
+
+  var config = {
+    typeAdaptors: defaultTypeAdaptorStorage,
+    
+    getFormatter: function(opts) {
+      return new defaultFormat.Formatter(opts || config);
     }
-    return true;
-  }
-
-  function isIndexable(obj) {
-    var t = getGlobalType(obj);
-    return (t.type === 'object' && (
-        t.cls === 'array' ||
-        t.cls === 'buffer' ||
-        t.cls === 'arguments' ||
-        t.cls === 'array-buffer' || //TODO it could be wrong
-        t.cls === 'typed-array' ||
-        t.cls === 'data-view' || //TODO it could be wrong also
-        t.cls === 'string'
-      )) ||
-      t.type === 'string';
-  }
-
-  function length(obj) {
-    var t = getGlobalType(obj);
-    switch (t.type) {
-      case 'string':
-        return obj.length;
-      case 'object':
-        switch (t.cls) {
-          case 'array-buffer':
-          case 'typed-array':
-          case 'data-view':
-            return obj.byteLength;
-
-          case 'array':
-          case 'buffer':
-          case 'arguments':
-          case 'function':
-            return obj.length;
-        }
-    }
-  }
-
-  function convertPropertyName(name) {
-    return (typeof name === 'symbol') ? name : String(name);
-  }
-
-  function isGeneratorObject(obj) {
-    if (!obj) {
-      return false;
-    }
-
-    return typeof obj.next === 'function' &&
-            typeof obj[Symbol.iterator] === 'function' &&
-            obj[Symbol.iterator]() === obj;
-  }
-
-  //TODO find better way
-  function isGeneratorFunction(f) {
-    return typeof f === 'function' && /^function\s*\*\s*/.test(f.toString());
-  }
+  };
 
   function format(value, opts) {
     return config.getFormatter(opts).format(value);
   }
 
-  var functionName = defaultFormat.Formatter.functionName;
-
   function formatProp(value) {
     return config.getFormatter().formatPropertyName(String(value));
   }
-
-
-  var util = Object.freeze({
-    isWrapperType: isWrapperType,
-    merge: merge,
-    forEach: forEach,
-    some: some,
-    isEmptyObject: isEmptyObject,
-    isIndexable: isIndexable,
-    length: length,
-    convertPropertyName: convertPropertyName,
-    isGeneratorObject: isGeneratorObject,
-    isGeneratorFunction: isGeneratorFunction,
-    format: format,
-    functionName: functionName,
-    formatProp: formatProp
-  });
 
   /**
    * should AssertionError
@@ -1821,7 +1997,7 @@
   };
 
   function assertExtensions(should) {
-    var i = format;
+    var i = should.format;
 
     /*
      * Expose assert to should
@@ -2390,6 +2566,7 @@
 
   function equalityAssertions(should, Assertion) {
 
+
     /**
      * Deep object equality comparison. For full spec see [`should-equal tests`](https://github.com/shouldjs/equal/blob/master/test.js).
      *
@@ -2829,7 +3006,7 @@
   }
 
   function containAssertions(should, Assertion) {
-    var i = format;
+    var i = should.format;
 
     /**
      * Assert that given object contain something that equal to `other`. It uses `should-equal` for equality checks.
@@ -2856,7 +3033,7 @@
      * //            expected { a: 10, c: { d: 10 } } to have property b
      */
     Assertion.add('containEql', function(other) {
-      this.params = {operator: 'to contain ' + i(other)};
+      this.params = { operator: 'to contain ' + i(other) };
 
       this.is.not.null().and.not.undefined();
 
@@ -2864,12 +3041,14 @@
 
       if (typeof obj == 'string') {
         this.assert(obj.indexOf(String(other)) >= 0);
-      } else if (isIndexable(obj)) {
+      } else if (isIterable(obj)) {
         this.assert(some(obj, function(v) {
           return eq(v, other).length === 0;
         }));
       } else {
-        this.have.properties(other);
+        forEach(other, function(value, key) {
+          should(obj).have.value(key, value);
+        }, this);
       }
     });
 
@@ -2898,27 +3077,32 @@
       var obj = this.obj;
       if (typeof obj == 'string') {// expect other to be string
         this.is.equal(String(other));
-      } else if (isIndexable(obj) && isIndexable(other)) {
-        for (var objIdx = 0, otherIdx = 0, objLength = length(obj), otherLength = length(other); objIdx < objLength && otherIdx < otherLength; objIdx++) {
+      } else if (isIterable(obj) && isIterable(other)) {
+        var objIterator = iterator(obj);
+        var otherIterator = iterator(other);
+
+        var nextObj = objIterator.next();
+        var nextOther = otherIterator.next();
+        while (!nextObj.done && !nextOther.done) {
           try {
-            should(obj[objIdx]).containDeepOrdered(other[otherIdx]);
-            otherIdx++;
+            should(nextObj.value[1]).containDeepOrdered(nextOther.value[1]);
+            nextOther = otherIterator.next();
           } catch (e) {
-            if (e instanceof should.AssertionError) {
-              continue;
+            if (!(e instanceof should.AssertionError)) {
+              throw e;
             }
-            throw e;
           }
+          nextObj = objIterator.next();
         }
 
-        this.assert(otherIdx === otherLength);
-      } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
+        this.assert(nextOther.done);
+      } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {//TODO compare types object contains object case
         forEach(other, function(value, key) {
           should(obj[key]).containDeepOrdered(value);
         });
 
         // if both objects is empty means we finish traversing - and we need to compare for hidden values
-        if (isEmptyObject(other)) {
+        if (isEmpty(other)) {
           this.eql(other);
         }
       } else {
@@ -2944,7 +3128,7 @@
       var obj = this.obj;
       if (typeof obj == 'string') {// expect other to be string
         this.is.equal(String(other));
-      } else if (isIndexable(obj) && isIndexable(other)) {
+      } else if (isIterable(obj) && isIterable(other)) {
         var usedKeys = {};
         forEach(other, function(otherItem) {
           this.assert(some(obj, function(item, index) {
@@ -2970,7 +3154,7 @@
         });
 
         // if both objects is empty means we finish traversing - and we need to compare for hidden values
-        if (isEmptyObject(other)) {
+        if (isEmpty(other)) {
           this.eql(other);
         }
       } else {
@@ -2983,7 +3167,7 @@
   var aSlice = Array.prototype.slice;
 
   function propertyAssertions(should, Assertion) {
-    var i = format;
+    var i = should.format;
     /**
      * Asserts given object has some descriptor. **On success it change given object to be value of property**.
      *
@@ -3011,7 +3195,7 @@
         var arg = arguments[0];
         if (typeof arg === 'string') {
           args.names = [arg];
-        } else if (isIndexable(arg)) {
+        } else if (Array.isArray(arg)) {
           args.names = arg;
         } else {
           args.names = Object.keys(arg);
@@ -3199,8 +3383,6 @@
 
     Assertion.alias('length', 'lengthOf');
 
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
-
     /**
      * Asserts given object has own property. **On success it change given object to be value of property**.
      *
@@ -3222,7 +3404,7 @@
         message: description
       };
 
-      this.assert(hasOwnProperty.call(this.obj, name));
+      this.assert(hasOwnProperty(this.obj, name));
 
       this.obj = this.obj[name];
     });
@@ -3243,15 +3425,7 @@
      */
     Assertion.add('empty', function() {
       this.params = {operator: 'to be empty'};
-
-      if (length(this.obj) !== void 0) {
-        should(this.obj).have.property('length', 0);
-      } else {
-        var obj = Object(this.obj); // wrap to reference for booleans and numbers
-        for (var prop in obj) {
-          should(this.obj).not.have.ownProperty(prop);
-        }
-      }
+      this.assert(isEmpty(this.obj));
     }, true);
 
     /**
@@ -3261,60 +3435,47 @@
      * @alias Assertion#key
      * @memberOf Assertion
      * @category assertion property
-     * @param {Array|...string} [keys] Keys to check
+     * @param {...*} [keys] Keys to check
      * @example
      *
      * ({ a: 10 }).should.have.keys('a');
      * ({ a: 10, b: 20 }).should.have.keys('a', 'b');
-     * ({ a: 10, b: 20 }).should.have.keys([ 'a', 'b' ]);
-     * ({}).should.have.keys();
+     * (new Map([[1, 2]])).should.have.key(1);
      */
     Assertion.add('keys', function(keys) {
-      if (arguments.length > 1) {
-        keys = aSlice.call(arguments);
-      } else if (arguments.length === 1 && typeof keys === 'string') {
-        keys = [keys];
-      } else if (arguments.length === 0) {
-        keys = [];
-      }
-
-      keys = keys.map(String);
+      keys = aSlice.call(arguments);
 
       var obj = Object(this.obj);
 
       // first check if some keys are missing
-      var missingKeys = [];
-      keys.forEach(function(key) {
-        if (!hasOwnProperty.call(this.obj, key)) {
-          missingKeys.push(formatProp(key));
-        }
-      }, this);
-
-      // second check for extra keys
-      var extraKeys = [];
-      Object.keys(obj).forEach(function(key) {
-        if (keys.indexOf(key) < 0) {
-          extraKeys.push(formatProp(key));
-        }
+      var missingKeys = keys.filter(function(key) {
+        return !hasKey(obj, key);
       });
 
-      var verb = keys.length === 0 ? 'to be empty' :
-      'to have ' + (keys.length === 1 ? 'key ' : 'keys ');
+      var verb = 'to have ' + (keys.length === 1 ? 'key ' : 'keys ');
 
-      this.params = {operator: verb + keys.map(formatProp).join(', ')};
+      this.params = {operator: verb + keys.join(', ')};
 
       if (missingKeys.length > 0) {
         this.params.operator += '\n\tmissing keys: ' + missingKeys.join(', ');
       }
 
-      if (extraKeys.length > 0) {
-        this.params.operator += '\n\textra keys: ' + extraKeys.join(', ');
-      }
-
-      this.assert(missingKeys.length === 0 && extraKeys.length === 0);
+      this.assert(missingKeys.length === 0);
     });
 
-    Assertion.alias("keys", "key");
+    Assertion.add('key', function(key) {
+      this.have.keys(key);
+      this.obj = getValue(this.obj, key);
+    });
+
+    Assertion.add('value', function(key, value) {
+      this.have.key(key).which.is.eql(value);
+    });
+
+    Assertion.add('size', function(s) {
+      this.params = { operator: 'to have size ' + s };
+      size(this.obj).should.be.exactly(s);
+    });
 
     /**
      * Asserts given object has nested property in depth by path. **On success it change given object to be value of final property**.
@@ -3359,7 +3520,7 @@
   }
 
   function errorAssertions(should, Assertion) {
-    var i = format;
+    var i = should.format;
 
     /**
      * Assert given function throws error with such message.
@@ -3393,7 +3554,7 @@
 
       if (isGeneratorFunction(fn)) {
         return should(fn()).throw(message, properties);
-      } else if (isGeneratorObject(fn)) {
+      } else if (isIterator(fn)) {
         return should(fn.next.bind(fn)).throw(message, properties);
       }
 
@@ -3462,7 +3623,7 @@
   }
 
   function matchingAssertions(should, Assertion) {
-    var i = format;
+    var i = should.format;
 
     /**
      * Asserts if given object match `other` object, using some assumptions:
@@ -3529,10 +3690,6 @@
           if (typeof this.obj == 'string') {
 
             this.assert(other.exec(this.obj));
-          } else if (isIndexable(this.obj)) {
-            forEach(this.obj, function(item) {
-              this.assert(other.exec(item));// should we try to convert to String and exec?
-            }, this);
           } else if (null != this.obj && typeof this.obj == 'object') {
 
             var notMatchedProps = [], matchedProps = [];
@@ -3557,10 +3714,6 @@
           var res;
 
           res = other(this.obj);
-
-          //if(res instanceof Assertion) {
-          //  this.params.operator += '\n    ' + res.getMessage();
-          //}
 
           //if we throw exception ok - it is used .should inside
           if (typeof res == 'boolean') {
@@ -3686,8 +3839,6 @@
   should.Assertion = Assertion;
 
   should.format = format;
-  should.type = getGlobalType;
-  should.util = util;
 
   /**
    * Object with configuration.
@@ -3832,7 +3983,7 @@
 
 
   if (typeof define === 'function' && define.amd) {
-    define([], function() { return should });
+    define([], function() { return should; });
   } else if (typeof module === 'object' && module.exports) {
     module.exports = should;
   } else {

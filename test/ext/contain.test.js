@@ -27,6 +27,10 @@ describe('contain*', function() {
 
     ({}).should.not.containEql({ a: 10 });
 
+    if (typeof Set === 'function') {
+      new Set([1, 2, 3]).should.containEql(new Set([1]));
+    }
+
     ({ b: 10 }).should.containEql({ b: 10 });
     [1, 2, 3].should.containEql(1);
     ([1, 2, { a: 10 }]).should.containEql({ a: 10 });

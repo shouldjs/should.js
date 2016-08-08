@@ -37,6 +37,7 @@ rules:
   curly: 2
   no-case-declarations: 0
   no-console: 0
+  no-shadow: 1
 
   global-require: 2
   no-path-concat: 2

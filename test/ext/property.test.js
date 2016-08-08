@@ -169,32 +169,34 @@ describe('property', function() {
   });
 
   it('test keys(array)', function() {
-    ({ foo: 1 }).should.have.keys(['foo']);
-    ({ foo: 1, bar: 2 }).should.have.keys(['foo', 'bar']);
+    if (typeof Map === 'function') {
+      (new Map([[1, 2]])).should.have.key(1);
+    }
+
+    ({ foo: 1 }).should.have.keys('foo');
     ({ foo: 1, bar: 2 }).should.have.keys('foo', 'bar');
     ({}).should.have.keys();
-    ({}).should.have.keys([]);
 
     ({ '1': 'cancelled', '3': 'deleted' }).should.have.keys(1, 3);
 
     err(function() {
-      ({ foo: 1 }).should.have.keys(['bar']);
-    }, "expected Object { foo: 1 } to have key bar\n\tmissing keys: bar\n\textra keys: foo");
+      ({ foo: 1 }).should.have.keys('bar');
+    }, "expected Object { foo: 1 } to have key bar\n\tmissing keys: bar");
 
     err(function() {
-      ({ foo: 1 }).should.have.keys(['bar', 'baz']);
-    }, "expected Object { foo: 1 } to have keys bar, baz\n\tmissing keys: bar, baz\n\textra keys: foo");
+      ({ foo: 1 }).should.have.keys('bar', 'baz');
+    }, "expected Object { foo: 1 } to have keys bar, baz\n\tmissing keys: bar, baz");
 
     err(function() {
       ({ foo: 1 }).should.not.have.keys('foo');
     }, "expected Object { foo: 1 } not to have key foo (false negative fail)");
 
     err(function() {
-      ({ foo: 1 }).should.not.have.keys(['foo']);
+      ({ foo: 1 }).should.not.have.keys('foo');
     }, "expected Object { foo: 1 } not to have key foo (false negative fail)");
 
     err(function() {
-      ({ foo: 1, bar: 2 }).should.not.have.keys(['foo', 'bar']);
+      ({ foo: 1, bar: 2 }).should.not.have.keys('foo', 'bar');
     }, "expected Object { bar: 2, foo: 1 } not to have keys foo, bar (false negative fail)");
   });
 
@@ -203,6 +205,10 @@ describe('property', function() {
     [].should.be.empty();
     ({}).should.be.empty();
     ({ length: 10 }).should.not.be.empty();
+
+    if (typeof Map === 'function') {
+      (new Map([[1, 2]])).should.not.be.empty();
+    }
 
     (function() {
       arguments.should.be.empty();
@@ -214,11 +220,11 @@ describe('property', function() {
 
     err(function() {
       ({ length: 10 }).should.be.empty();
-    }, 'expected Object { length: 10 } to be empty\n    expected Object { length: 10 } not to have own property length (false negative fail)');
+    }, 'expected Object { length: 10 } to be empty');
 
     err(function() {
       'asd'.should.be.empty();
-    }, "expected 'asd' to be empty\n    expected 'asd' to have property length of 0 (got 3)");
+    }, "expected 'asd' to be empty");
 
     err(function() {
       ''.should.not.be.empty();
