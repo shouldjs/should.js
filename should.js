@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-(function(root) {
+(function (root) {
   'use strict';
 
   var types = {
@@ -73,13 +73,17 @@
    * new Type('object', 'typed-array', 'uint8');
    */
   function Type(type, cls, sub) {
+    if (!type) {
+      throw new Error('Type class must be initialized at least with `type` information');
+    }
     this.type = type;
     this.cls = cls;
     this.sub = sub;
   }
 
   Type.prototype = {
-    toString: function() {
+    toString: function(sep) {
+      sep = sep || ';';
       var str = [this.type];
       if (this.cls) {
         str.push(this.cls);
@@ -87,7 +91,20 @@
       if (this.sub) {
         str.push(this.sub);
       }
-      return str.join(';');
+      return str.join(sep);
+    },
+
+    toTryTypes: function() {
+      var _types = [];
+      if (this.sub) {
+        _types.push(new Type(this.type, this.cls, this.sub));
+      }
+      if (this.cls) {
+        _types.push(new Type(this.type, this.cls));
+      }
+      _types.push(new Type(this.type));
+
+      return _types;
     }
   };
 
@@ -237,844 +254,6 @@
     getGlobalType[typeName] = types[typeName];
   });
 
-  var EOL = '\n';
-
-  function indent$1(v, indentation) {
-    return v
-      .split(EOL)
-      .map(function(vv) {
-        return indentation + vv;
-      })
-      .join(EOL);
-  }
-
-  function pad(str, value, filler) {
-    str = String(str);
-    var isRight = false;
-
-    if (value < 0) {
-      isRight = true;
-      value = -value;
-    }
-
-    if (str.length < value) {
-      var padding = new Array(value - str.length + 1).join(filler);
-      return isRight ? str + padding : padding + str;
-    } else {
-      return str;
-    }
-  }
-
-  function pad0(str, value) {
-    return pad(str, value, '0');
-  }
-
-  function looksLikeANumber(n) {
-    return !!n.match(/\d+/);
-  }
-
-  function keyCompare(a, b) {
-    var aNum = looksLikeANumber(a);
-    var bNum = looksLikeANumber(b);
-    if (aNum && bNum) {
-      return 1*a - 1*b;
-    } else if (aNum && !bNum) {
-      return -1;
-    } else if (!aNum && bNum) {
-      return 1;
-    } else {
-      return a.localeCompare(b);
-    }
-  }
-
-  function genKeysFunc(f) {
-    return function(value) {
-      var k = f(value);
-      k.sort(keyCompare);
-      return k;
-    };
-  }
-
-  var INDENT = '  ';
-
-  function addSpaces(str) {
-    return indent$1(str, INDENT);
-  }
-
-
-  function Formatter(opts) {
-    opts = opts || {};
-
-    this.seen = [];
-    var keysFunc;
-    if (typeof opts.keysFunc === 'function') {
-      keysFunc = opts.keysFunc;
-    } else if (opts.keys === false) {
-      keysFunc = Object.getOwnPropertyNames;
-    } else {
-      keysFunc = Object.keys;
-    }
-
-    this.keys = genKeysFunc(keysFunc);
-
-    this.maxLineLength = typeof opts.maxLineLength === 'number' ? opts.maxLineLength : 60;
-    this.propSep = opts.propSep || ',';
-
-    this.isUTCdate = !!opts.isUTCdate;
-  }
-
-  Formatter.prototype = {
-    constructor: Formatter,
-
-    format: function(value) {
-      var t = getGlobalType(value);
-      var name1 = t.type, name2 = t.type;
-      if (t.cls) {
-        name1 += '_' + t.cls;
-        name2 += '_' + t.cls;
-      }
-      if (t.sub) {
-        name2 += '_' + t.sub;
-      }
-      var f = this['_format_' + name2] || this['_format_' + name1] || this['_format_' + t.type] || this.defaultFormat;
-      return f.call(this, value).trim();
-    },
-
-    _formatObject: function(value, opts) {
-      opts = opts || {};
-      var mainKeys = opts.keys || this.keys(value);
-
-      var len = 0;
-
-      var formatPropertyValue = opts.formatPropertyValue || this.formatPropertyValue;
-      var formatPropertyName = opts.formatPropertyName || this.formatPropertyName;
-      var keyValueSep = opts.keyValueSep || ': ';
-      var keyFilter = opts.keyFilter || function() { return true; };
-
-      this.seen.push(value);
-      var keys = [];
-
-      mainKeys.forEach(function(key) {
-        if (!keyFilter(key)) return;
-
-        var fName = formatPropertyName.call(this, key);
-
-        var f = (fName ? fName + keyValueSep : '') + formatPropertyValue.call(this, value, key);
-        len += f.length;
-        keys.push(f);
-      }, this);
-      this.seen.pop();
-
-      (opts.additionalProperties || []).forEach(function(keyValue) {
-        var f = keyValue[0] + keyValueSep + this.format(keyValue[1]);
-        len += f.length;
-        keys.push(f);
-      }, this);
-
-      var prefix = opts.prefix || Formatter.constructorName(value) || '';
-      if (prefix.length > 0) prefix += ' ';
-
-      var lbracket, rbracket;
-      if (Array.isArray(opts.brackets)) {
-        lbracket = opts.brackets && opts.brackets[0];
-        rbracket = opts.brackets && opts.brackets[1];
-      } else {
-        lbracket = '{';
-        rbracket = '}';
-      }
-
-      var rootValue = opts.value || '';
-
-      if (keys.length === 0)
-        return rootValue || (prefix + lbracket + rbracket);
-
-      if (len <= this.maxLineLength) {
-        return prefix + lbracket + ' ' + (rootValue ? rootValue + ' ' : '') + keys.join(this.propSep + ' ') + ' ' + rbracket;
-      } else {
-        return prefix + lbracket + '\n' + (rootValue ? '  ' + rootValue + '\n' : '') + keys.map(addSpaces).join(this.propSep + '\n') + '\n' + rbracket;
-      }
-    },
-
-    formatPropertyName: function(name) {
-      return name.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/) ? name : this.format(name);
-    },
-
-    formatProperty: function(value, prop) {
-      var desc = Formatter.getPropertyDescriptor(value, prop);
-
-      var propName = this.formatPropertyName(prop);
-
-      var propValue = desc.get && desc.set ?
-        '[Getter/Setter]' : desc.get ?
-        '[Getter]' : desc.set ?
-        '[Setter]' : this.seen.indexOf(desc.value) >= 0 ?
-        '[Circular]' :
-        this.format(desc.value);
-
-      return propName + ': ' + propValue;
-    },
-
-    formatPropertyValue: function(value, prop) {
-      var desc = Formatter.getPropertyDescriptor(value, prop);
-
-      var propValue = desc.get && desc.set ?
-        '[Getter/Setter]' : desc.get ?
-        '[Getter]' : desc.set ?
-        '[Setter]' : this.seen.indexOf(desc.value) >= 0 ?
-        '[Circular]' :
-        this.format(desc.value);
-
-      return propValue;
-    }
-  };
-
-  Formatter.add = function add(type, cls, sub, f) {
-    var args = Array.prototype.slice.call(arguments);
-    f = args.pop();
-    Formatter.prototype['_format_' + args.join('_')] = f;
-  };
-
-
-  var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
-
-  Formatter.functionName = function functionName(f) {
-    if (f.name) {
-      return f.name;
-    }
-    var matches = f.toString().match(functionNameRE);
-    if (matches === null) {
-      // `functionNameRE` doesn't match arrow functions.
-      return '';
-    }
-    var name = matches[1];
-    return name;
-  };
-
-  Formatter.constructorName = function(obj) {
-    while (obj) {
-      var descriptor = Object.getOwnPropertyDescriptor(obj, 'constructor');
-      if (descriptor !== undefined &&
-          typeof descriptor.value === 'function') {
-
-          var name = Formatter.functionName(descriptor.value);
-          if (name !== '') {
-            return name;
-          }
-      }
-
-      obj = Object.getPrototypeOf(obj);
-    }
-  };
-
-  Formatter.getPropertyDescriptor = function(obj, value) {
-    var desc;
-    try {
-      desc = Object.getOwnPropertyDescriptor(obj, value) || {value: obj[value]};
-    } catch (e) {
-      desc = {value: e};
-    }
-    return desc;
-  };
-
-  Formatter.generateFunctionForIndexedArray = function generateFunctionForIndexedArray(lengthProp, name, padding) {
-    return function(value) {
-      var max = this.byteArrayMaxLength || 50;
-      var length = value[lengthProp];
-      var formattedValues = [];
-      var len = 0;
-      for (var i = 0; i < max && i < length; i++) {
-        var b = value[i] || 0;
-        var v = pad0(b.toString(16), padding);
-        len += v.length;
-        formattedValues.push(v);
-      }
-      var prefix = value.constructor.name || name || '';
-      if (prefix) prefix += ' ';
-
-      if (formattedValues.length === 0)
-        return prefix + '[]';
-
-      if (len <= this.maxLineLength) {
-        return prefix + '[ ' + formattedValues.join(this.propSep + ' ') + ' ' + ']';
-      } else {
-        return prefix + '[\n' + formattedValues.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
-      }
-    };
-  };
-
-  Formatter.add('undefined', function() { return 'undefined'; });
-  Formatter.add('null', function() { return 'null'; });
-  Formatter.add('boolean', function(value) { return value ? 'true': 'false'; });
-  Formatter.add('symbol', function(value) { return value.toString(); });
-
-  ['number', 'boolean'].forEach(function(name) {
-    Formatter.add('object', name, function(value) {
-      return this._formatObject(value, {
-        additionalProperties: [['[[PrimitiveValue]]', value.valueOf()]]
-      });
-    });
-  });
-
-  Formatter.add('object', 'string', function(value) {
-    var realValue = value.valueOf();
-
-    return this._formatObject(value, {
-      keyFilter: function(key) {
-        //skip useless indexed properties
-        return !(key.match(/\d+/) && parseInt(key, 10) < realValue.length);
-      },
-      additionalProperties: [['[[PrimitiveValue]]', realValue]]
-    });
-  });
-
-  Formatter.add('object', 'regexp', function(value) {
-    return this._formatObject(value, {
-      value: String(value)
-    });
-  });
-
-  Formatter.add('number', function(value) {
-    if (value === 0 && 1 / value < 0) return '-0';
-    return String(value);
-  });
-
-  Formatter.add('string', function(value) {
-    return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
-        .replace(/'/g, "\\'")
-        .replace(/\\"/g, '"') + '\'';
-  });
-
-  Formatter.add('object', function(value) {
-    return this._formatObject(value);
-  });
-
-  Formatter.add('object', 'arguments', function(value) {
-    return this._formatObject(value, {
-      prefix: 'Arguments',
-      formatPropertyName: function(key) {
-        if (!key.match(/\d+/)) {
-          return this.formatPropertyName(key);
-        }
-      },
-      brackets: ['[', ']']
-    });
-  });
-
-  Formatter.add('object', 'array', function(value) {
-    return this._formatObject(value, {
-      formatPropertyName: function(key) {
-        if (!key.match(/\d+/)) {
-          return this.formatPropertyName(key);
-        }
-      },
-      brackets: ['[', ']']
-    });
-  });
-
-
-  function formatDate(value, isUTC) {
-    var prefix = isUTC ? 'UTC' : '';
-
-    var date = value['get' + prefix + 'FullYear']() +
-      '-' +
-      pad0(value['get' + prefix + 'Month']() + 1, 2) +
-      '-' +
-      pad0(value['get' + prefix + 'Date'](), 2);
-
-    var time = pad0(value['get' + prefix + 'Hours'](), 2) +
-      ':' +
-      pad0(value['get' + prefix + 'Minutes'](), 2) +
-      ':' +
-      pad0(value['get' + prefix + 'Seconds'](), 2) +
-      '.' +
-      pad0(value['get' + prefix + 'Milliseconds'](), 3);
-
-    var to = value.getTimezoneOffset();
-    var absTo = Math.abs(to);
-    var hours = Math.floor(absTo / 60);
-    var minutes = absTo - hours * 60;
-    var tzFormat = (to < 0 ? '+' : '-') + pad0(hours, 2) + pad0(minutes, 2);
-
-    return date + ' ' + time + (isUTC ? '' : ' ' + tzFormat);
-  }
-
-  Formatter.add('object', 'date', function(value) {
-    return this._formatObject(value, { value: formatDate(value, this.isUTCdate) });
-  });
-
-  Formatter.add('function', function(value) {
-    return this._formatObject(value, {
-      additionalProperties: [['name', Formatter.functionName(value)]]
-    });
-  });
-
-  Formatter.add('object', 'error', function(value) {
-    return this._formatObject(value, {
-      prefix: value.name,
-      additionalProperties: [['message', value.message]]
-    });
-  });
-
-  Formatter.add('object', 'buffer', Formatter.generateFunctionForIndexedArray('length', 'Buffer', 2));
-
-  Formatter.add('object', 'array-buffer', Formatter.generateFunctionForIndexedArray('byteLength', 'ArrayBuffer', 2));
-
-  Formatter.add('object', 'typed-array', 'int8', Formatter.generateFunctionForIndexedArray('length', 'Int8Array', 2));
-  Formatter.add('object', 'typed-array', 'uint8', Formatter.generateFunctionForIndexedArray('length', 'Uint8Array', 2));
-  Formatter.add('object', 'typed-array', 'uint8clamped', Formatter.generateFunctionForIndexedArray('length', 'Uint8ClampedArray', 2));
-
-  Formatter.add('object', 'typed-array', 'int16', Formatter.generateFunctionForIndexedArray('length', 'Int16Array', 4));
-  Formatter.add('object', 'typed-array', 'uint16', Formatter.generateFunctionForIndexedArray('length', 'Uint16Array', 4));
-
-  Formatter.add('object', 'typed-array', 'int32', Formatter.generateFunctionForIndexedArray('length', 'Int32Array', 8));
-  Formatter.add('object', 'typed-array', 'uint32', Formatter.generateFunctionForIndexedArray('length', 'Uint32Array', 8));
-
-  //TODO add float32 and float64
-
-  Formatter.add('object', 'promise', function() {
-    return '[Promise]';//TODO it could be nice to inspect its state and value
-  });
-
-  Formatter.add('object', 'xhr', function() {
-    return '[XMLHttpRequest]';//TODO it could be nice to inspect its state
-  });
-
-  Formatter.add('object', 'html-element', function(value) {
-    return value.outerHTML;
-  });
-
-  Formatter.add('object', 'html-element', '#text', function(value) {
-    return value.nodeValue;
-  });
-
-  Formatter.add('object', 'html-element', '#document', function(value) {
-    return value.documentElement.outerHTML;
-  });
-
-  Formatter.add('object', 'host', function() {
-    return '[Host]';
-  });
-
-  Formatter.add('object', 'set', function(value) {
-    var iter = value.values();
-    var len = 0;
-
-    this.seen.push(value);
-
-    var props = [];
-
-    var next = iter.next();
-    while (!next.done) {
-      var val = next.value;
-      var f = this.format(val);
-      len += f.length;
-      props.push(f);
-
-      next = iter.next();
-    }
-
-    this.seen.pop();
-
-    if (props.length === 0) return 'Set {}';
-
-    if (len <= this.maxLineLength) {
-      return 'Set { ' + props.join(this.propSep + ' ') + ' }';
-    } else {
-      return 'Set {\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + '}';
-    }
-  });
-
-  Formatter.add('object', 'map', function(value) {
-    var iter = value.entries();
-    var len = 0;
-
-    this.seen.push(value);
-
-    var props = [];
-
-    var next = iter.next();
-    while (!next.done) {
-      var val = next.value;
-      var fK = this.format(val[0]);
-      var fV = this.format(val[1]);
-
-      var f;
-      if ((fK.length + fV.length + 4) <= this.maxLineLength) {
-        f = fK + ' => ' + fV;
-      } else {
-        f = fK + ' =>\n' + fV;
-      }
-
-      len += fK.length + fV.length + 4;
-      props.push(f);
-
-      next = iter.next();
-    }
-
-    this.seen.pop();
-
-    if (props.length === 0) return 'Map {}';
-
-    if (len <= this.maxLineLength) {
-      return 'Map { ' + props.join(this.propSep + ' ') + ' }';
-    } else {
-      return 'Map {\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + '}';
-    }
-  });
-
-  function simdVectorFormat(constructorName, length) {
-    return function(value) {
-      var Constructor = value.constructor;
-      var extractLane = Constructor.extractLane;
-
-      var len = 0;
-      var props = [];
-
-      for (var i = 0; i < length; i ++) {
-        var key = this.format(extractLane(value, i));
-        len += key.length;
-        props.push(key);
-      }
-
-      if (len <= this.maxLineLength) {
-        return constructorName + ' [ ' + props.join(this.propSep + ' ') + ' ]';
-      } else {
-        return constructorName + ' [\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
-      }
-    };
-  }
-
-  Formatter.add('object', 'simd', 'bool16x8', simdVectorFormat('Bool16x8', 8));
-  Formatter.add('object', 'simd', 'bool32x4', simdVectorFormat('Bool32x4', 4));
-  Formatter.add('object', 'simd', 'bool8x16', simdVectorFormat('Bool8x16', 16));
-  Formatter.add('object', 'simd', 'float32x4', simdVectorFormat('Float32x4', 4));
-  Formatter.add('object', 'simd', 'int16x8', simdVectorFormat('Int16x8', 8));
-  Formatter.add('object', 'simd', 'int32x4', simdVectorFormat('Int32x4', 4));
-  Formatter.add('object', 'simd', 'int8x16', simdVectorFormat('Int8x16', 16));
-  Formatter.add('object', 'simd', 'uint16x8', simdVectorFormat('Uint16x8', 8));
-  Formatter.add('object', 'simd', 'uint32x4', simdVectorFormat('Uint32x4', 4));
-  Formatter.add('object', 'simd', 'uint8x16', simdVectorFormat('Uint8x16', 16));
-
-  Formatter.prototype.defaultFormat = Formatter.prototype._format_object;
-
-  function defaultFormat(value, opts) {
-    return new Formatter(opts).format(value);
-  }
-
-  defaultFormat.Formatter = Formatter;
-
-  function format$1(msg) {
-    var args = arguments;
-    for (var i = 1, l = args.length; i < l; i++) {
-      msg = msg.replace(/%s/, args[i]);
-    }
-    return msg;
-  }
-
-  var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-  function EqualityFail(a, b, reason, path) {
-    this.a = a;
-    this.b = b;
-    this.reason = reason;
-    this.path = path;
-  }
-
-  function typeToString(t) {
-    return t.type + (t.cls ? '(' + t.cls + (t.sub ? ' ' + t.sub : '') + ')' : '');
-  }
-
-  var  PLUS_0_AND_MINUS_0 = '+0 is not equal to -0';
-  var  DIFFERENT_TYPES = 'A has type %s and B has type %s';
-  var  EQUALITY = 'A is not equal to B';
-  var  EQUALITY_PROTOTYPE = 'A and B have different prototypes';
-  var  WRAPPED_VALUE = 'A wrapped value is not equal to B wrapped value';
-  var  FUNCTION_SOURCES = 'function A is not equal to B by source code value (via .toString call)';
-  var  MISSING_KEY = '%s has no key %s';
-  var  SET_MAP_MISSING_KEY = 'Set/Map missing key %s';
-
-
-  var DEFAULT_OPTIONS = {
-    checkProtoEql: true,
-    checkSubType: true,
-    plusZeroAndMinusZeroEqual: true,
-    collectAllFails: false
-  };
-
-  function setBooleanDefault(property, obj, opts, defaults) {
-    obj[property] = typeof opts[property] !== 'boolean' ? defaults[property] : opts[property];
-  }
-
-  var METHOD_PREFIX = '_check_';
-
-  function EQ(opts, a, b, path) {
-    opts = opts || {};
-
-    setBooleanDefault('checkProtoEql', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('plusZeroAndMinusZeroEqual', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('checkSubType', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('collectAllFails', this, opts, DEFAULT_OPTIONS);
-
-    this.a = a;
-    this.b = b;
-
-    this._meet = opts._meet || [];
-
-    this.fails = opts.fails || [];
-
-    this.path = path || [];
-  }
-
-  function ShortcutError(fail) {
-    this.name = 'ShortcutError';
-    this.message = 'fail fast';
-    this.fail = fail;
-  }
-
-  ShortcutError.prototype = Object.create(Error.prototype);
-
-  EQ.checkStrictEquality = function(a, b) {
-    this.collectFail(a !== b, EQUALITY);
-  };
-
-  EQ.add = function add(type, cls, sub, f) {
-    var args = Array.prototype.slice.call(arguments);
-    f = args.pop();
-    EQ.prototype[METHOD_PREFIX + args.join('_')] = f;
-  };
-
-  EQ.prototype = {
-    check: function() {
-      try {
-        this.check0();
-      } catch (e) {
-        if (e instanceof ShortcutError) {
-          return [e.fail];
-        }
-        throw e;
-      }
-      return this.fails;
-    },
-
-    check0: function() {
-      var a = this.a;
-      var b = this.b;
-
-      // equal a and b exit early
-      if (a === b) {
-        // check for +0 !== -0;
-        return this.collectFail(a === 0 && (1 / a !== 1 / b) && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
-      }
-
-      var typeA = getGlobalType(a);
-      var typeB = getGlobalType(b);
-
-      // if objects has different types they are not equal
-      var typeDifferent = typeA.type !== typeB.type || typeA.cls !== typeB.cls;
-
-      if (typeDifferent || ((this.checkSubType && typeA.sub !== typeB.sub) || !this.checkSubType)) {
-        return this.collectFail(true, format$1(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
-      }
-
-      // as types the same checks type specific things
-      var name1 = typeA.type, name2 = typeA.type;
-      if (typeA.cls) {
-        name1 += '_' + typeA.cls;
-        name2 += '_' + typeA.cls;
-      }
-      if (typeA.sub) {
-        name2 += '_' + typeA.sub;
-      }
-
-      var f = this[METHOD_PREFIX + name2] || this[METHOD_PREFIX + name1] || this[METHOD_PREFIX + typeA.type] || this.defaultCheck;
-
-      f.call(this, this.a, this.b);
-    },
-
-    collectFail: function(comparison, reason, showReason) {
-      if (comparison) {
-        var res = new EqualityFail(this.a, this.b, reason, this.path);
-        res.showReason = !!showReason;
-
-        this.fails.push(res);
-
-        if (!this.collectAllFails) {
-          throw new ShortcutError(res);
-        }
-      }
-    },
-
-    checkPlainObjectsEquality: function(a, b) {
-      // compare deep objects and arrays
-      // stacks contain references only
-      //
-      var meet = this._meet;
-      var m = this._meet.length;
-      while (m--) {
-        var st = meet[m];
-        if (st[0] === a && st[1] === b) {
-          return;
-        }
-      }
-
-      // add `a` and `b` to the stack of traversed objects
-      meet.push([a, b]);
-
-      // TODO maybe something else like getOwnPropertyNames
-      var key;
-      for (key in b) {
-        if (hasOwnProperty$1.call(b, key)) {
-          if (hasOwnProperty$1.call(a, key)) {
-            this.checkPropertyEquality(key);
-          } else {
-            this.collectFail(true, format$1(MISSING_KEY, 'A', key));
-          }
-        }
-      }
-
-      // ensure both objects have the same number of properties
-      for (key in a) {
-        if (hasOwnProperty$1.call(a, key)) {
-          this.collectFail(!hasOwnProperty$1.call(b, key), format$1(MISSING_KEY, 'B', key));
-        }
-      }
-
-      meet.pop();
-
-      if (this.checkProtoEql) {
-        //TODO should i check prototypes for === or use eq?
-        this.collectFail(Object.getPrototypeOf(a) !== Object.getPrototypeOf(b), EQUALITY_PROTOTYPE, true);
-      }
-
-    },
-
-    checkPropertyEquality: function(propertyName) {
-      var eq = new EQ(this, this.a[propertyName], this.b[propertyName], this.path.concat([propertyName]));
-      eq.check0();
-    },
-
-    defaultCheck: EQ.checkStrictEquality
-  };
-
-
-  EQ.add('number', function(a, b) {
-    this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
-  });
-
-  ['symbol', 'boolean', 'string'].forEach(function(tp) {
-    EQ.add(tp, EQ.checkStrictEquality);
-  });
-
-  EQ.add('function', function(a, b) {
-    // functions are compared by their source code
-    this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add('object', 'regexp', function(a, b) {
-    // check regexp flags
-    var flags = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase', 'sticky', 'unicode'];
-    while (flags.length) {
-      this.checkPropertyEquality(flags.shift());
-    }
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add('object', 'date', function(a, b) {
-    //check by timestamp only (using .valueOf)
-    this.collectFail(+a !== +b, EQUALITY);
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  ['number', 'boolean', 'string'].forEach(function(tp) {
-    EQ.add('object', tp, function(a, b) {
-      //primitive type wrappers
-      this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
-      // check user properties
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-  EQ.add('object', function(a, b) {
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  ['array', 'arguments', 'typed-array'].forEach(function(tp) {
-    EQ.add('object', tp, function(a, b) {
-      this.checkPropertyEquality('length');
-
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-  EQ.add('object', 'array-buffer', function(a, b) {
-    this.checkPropertyEquality('byteLength');
-
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add('object', 'error', function(a, b) {
-    this.checkPropertyEquality('name');
-    this.checkPropertyEquality('message');
-
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add('object', 'buffer', function(a) {
-    this.checkPropertyEquality('length');
-
-    var l = a.length;
-    while (l--) {
-      this.checkPropertyEquality(l);
-    }
-
-    //we do not check for user properties because
-    //node Buffer have some strange hidden properties
-  });
-
-  ['map', 'set'].forEach(function(tp) {
-    EQ.add('object', tp, function(a, b) {
-      this._meet.push([a, b]);
-
-      var iteratorA = a.entries();
-      for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
-
-        var iteratorB = b.entries();
-        var keyFound = false;
-        for (var nextB = iteratorB.next(); !nextB.done; nextB = iteratorB.next()) {
-          // try to check keys first
-          var r = eq(nextA.value[0], nextB.value[0], { collectAllFails: false, _meet: this._meet });
-
-          if (r.length === 0) {
-            keyFound = true;
-
-            // check values also
-            eq(nextA.value[1], nextB.value[1], this);
-          }
-        }
-
-        if (!keyFound) {
-          // no such key at all
-          this.collectFail(true, format$1(SET_MAP_MISSING_KEY, nextA.value[0]));
-        }
-      }
-
-      this._meet.pop();
-
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-
-  function eq(a, b, opts) {
-    return new EQ(opts, a, b).check();
-  }
-
-  eq.EQ = EQ;
-
   var _hasOwnProperty = Object.prototype.hasOwnProperty;
   var _propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -1086,18 +265,6 @@
     return _propertyIsEnumerable.call(obj, key);
   }
 
-  /**
-   * Check if given obj just a primitive type wrapper
-   * @param {Object} obj
-   * @returns {boolean}
-   * @private
-   */
-  function isWrapperType(obj) {
-    return obj instanceof Number ||
-      obj instanceof String ||
-      obj instanceof Boolean;
-  }
-
   function merge(a, b) {
     if (a && b) {
       for (var key in b) {
@@ -1105,11 +272,6 @@
       }
     }
     return a;
-  }
-
-
-  function convertPropertyName(name) {
-    return (typeof name === 'symbol') ? name : String(name);
   }
 
   function isIterator(obj) {
@@ -1133,7 +295,8 @@
     return typeof f === 'function' && /^function\s*\*\s*/.test(f.toString());
   }
 
-  var functionName = defaultFormat.Formatter.functionName;
+  // TODO in future add generators instead of forEach and iterator implementation
+
 
   function ObjectIterator(obj) {
     this._obj = obj;
@@ -1185,7 +348,7 @@
     },
 
     getAdaptor: function(tp, funcName) {
-      var tries = [new getGlobalType.Type(tp.type, tp.cls, tp.sub), new getGlobalType.Type(tp.type, tp.cls), new getGlobalType.Type(tp.type)];
+      var tries = tp.toTryTypes();
       while (tries.length) {
         var toTry = tries.shift();
         var ad = this._typeAdaptors[toTry];
@@ -1342,14 +505,14 @@
   }
 
   // return boolean if obj has such 'key'
-  function hasKey(obj, key) {
+  function has(obj, key) {
     var type = getGlobalType(obj);
     var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'has');
     return func(obj, key);
   }
 
   // return value for given key
-  function getValue(obj, key) {
+  function get(obj, key) {
     var type = getGlobalType(obj);
     var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'get');
     return func(obj, key);
@@ -1374,9 +537,858 @@
     return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType(obj), 'iterator')(obj);
   }
 
+  function looksLikeANumber(n) {
+    return !!n.match(/\d+/);
+  }
+
+  function keyCompare(a, b) {
+    var aNum = looksLikeANumber(a);
+    var bNum = looksLikeANumber(b);
+    if (aNum && bNum) {
+      return 1*a - 1*b;
+    } else if (aNum && !bNum) {
+      return -1;
+    } else if (!aNum && bNum) {
+      return 1;
+    } else {
+      return a.localeCompare(b);
+    }
+  }
+
+  function genKeysFunc(f) {
+    return function(value) {
+      var k = f(value);
+      k.sort(keyCompare);
+      return k;
+    };
+  }
+
+  function Formatter(opts) {
+    opts = opts || {};
+
+    this.seen = [];
+
+    var keysFunc;
+    if (typeof opts.keysFunc === 'function') {
+      keysFunc = opts.keysFunc;
+    } else if (opts.keys === false) {
+      keysFunc = Object.getOwnPropertyNames;
+    } else {
+      keysFunc = Object.keys;
+    }
+
+    this.getKeys = genKeysFunc(keysFunc);
+
+    this.maxLineLength = typeof opts.maxLineLength === 'number' ? opts.maxLineLength : 60;
+    this.propSep = opts.propSep || ',';
+
+    this.isUTCdate = !!opts.isUTCdate;
+  }
+
+
+
+  Formatter.prototype = {
+    constructor: Formatter,
+
+    format: function(value) {
+      var tp = getGlobalType(value);
+
+      if (tp.type === getGlobalType.OBJECT && this.alreadySeen(value)) {
+        return '[Circular]';
+      }
+
+      var tries = tp.toTryTypes();
+      var f = this.defaultFormat;
+      while (tries.length) {
+        var toTry = tries.shift();
+        var name = Formatter.formatterFunctionName(toTry);
+        if (this[name]) {
+          f = this[name];
+          break;
+        }
+      }
+      return f.call(this, value).trim();
+    },
+
+    defaultFormat: function(obj) {
+      return String(obj);
+    },
+
+    alreadySeen: function(value) {
+      return this.seen.indexOf(value) >= 0;
+    }
+
+  };
+
+  Formatter.addType = function addType(tp, f) {
+    Formatter.prototype[Formatter.formatterFunctionName(tp)] = f;
+  };
+
+  Formatter.formatterFunctionName = function formatterFunctionName(tp) {
+    return '_format_' + tp.toString('_');
+  };
+
+  var EOL = '\n';
+
+  function indent$1(v, indentation) {
+    return v
+      .split(EOL)
+      .map(function(vv) {
+        return indentation + vv;
+      })
+      .join(EOL);
+  }
+
+  function pad(str, value, filler) {
+    str = String(str);
+    var isRight = false;
+
+    if (value < 0) {
+      isRight = true;
+      value = -value;
+    }
+
+    if (str.length < value) {
+      var padding = new Array(value - str.length + 1).join(filler);
+      return isRight ? str + padding : padding + str;
+    } else {
+      return str;
+    }
+  }
+
+  function pad0(str, value) {
+    return pad(str, value, '0');
+  }
+
+  var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
+
+  function functionName$1(f) {
+    if (f.name) {
+      return f.name;
+    }
+    var matches = f.toString().match(functionNameRE);
+    if (matches === null) {
+      // `functionNameRE` doesn't match arrow functions.
+      return '';
+    }
+    var name = matches[1];
+    return name;
+  }
+
+  function constructorName(obj) {
+    while (obj) {
+      var descriptor = Object.getOwnPropertyDescriptor(obj, 'constructor');
+      if (descriptor !== undefined &&  typeof descriptor.value === 'function') {
+        var name = functionName$1(descriptor.value);
+        if (name !== '') {
+          return name;
+        }
+      }
+
+      obj = Object.getPrototypeOf(obj);
+    }
+  }
+
+  var INDENT = '  ';
+
+  function addSpaces(str) {
+    return indent$1(str, INDENT);
+  }
+
+  function typeAdaptorForEachFormat(obj, opts) {
+    opts = opts || {};
+    var filterKey = opts.filterKey || function() { return true; };
+
+    var formatKey = opts.formatKey || this.format;
+    var formatValue = opts.formatValue || this.format;
+
+    var keyValueSep = typeof opts.keyValueSep !== 'undefined' ? opts.keyValueSep : ': ';
+
+    this.seen.push(obj);
+
+    var formatLength = 0;
+    var pairs = [];
+
+    forEach(obj, function(value, key) {
+      if (!filterKey(key)) {
+        return;
+      }
+
+      var formattedKey = formatKey.call(this, key);
+      var formattedValue = formatValue.call(this, value, key);
+
+      var pair = formattedKey ? (formattedKey + keyValueSep + formattedValue) : formattedValue;
+
+      formatLength += pair.length;
+      pairs.push(pair);
+    }, this);
+
+    this.seen.pop();
+
+    (opts.additionalKeys || []).forEach(function(keyValue) {
+      var pair = keyValue[0] + keyValueSep + this.format(keyValue[1]);
+      formatLength += pair.length;
+      pairs.push(pair);
+    }, this);
+
+    var prefix = opts.prefix || constructorName(obj) || '';
+    if (prefix.length > 0) {
+      prefix += ' ';
+    }
+
+    var lbracket, rbracket;
+    if (Array.isArray(opts.brackets)) {
+      lbracket = opts.brackets[0];
+      rbracket = opts.brackets[1];
+    } else {
+      lbracket = '{';
+      rbracket = '}';
+    }
+
+    var rootValue = opts.value || '';
+
+    if (pairs.length === 0) {
+      return rootValue || (prefix + lbracket + rbracket);
+    }
+
+    if (formatLength <= this.maxLineLength) {
+      return prefix + lbracket + ' ' + (rootValue ? rootValue + ' ' : '') + pairs.join(this.propSep + ' ') + ' ' + rbracket;
+    } else {
+      return prefix + lbracket + '\n' + (rootValue ? '  ' + rootValue + '\n' : '') + pairs.map(addSpaces).join(this.propSep + '\n') + '\n' + rbracket;
+    }
+  }
+
+  function formatPlainObjectKey(key) {
+    return typeof key === 'string' && key.match(/^[a-zA-Z_$][a-zA-Z_$0-9]*$/) ? key : this.format(key);
+  }
+
+  function getPropertyDescriptor(obj, key) {
+    var desc;
+    try {
+      desc = Object.getOwnPropertyDescriptor(obj, key) || { value: obj[key] };
+    } catch (e) {
+      desc = { value: e };
+    }
+    return desc;
+  }
+
+  function formatPlainObjectValue(obj, key) {
+    var desc = getPropertyDescriptor(obj, key);
+    if (desc.get && desc.set) {
+      return '[Getter/Setter]';
+    }
+    if (desc.get) {
+      return '[Getter]';
+    }
+    if (desc.set) {
+      return '[Setter]';
+    }
+
+    return this.format(desc.value);
+  }
+
+  function formatPlainObject(obj, opts) {
+    opts = opts || {};
+    opts.keyValueSep = ': ';
+    opts.formatKey = opts.formatKey || formatPlainObjectKey;
+    opts.formatValue = opts.formatValue || function(value, key) {
+      return formatPlainObjectValue.call(this, obj, key);
+    };
+    return typeAdaptorForEachFormat.call(this, obj, opts);
+  }
+
+  function formatWrapper1(value) {
+    return formatPlainObject.call(this, value, {
+      additionalKeys: [['[[PrimitiveValue]]', value.valueOf()]]
+    });
+  }
+
+
+  function formatWrapper2(value) {
+    var realValue = value.valueOf();
+
+    return formatPlainObject.call(this, value, {
+      filterKey: function(key) {
+        //skip useless indexed properties
+        return !(key.match(/\d+/) && parseInt(key, 10) < realValue.length);
+      },
+      additionalKeys: [['[[PrimitiveValue]]', realValue]]
+    });
+  }
+
+  function formatRegExp(value) {
+    return formatPlainObject.call(this, value, {
+      value: String(value)
+    });
+  }
+
+  function formatFunction(value) {
+    var obj = {};
+    Object.keys(value).forEach(function(key) {
+      obj[key] = value[key];
+    });
+    return formatPlainObject.call(this, obj, {
+      prefix: 'Function',
+      additionalKeys: [['name', functionName$1(value)]]
+    });
+  }
+
+  function formatArray(value) {
+    return formatPlainObject.call(this, value, {
+      formatKey: function(key) {
+        if (!key.match(/\d+/)) {
+          return formatPlainObjectKey.call(this, key);
+        }
+      },
+      brackets: ['[', ']']
+    });
+  }
+
+  function formatArguments(value) {
+    return formatPlainObject.call(this, value, {
+      formatKey: function(key) {
+        if (!key.match(/\d+/)) {
+          return formatPlainObjectKey.call(this, key);
+        }
+      },
+      brackets: ['[', ']'],
+      prefix: 'Arguments'
+    });
+  }
+
+  function _formatDate(value, isUTC) {
+    var prefix = isUTC ? 'UTC' : '';
+
+    var date = value['get' + prefix + 'FullYear']() +
+      '-' +
+      pad0(value['get' + prefix + 'Month']() + 1, 2) +
+      '-' +
+      pad0(value['get' + prefix + 'Date'](), 2);
+
+    var time = pad0(value['get' + prefix + 'Hours'](), 2) +
+      ':' +
+      pad0(value['get' + prefix + 'Minutes'](), 2) +
+      ':' +
+      pad0(value['get' + prefix + 'Seconds'](), 2) +
+      '.' +
+      pad0(value['get' + prefix + 'Milliseconds'](), 3);
+
+    var to = value.getTimezoneOffset();
+    var absTo = Math.abs(to);
+    var hours = Math.floor(absTo / 60);
+    var minutes = absTo - hours * 60;
+    var tzFormat = (to < 0 ? '+' : '-') + pad0(hours, 2) + pad0(minutes, 2);
+
+    return date + ' ' + time + (isUTC ? '' : ' ' + tzFormat);
+  }
+
+  function formatDate(value) {
+    return formatPlainObject.call(this, value, { value: _formatDate(value, this.isUTCdate) });
+  }
+
+  function formatError(value) {
+    return formatPlainObject.call(this, value, {
+      prefix: value.name,
+      additionalKeys: [['message', value.message]]
+    });
+  }
+
+  function generateFormatForNumberArray(lengthProp, name, padding) {
+    return function(value) {
+      var max = this.byteArrayMaxLength || 50;
+      var length = value[lengthProp];
+      var formattedValues = [];
+      var len = 0;
+      for (var i = 0; i < max && i < length; i++) {
+        var b = value[i] || 0;
+        var v = pad0(b.toString(16), padding);
+        len += v.length;
+        formattedValues.push(v);
+      }
+      var prefix = value.constructor.name || name || '';
+      if (prefix) {
+        prefix += ' ';
+      }
+
+      if (formattedValues.length === 0) {
+        return prefix + '[]';
+      }
+
+      if (len <= this.maxLineLength) {
+        return prefix + '[ ' + formattedValues.join(this.propSep + ' ') + ' ' + ']';
+      } else {
+        return prefix + '[\n' + formattedValues.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
+      }
+    };
+  }
+
+  function formatMap(obj) {
+    return typeAdaptorForEachFormat.call(this, obj, {
+      keyValueSep: ' => '
+    });
+  }
+
+  function formatSet(obj) {
+    return typeAdaptorForEachFormat.call(this, obj, {
+      keyValueSep: '',
+      formatKey: function() { return ''; }
+    });
+  }
+
+  function genSimdVectorFormat(constructorName, length) {
+    return function(value) {
+      var Constructor = value.constructor;
+      var extractLane = Constructor.extractLane;
+
+      var len = 0;
+      var props = [];
+
+      for (var i = 0; i < length; i ++) {
+        var key = this.format(extractLane(value, i));
+        len += key.length;
+        props.push(key);
+      }
+
+      if (len <= this.maxLineLength) {
+        return constructorName + ' [ ' + props.join(this.propSep + ' ') + ' ]';
+      } else {
+        return constructorName + ' [\n' + props.map(addSpaces).join(this.propSep + '\n') + '\n' + ']';
+      }
+    };
+  }
+
+  function defaultFormat(value, opts) {
+    return new Formatter(opts).format(value);
+  }
+
+  defaultFormat.Formatter = Formatter;
+  defaultFormat.addSpaces = addSpaces;
+  defaultFormat.pad0 = pad0;
+  defaultFormat.functionName = functionName$1;
+  defaultFormat.constructorName = constructorName;
+  defaultFormat.formatPlainObjectKey = formatPlainObjectKey;
+  defaultFormat.typeAdaptorForEachFormat = typeAdaptorForEachFormat;
+  // adding primitive types
+  Formatter.addType(new getGlobalType.Type(getGlobalType.UNDEFINED), function() {
+    return 'undefined';
+  });
+  Formatter.addType(new getGlobalType.Type(getGlobalType.NULL), function() {
+    return 'null';
+  });
+  Formatter.addType(new getGlobalType.Type(getGlobalType.BOOLEAN), function(value) {
+    return value ? 'true': 'false';
+  });
+  Formatter.addType(new getGlobalType.Type(getGlobalType.SYMBOL), function(value) {
+    return value.toString();
+  });
+  Formatter.addType(new getGlobalType.Type(getGlobalType.NUMBER), function(value) {
+    if (value === 0 && 1 / value < 0) {
+      return '-0';
+    }
+    return String(value);
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.STRING), function(value) {
+    return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+        .replace(/'/g, "\\'")
+        .replace(/\\"/g, '"') + '\'';
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.FUNCTION), formatFunction);
+
+  // plain object
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT), formatPlainObject);
+
+  // type wrappers
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.NUMBER), formatWrapper1);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BOOLEAN), formatWrapper1);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.STRING), formatWrapper2);
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.REGEXP), formatRegExp);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY), formatArray);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS), formatArguments);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.DATE), formatDate);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ERROR), formatError);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), formatSet);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), formatMap);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), formatMap);
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), formatSet);
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BUFFER), generateFormatForNumberArray('length', 'Buffer', 2));
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER), generateFormatForNumberArray('byteLength', 'ArrayBuffer', 2));
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int8'), generateFormatForNumberArray('length', 'Int8Array', 2));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8'), generateFormatForNumberArray('length', 'Uint8Array', 2));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8clamped'), generateFormatForNumberArray('length', 'Uint8ClampedArray', 2));
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int16'), generateFormatForNumberArray('length', 'Int16Array', 4));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint16'), generateFormatForNumberArray('length', 'Uint16Array', 4));
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int32'), generateFormatForNumberArray('length', 'Int32Array', 8));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint32'), generateFormatForNumberArray('length', 'Uint32Array', 8));
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool16x8'), genSimdVectorFormat('Bool16x8', 8));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool32x4'), genSimdVectorFormat('Bool32x4', 4));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool8x16'), genSimdVectorFormat('Bool8x16', 16));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'float32x4'), genSimdVectorFormat('Float32x4', 4));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int16x8'), genSimdVectorFormat('Int16x8', 8));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int32x4'), genSimdVectorFormat('Int32x4', 4));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int8x16'), genSimdVectorFormat('Int8x16', 16));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint16x8'), genSimdVectorFormat('Uint16x8', 8));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint32x4'), genSimdVectorFormat('Uint32x4', 4));
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint8x16'), genSimdVectorFormat('Uint8x16', 16));
+
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.PROMISE), function() {
+    return '[Promise]';//TODO it could be nice to inspect its state and value
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.XHR), function() {
+    return '[XMLHttpRequest]';//TODO it could be nice to inspect its state
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT), function(value) {
+    return value.outerHTML;
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#text'), function(value) {
+    return value.nodeValue;
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#document'), function(value) {
+    return value.documentElement.outerHTML;
+  });
+
+  Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOST), function() {
+    return '[Host]';
+  });
+
+  function format$1(msg) {
+    var args = arguments;
+    for (var i = 1, l = args.length; i < l; i++) {
+      msg = msg.replace(/%s/, args[i]);
+    }
+    return msg;
+  }
+
+  var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
+
+  function EqualityFail(a, b, reason, path) {
+    this.a = a;
+    this.b = b;
+    this.reason = reason;
+    this.path = path;
+  }
+
+  function typeToString(tp) {
+    return tp.type + (tp.cls ? '(' + tp.cls + (tp.sub ? ' ' + tp.sub : '') + ')' : '');
+  }
+
+  var  PLUS_0_AND_MINUS_0 = '+0 is not equal to -0';
+  var  DIFFERENT_TYPES = 'A has type %s and B has type %s';
+  var  EQUALITY = 'A is not equal to B';
+  var  EQUALITY_PROTOTYPE = 'A and B have different prototypes';
+  var  WRAPPED_VALUE = 'A wrapped value is not equal to B wrapped value';
+  var  FUNCTION_SOURCES = 'function A is not equal to B by source code value (via .toString call)';
+  var  MISSING_KEY = '%s has no key %s';
+  var  SET_MAP_MISSING_KEY = 'Set/Map missing key %s';
+
+
+  var DEFAULT_OPTIONS = {
+    checkProtoEql: true,
+    checkSubType: true,
+    plusZeroAndMinusZeroEqual: true,
+    collectAllFails: false
+  };
+
+  function setBooleanDefault(property, obj, opts, defaults) {
+    obj[property] = typeof opts[property] !== 'boolean' ? defaults[property] : opts[property];
+  }
+
+  var METHOD_PREFIX = '_check_';
+
+  function EQ(opts, a, b, path) {
+    opts = opts || {};
+
+    setBooleanDefault('checkProtoEql', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('plusZeroAndMinusZeroEqual', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('checkSubType', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('collectAllFails', this, opts, DEFAULT_OPTIONS);
+
+    this.a = a;
+    this.b = b;
+
+    this._meet = opts._meet || [];
+
+    this.fails = opts.fails || [];
+
+    this.path = path || [];
+  }
+
+  function ShortcutError(fail) {
+    this.name = 'ShortcutError';
+    this.message = 'fail fast';
+    this.fail = fail;
+  }
+
+  ShortcutError.prototype = Object.create(Error.prototype);
+
+  EQ.checkStrictEquality = function(a, b) {
+    this.collectFail(a !== b, EQUALITY);
+  };
+
+  EQ.add = function add(type, cls, sub, f) {
+    var args = Array.prototype.slice.call(arguments);
+    f = args.pop();
+    EQ.prototype[METHOD_PREFIX + args.join('_')] = f;
+  };
+
+  EQ.prototype = {
+    check: function() {
+      try {
+        this.check0();
+      } catch (e) {
+        if (e instanceof ShortcutError) {
+          return [e.fail];
+        }
+        throw e;
+      }
+      return this.fails;
+    },
+
+    check0: function() {
+      var a = this.a;
+      var b = this.b;
+
+      // equal a and b exit early
+      if (a === b) {
+        // check for +0 !== -0;
+        return this.collectFail(a === 0 && (1 / a !== 1 / b) && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
+      }
+
+      var typeA = getGlobalType(a);
+      var typeB = getGlobalType(b);
+
+      // if objects has different types they are not equal
+      if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
+        return this.collectFail(true, format$1(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
+      }
+
+      // as types the same checks type specific things
+      var name1 = typeA.type, name2 = typeA.type;
+      if (typeA.cls) {
+        name1 += '_' + typeA.cls;
+        name2 += '_' + typeA.cls;
+      }
+      if (typeA.sub) {
+        name2 += '_' + typeA.sub;
+      }
+
+      var f = this[METHOD_PREFIX + name2] || this[METHOD_PREFIX + name1] || this[METHOD_PREFIX + typeA.type] || this.defaultCheck;
+
+      f.call(this, this.a, this.b);
+    },
+
+    collectFail: function(comparison, reason, showReason) {
+      if (comparison) {
+        var res = new EqualityFail(this.a, this.b, reason, this.path);
+        res.showReason = !!showReason;
+
+        this.fails.push(res);
+
+        if (!this.collectAllFails) {
+          throw new ShortcutError(res);
+        }
+      }
+    },
+
+    checkPlainObjectsEquality: function(a, b) {
+      // compare deep objects and arrays
+      // stacks contain references only
+      //
+      var meet = this._meet;
+      var m = this._meet.length;
+      while (m--) {
+        var st = meet[m];
+        if (st[0] === a && st[1] === b) {
+          return;
+        }
+      }
+
+      // add `a` and `b` to the stack of traversed objects
+      meet.push([a, b]);
+
+      // TODO maybe something else like getOwnPropertyNames
+      var key;
+      for (key in b) {
+        if (hasOwnProperty$1.call(b, key)) {
+          if (hasOwnProperty$1.call(a, key)) {
+            this.checkPropertyEquality(key);
+          } else {
+            this.collectFail(true, format$1(MISSING_KEY, 'A', key));
+          }
+        }
+      }
+
+      // ensure both objects have the same number of properties
+      for (key in a) {
+        if (hasOwnProperty$1.call(a, key)) {
+          this.collectFail(!hasOwnProperty$1.call(b, key), format$1(MISSING_KEY, 'B', key));
+        }
+      }
+
+      meet.pop();
+
+      if (this.checkProtoEql) {
+        //TODO should i check prototypes for === or use eq?
+        this.collectFail(Object.getPrototypeOf(a) !== Object.getPrototypeOf(b), EQUALITY_PROTOTYPE, true);
+      }
+
+    },
+
+    checkPropertyEquality: function(propertyName) {
+      var _eq = new EQ(this, this.a[propertyName], this.b[propertyName], this.path.concat([propertyName]));
+      _eq.check0();
+    },
+
+    defaultCheck: EQ.checkStrictEquality
+  };
+
+
+  EQ.add(getGlobalType.NUMBER, function(a, b) {
+    this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
+  });
+
+  [getGlobalType.SYMBOL, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+    EQ.add(tp, EQ.checkStrictEquality);
+  });
+
+  EQ.add(getGlobalType.FUNCTION, function(a, b) {
+    // functions are compared by their source code
+    this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
+    // check regexp flags
+    var flags = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase', 'sticky', 'unicode'];
+    while (flags.length) {
+      this.checkPropertyEquality(flags.shift());
+    }
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
+    //check by timestamp only (using .valueOf)
+    this.collectFail(+a !== +b, EQUALITY);
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  [getGlobalType.NUMBER, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      //primitive type wrappers
+      this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
+      // check user properties
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+  EQ.add(getGlobalType.OBJECT, function(a, b) {
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  [getGlobalType.ARRAY, getGlobalType.ARGUMENTS, getGlobalType.TYPED_ARRAY].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      this.checkPropertyEquality('length');
+
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER, function(a, b) {
+    this.checkPropertyEquality('byteLength');
+
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.ERROR, function(a, b) {
+    this.checkPropertyEquality('name');
+    this.checkPropertyEquality('message');
+
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
+    this.checkPropertyEquality('length');
+
+    var l = a.length;
+    while (l--) {
+      this.checkPropertyEquality(l);
+    }
+
+    //we do not check for user properties because
+    //node Buffer have some strange hidden properties
+  });
+
+  [getGlobalType.MAP, getGlobalType.SET, getGlobalType.WEAK_MAP, getGlobalType.WEAK_SET].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      this._meet.push([a, b]);
+
+      var iteratorA = a.entries();
+      for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
+
+        var iteratorB = b.entries();
+        var keyFound = false;
+        for (var nextB = iteratorB.next(); !nextB.done; nextB = iteratorB.next()) {
+          // try to check keys first
+          var r = eq(nextA.value[0], nextB.value[0], { collectAllFails: false, _meet: this._meet });
+
+          if (r.length === 0) {
+            keyFound = true;
+
+            // check values also
+            eq(nextA.value[1], nextB.value[1], this);
+          }
+        }
+
+        if (!keyFound) {
+          // no such key at all
+          this.collectFail(true, format$1(SET_MAP_MISSING_KEY, nextA.value[0]));
+        }
+      }
+
+      this._meet.pop();
+
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+
+  function eq(a, b, opts) {
+    return new EQ(opts, a, b).check();
+  }
+
+  eq.EQ = EQ;
+
+  function isWrapperType(obj) {
+    return obj instanceof Number ||
+      obj instanceof String ||
+      obj instanceof Boolean;
+  }
+
+  function convertPropertyName(name) {
+    return (typeof name === 'symbol') ? name : String(name);
+  }
+
+  var functionName = defaultFormat.functionName;
+
   var config = {
     typeAdaptors: defaultTypeAdaptorStorage,
-    
+
     getFormatter: function(opts) {
       return new defaultFormat.Formatter(opts || config);
     }
@@ -1387,7 +1399,8 @@
   }
 
   function formatProp(value) {
-    return config.getFormatter().formatPropertyName(String(value));
+    var formatter = config.getFormatter();
+    return defaultFormat.formatPlainObjectKey.call(formatter, value);
   }
 
   /**
@@ -3449,7 +3462,7 @@
 
       // first check if some keys are missing
       var missingKeys = keys.filter(function(key) {
-        return !hasKey(obj, key);
+        return !has(obj, key);
       });
 
       var verb = 'to have ' + (keys.length === 1 ? 'key ' : 'keys ');
@@ -3465,7 +3478,7 @@
 
     Assertion.add('key', function(key) {
       this.have.keys(key);
-      this.obj = getValue(this.obj, key);
+      this.obj = get(this.obj, key);
     });
 
     Assertion.add('value', function(key, value) {
@@ -3983,7 +3996,7 @@
 
 
   if (typeof define === 'function' && define.amd) {
-    define([], function() { return should; });
+    define([], function() { return should });
   } else if (typeof module === 'object' && module.exports) {
     module.exports = should;
   } else {

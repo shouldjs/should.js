@@ -10,7 +10,7 @@ describe('property', function() {
       'asd'.should.have.enumerable('length');
     }, "expected 'asd' to have enumerable property length",
        "    expected 'asd' to have own property with descriptor Object { enumerable: true }",
-       "        expected Object { configurable: false, enumerable: false, value: 3, writable: false } to have property enumerable of true (got false)");
+       "        expected Object { value: 3, writable: false, enumerable: false, configurable: false } to have property enumerable of true (got false)");
   });
 
   it('test enumerable(name, val)', function() {
@@ -20,7 +20,7 @@ describe('property', function() {
       ({'length': 3}).should.have.enumerable('length', 5);
     }, "expected Object { length: 3 } to have enumerable property length equal to 5",
        "    expected Object { length: 3 } to have own property with descriptor Object { enumerable: true, value: 5 }",
-       "        expected Object { configurable: true, enumerable: true, value: 3, writable: true } to have property value of 5 (got 3)");
+       "        expected Object { value: 3, writable: true, enumerable: true, configurable: true } to have property value of 5 (got 3)");
   });
 
   it('test enumerables(names)', function() {
@@ -197,7 +197,7 @@ describe('property', function() {
 
     err(function() {
       ({ foo: 1, bar: 2 }).should.not.have.keys('foo', 'bar');
-    }, "expected Object { bar: 2, foo: 1 } not to have keys foo, bar (false negative fail)");
+    }, "expected Object { foo: 1, bar: 2 } not to have keys foo, bar (false negative fail)");
   });
 
   it('test empty', function() {
