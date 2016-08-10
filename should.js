@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v10.0.0
+ * @version v11.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -254,10 +254,320 @@
     getGlobalType[typeName] = types[typeName];
   });
 
+  function format$1(msg) {
+    var args = arguments;
+    for (var i = 1, l = args.length; i < l; i++) {
+      msg = msg.replace(/%s/, args[i]);
+    }
+    return msg;
+  }
+
+  var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+  function EqualityFail(a, b, reason, path) {
+    this.a = a;
+    this.b = b;
+    this.reason = reason;
+    this.path = path;
+  }
+
+  function typeToString(tp) {
+    return tp.type + (tp.cls ? '(' + tp.cls + (tp.sub ? ' ' + tp.sub : '') + ')' : '');
+  }
+
+  var  PLUS_0_AND_MINUS_0 = '+0 is not equal to -0';
+  var  DIFFERENT_TYPES = 'A has type %s and B has type %s';
+  var  EQUALITY = 'A is not equal to B';
+  var  EQUALITY_PROTOTYPE = 'A and B have different prototypes';
+  var  WRAPPED_VALUE = 'A wrapped value is not equal to B wrapped value';
+  var  FUNCTION_SOURCES = 'function A is not equal to B by source code value (via .toString call)';
+  var  MISSING_KEY = '%s has no key %s';
+  var  SET_MAP_MISSING_KEY = 'Set/Map missing key %s';
+
+
+  var DEFAULT_OPTIONS = {
+    checkProtoEql: true,
+    checkSubType: true,
+    plusZeroAndMinusZeroEqual: true,
+    collectAllFails: false
+  };
+
+  function setBooleanDefault(property, obj, opts, defaults) {
+    obj[property] = typeof opts[property] !== 'boolean' ? defaults[property] : opts[property];
+  }
+
+  var METHOD_PREFIX = '_check_';
+
+  function EQ(opts, a, b, path) {
+    opts = opts || {};
+
+    setBooleanDefault('checkProtoEql', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('plusZeroAndMinusZeroEqual', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('checkSubType', this, opts, DEFAULT_OPTIONS);
+    setBooleanDefault('collectAllFails', this, opts, DEFAULT_OPTIONS);
+
+    this.a = a;
+    this.b = b;
+
+    this._meet = opts._meet || [];
+
+    this.fails = opts.fails || [];
+
+    this.path = path || [];
+  }
+
+  function ShortcutError(fail) {
+    this.name = 'ShortcutError';
+    this.message = 'fail fast';
+    this.fail = fail;
+  }
+
+  ShortcutError.prototype = Object.create(Error.prototype);
+
+  EQ.checkStrictEquality = function(a, b) {
+    this.collectFail(a !== b, EQUALITY);
+  };
+
+  EQ.add = function add(type, cls, sub, f) {
+    var args = Array.prototype.slice.call(arguments);
+    f = args.pop();
+    EQ.prototype[METHOD_PREFIX + args.join('_')] = f;
+  };
+
+  EQ.prototype = {
+    check: function() {
+      try {
+        this.check0();
+      } catch (e) {
+        if (e instanceof ShortcutError) {
+          return [e.fail];
+        }
+        throw e;
+      }
+      return this.fails;
+    },
+
+    check0: function() {
+      var a = this.a;
+      var b = this.b;
+
+      // equal a and b exit early
+      if (a === b) {
+        // check for +0 !== -0;
+        return this.collectFail(a === 0 && (1 / a !== 1 / b) && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
+      }
+
+      var typeA = getGlobalType(a);
+      var typeB = getGlobalType(b);
+
+      // if objects has different types they are not equal
+      if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
+        return this.collectFail(true, format$1(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
+      }
+
+      // as types the same checks type specific things
+      var name1 = typeA.type, name2 = typeA.type;
+      if (typeA.cls) {
+        name1 += '_' + typeA.cls;
+        name2 += '_' + typeA.cls;
+      }
+      if (typeA.sub) {
+        name2 += '_' + typeA.sub;
+      }
+
+      var f = this[METHOD_PREFIX + name2] || this[METHOD_PREFIX + name1] || this[METHOD_PREFIX + typeA.type] || this.defaultCheck;
+
+      f.call(this, this.a, this.b);
+    },
+
+    collectFail: function(comparison, reason, showReason) {
+      if (comparison) {
+        var res = new EqualityFail(this.a, this.b, reason, this.path);
+        res.showReason = !!showReason;
+
+        this.fails.push(res);
+
+        if (!this.collectAllFails) {
+          throw new ShortcutError(res);
+        }
+      }
+    },
+
+    checkPlainObjectsEquality: function(a, b) {
+      // compare deep objects and arrays
+      // stacks contain references only
+      //
+      var meet = this._meet;
+      var m = this._meet.length;
+      while (m--) {
+        var st = meet[m];
+        if (st[0] === a && st[1] === b) {
+          return;
+        }
+      }
+
+      // add `a` and `b` to the stack of traversed objects
+      meet.push([a, b]);
+
+      // TODO maybe something else like getOwnPropertyNames
+      var key;
+      for (key in b) {
+        if (hasOwnProperty.call(b, key)) {
+          if (hasOwnProperty.call(a, key)) {
+            this.checkPropertyEquality(key);
+          } else {
+            this.collectFail(true, format$1(MISSING_KEY, 'A', key));
+          }
+        }
+      }
+
+      // ensure both objects have the same number of properties
+      for (key in a) {
+        if (hasOwnProperty.call(a, key)) {
+          this.collectFail(!hasOwnProperty.call(b, key), format$1(MISSING_KEY, 'B', key));
+        }
+      }
+
+      meet.pop();
+
+      if (this.checkProtoEql) {
+        //TODO should i check prototypes for === or use eq?
+        this.collectFail(Object.getPrototypeOf(a) !== Object.getPrototypeOf(b), EQUALITY_PROTOTYPE, true);
+      }
+
+    },
+
+    checkPropertyEquality: function(propertyName) {
+      var _eq = new EQ(this, this.a[propertyName], this.b[propertyName], this.path.concat([propertyName]));
+      _eq.check0();
+    },
+
+    defaultCheck: EQ.checkStrictEquality
+  };
+
+
+  EQ.add(getGlobalType.NUMBER, function(a, b) {
+    this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
+  });
+
+  [getGlobalType.SYMBOL, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+    EQ.add(tp, EQ.checkStrictEquality);
+  });
+
+  EQ.add(getGlobalType.FUNCTION, function(a, b) {
+    // functions are compared by their source code
+    this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
+    // check regexp flags
+    var flags = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase', 'sticky', 'unicode'];
+    while (flags.length) {
+      this.checkPropertyEquality(flags.shift());
+    }
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
+    //check by timestamp only (using .valueOf)
+    this.collectFail(+a !== +b, EQUALITY);
+    // check user properties
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  [getGlobalType.NUMBER, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      //primitive type wrappers
+      this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
+      // check user properties
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+  EQ.add(getGlobalType.OBJECT, function(a, b) {
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  [getGlobalType.ARRAY, getGlobalType.ARGUMENTS, getGlobalType.TYPED_ARRAY].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      this.checkPropertyEquality('length');
+
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER, function(a, b) {
+    this.checkPropertyEquality('byteLength');
+
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.ERROR, function(a, b) {
+    this.checkPropertyEquality('name');
+    this.checkPropertyEquality('message');
+
+    this.checkPlainObjectsEquality(a, b);
+  });
+
+  EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
+    this.checkPropertyEquality('length');
+
+    var l = a.length;
+    while (l--) {
+      this.checkPropertyEquality(l);
+    }
+
+    //we do not check for user properties because
+    //node Buffer have some strange hidden properties
+  });
+
+  [getGlobalType.MAP, getGlobalType.SET, getGlobalType.WEAK_MAP, getGlobalType.WEAK_SET].forEach(function(tp) {
+    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+      this._meet.push([a, b]);
+
+      var iteratorA = a.entries();
+      for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
+
+        var iteratorB = b.entries();
+        var keyFound = false;
+        for (var nextB = iteratorB.next(); !nextB.done; nextB = iteratorB.next()) {
+          // try to check keys first
+          var r = eq(nextA.value[0], nextB.value[0], { collectAllFails: false, _meet: this._meet });
+
+          if (r.length === 0) {
+            keyFound = true;
+
+            // check values also
+            eq(nextA.value[1], nextB.value[1], this);
+          }
+        }
+
+        if (!keyFound) {
+          // no such key at all
+          this.collectFail(true, format$1(SET_MAP_MISSING_KEY, nextA.value[0]));
+        }
+      }
+
+      this._meet.pop();
+
+      this.checkPlainObjectsEquality(a, b);
+    });
+  });
+
+
+  function eq(a, b, opts) {
+    return new EQ(opts, a, b).check();
+  }
+
+  eq.EQ = EQ;
+
   var _hasOwnProperty = Object.prototype.hasOwnProperty;
   var _propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-  function hasOwnProperty(obj, key) {
+  function hasOwnProperty$1(obj, key) {
     return _hasOwnProperty.call(obj, key);
   }
 
@@ -381,7 +691,7 @@
   defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), {
     forEach: function(obj, f, context) {
       for (var prop in obj) {
-        if (hasOwnProperty(obj, prop) && propertyIsEnumerable(obj, prop)) {
+        if (hasOwnProperty$1(obj, prop) && propertyIsEnumerable(obj, prop)) {
           if (f.call(context, obj[prop], prop, obj) === false) {
             return;
           }
@@ -390,7 +700,7 @@
     },
 
     has: function(obj, prop) {
-      return hasOwnProperty(obj, prop);
+      return hasOwnProperty$1(obj, prop);
     },
 
     get: function(obj, prop) {
@@ -1063,316 +1373,6 @@
   Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOST), function() {
     return '[Host]';
   });
-
-  function format$1(msg) {
-    var args = arguments;
-    for (var i = 1, l = args.length; i < l; i++) {
-      msg = msg.replace(/%s/, args[i]);
-    }
-    return msg;
-  }
-
-  var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
-
-  function EqualityFail(a, b, reason, path) {
-    this.a = a;
-    this.b = b;
-    this.reason = reason;
-    this.path = path;
-  }
-
-  function typeToString(tp) {
-    return tp.type + (tp.cls ? '(' + tp.cls + (tp.sub ? ' ' + tp.sub : '') + ')' : '');
-  }
-
-  var  PLUS_0_AND_MINUS_0 = '+0 is not equal to -0';
-  var  DIFFERENT_TYPES = 'A has type %s and B has type %s';
-  var  EQUALITY = 'A is not equal to B';
-  var  EQUALITY_PROTOTYPE = 'A and B have different prototypes';
-  var  WRAPPED_VALUE = 'A wrapped value is not equal to B wrapped value';
-  var  FUNCTION_SOURCES = 'function A is not equal to B by source code value (via .toString call)';
-  var  MISSING_KEY = '%s has no key %s';
-  var  SET_MAP_MISSING_KEY = 'Set/Map missing key %s';
-
-
-  var DEFAULT_OPTIONS = {
-    checkProtoEql: true,
-    checkSubType: true,
-    plusZeroAndMinusZeroEqual: true,
-    collectAllFails: false
-  };
-
-  function setBooleanDefault(property, obj, opts, defaults) {
-    obj[property] = typeof opts[property] !== 'boolean' ? defaults[property] : opts[property];
-  }
-
-  var METHOD_PREFIX = '_check_';
-
-  function EQ(opts, a, b, path) {
-    opts = opts || {};
-
-    setBooleanDefault('checkProtoEql', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('plusZeroAndMinusZeroEqual', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('checkSubType', this, opts, DEFAULT_OPTIONS);
-    setBooleanDefault('collectAllFails', this, opts, DEFAULT_OPTIONS);
-
-    this.a = a;
-    this.b = b;
-
-    this._meet = opts._meet || [];
-
-    this.fails = opts.fails || [];
-
-    this.path = path || [];
-  }
-
-  function ShortcutError(fail) {
-    this.name = 'ShortcutError';
-    this.message = 'fail fast';
-    this.fail = fail;
-  }
-
-  ShortcutError.prototype = Object.create(Error.prototype);
-
-  EQ.checkStrictEquality = function(a, b) {
-    this.collectFail(a !== b, EQUALITY);
-  };
-
-  EQ.add = function add(type, cls, sub, f) {
-    var args = Array.prototype.slice.call(arguments);
-    f = args.pop();
-    EQ.prototype[METHOD_PREFIX + args.join('_')] = f;
-  };
-
-  EQ.prototype = {
-    check: function() {
-      try {
-        this.check0();
-      } catch (e) {
-        if (e instanceof ShortcutError) {
-          return [e.fail];
-        }
-        throw e;
-      }
-      return this.fails;
-    },
-
-    check0: function() {
-      var a = this.a;
-      var b = this.b;
-
-      // equal a and b exit early
-      if (a === b) {
-        // check for +0 !== -0;
-        return this.collectFail(a === 0 && (1 / a !== 1 / b) && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
-      }
-
-      var typeA = getGlobalType(a);
-      var typeB = getGlobalType(b);
-
-      // if objects has different types they are not equal
-      if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
-        return this.collectFail(true, format$1(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
-      }
-
-      // as types the same checks type specific things
-      var name1 = typeA.type, name2 = typeA.type;
-      if (typeA.cls) {
-        name1 += '_' + typeA.cls;
-        name2 += '_' + typeA.cls;
-      }
-      if (typeA.sub) {
-        name2 += '_' + typeA.sub;
-      }
-
-      var f = this[METHOD_PREFIX + name2] || this[METHOD_PREFIX + name1] || this[METHOD_PREFIX + typeA.type] || this.defaultCheck;
-
-      f.call(this, this.a, this.b);
-    },
-
-    collectFail: function(comparison, reason, showReason) {
-      if (comparison) {
-        var res = new EqualityFail(this.a, this.b, reason, this.path);
-        res.showReason = !!showReason;
-
-        this.fails.push(res);
-
-        if (!this.collectAllFails) {
-          throw new ShortcutError(res);
-        }
-      }
-    },
-
-    checkPlainObjectsEquality: function(a, b) {
-      // compare deep objects and arrays
-      // stacks contain references only
-      //
-      var meet = this._meet;
-      var m = this._meet.length;
-      while (m--) {
-        var st = meet[m];
-        if (st[0] === a && st[1] === b) {
-          return;
-        }
-      }
-
-      // add `a` and `b` to the stack of traversed objects
-      meet.push([a, b]);
-
-      // TODO maybe something else like getOwnPropertyNames
-      var key;
-      for (key in b) {
-        if (hasOwnProperty$1.call(b, key)) {
-          if (hasOwnProperty$1.call(a, key)) {
-            this.checkPropertyEquality(key);
-          } else {
-            this.collectFail(true, format$1(MISSING_KEY, 'A', key));
-          }
-        }
-      }
-
-      // ensure both objects have the same number of properties
-      for (key in a) {
-        if (hasOwnProperty$1.call(a, key)) {
-          this.collectFail(!hasOwnProperty$1.call(b, key), format$1(MISSING_KEY, 'B', key));
-        }
-      }
-
-      meet.pop();
-
-      if (this.checkProtoEql) {
-        //TODO should i check prototypes for === or use eq?
-        this.collectFail(Object.getPrototypeOf(a) !== Object.getPrototypeOf(b), EQUALITY_PROTOTYPE, true);
-      }
-
-    },
-
-    checkPropertyEquality: function(propertyName) {
-      var _eq = new EQ(this, this.a[propertyName], this.b[propertyName], this.path.concat([propertyName]));
-      _eq.check0();
-    },
-
-    defaultCheck: EQ.checkStrictEquality
-  };
-
-
-  EQ.add(getGlobalType.NUMBER, function(a, b) {
-    this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
-  });
-
-  [getGlobalType.SYMBOL, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
-    EQ.add(tp, EQ.checkStrictEquality);
-  });
-
-  EQ.add(getGlobalType.FUNCTION, function(a, b) {
-    // functions are compared by their source code
-    this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
-    // check regexp flags
-    var flags = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase', 'sticky', 'unicode'];
-    while (flags.length) {
-      this.checkPropertyEquality(flags.shift());
-    }
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
-    //check by timestamp only (using .valueOf)
-    this.collectFail(+a !== +b, EQUALITY);
-    // check user properties
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  [getGlobalType.NUMBER, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
-    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
-      //primitive type wrappers
-      this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
-      // check user properties
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-  EQ.add(getGlobalType.OBJECT, function(a, b) {
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  [getGlobalType.ARRAY, getGlobalType.ARGUMENTS, getGlobalType.TYPED_ARRAY].forEach(function(tp) {
-    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
-      this.checkPropertyEquality('length');
-
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-  EQ.add(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER, function(a, b) {
-    this.checkPropertyEquality('byteLength');
-
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add(getGlobalType.OBJECT, getGlobalType.ERROR, function(a, b) {
-    this.checkPropertyEquality('name');
-    this.checkPropertyEquality('message');
-
-    this.checkPlainObjectsEquality(a, b);
-  });
-
-  EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
-    this.checkPropertyEquality('length');
-
-    var l = a.length;
-    while (l--) {
-      this.checkPropertyEquality(l);
-    }
-
-    //we do not check for user properties because
-    //node Buffer have some strange hidden properties
-  });
-
-  [getGlobalType.MAP, getGlobalType.SET, getGlobalType.WEAK_MAP, getGlobalType.WEAK_SET].forEach(function(tp) {
-    EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
-      this._meet.push([a, b]);
-
-      var iteratorA = a.entries();
-      for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
-
-        var iteratorB = b.entries();
-        var keyFound = false;
-        for (var nextB = iteratorB.next(); !nextB.done; nextB = iteratorB.next()) {
-          // try to check keys first
-          var r = eq(nextA.value[0], nextB.value[0], { collectAllFails: false, _meet: this._meet });
-
-          if (r.length === 0) {
-            keyFound = true;
-
-            // check values also
-            eq(nextA.value[1], nextB.value[1], this);
-          }
-        }
-
-        if (!keyFound) {
-          // no such key at all
-          this.collectFail(true, format$1(SET_MAP_MISSING_KEY, nextA.value[0]));
-        }
-      }
-
-      this._meet.pop();
-
-      this.checkPlainObjectsEquality(a, b);
-    });
-  });
-
-
-  function eq(a, b, opts) {
-    return new EQ(opts, a, b).check();
-  }
-
-  eq.EQ = EQ;
 
   function isWrapperType(obj) {
     return obj instanceof Number ||
@@ -3417,7 +3417,7 @@
         message: description
       };
 
-      this.assert(hasOwnProperty(this.obj, name));
+      this.assert(hasOwnProperty$1(this.obj, name));
 
       this.obj = this.obj[name];
     });
@@ -3442,13 +3442,14 @@
     }, true);
 
     /**
-     * Asserts given object has exact keys. Compared to `properties`, `keys` does not accept Object as a argument.
+     * Asserts given object has such keys. Compared to `properties`, `keys` does not accept Object as a argument.
+     * When calling via .key current object in assertion changed to value of this key
      *
      * @name keys
      * @alias Assertion#key
      * @memberOf Assertion
      * @category assertion property
-     * @param {...*} [keys] Keys to check
+     * @param {...*} keys Keys to check
      * @example
      *
      * ({ a: 10 }).should.have.keys('a');
@@ -3476,15 +3477,41 @@
       this.assert(missingKeys.length === 0);
     });
 
+
     Assertion.add('key', function(key) {
       this.have.keys(key);
       this.obj = get(this.obj, key);
     });
 
+    /**
+     * Asserts given object has such value for given key
+     *
+     * @name value
+     * @memberOf Assertion
+     * @category assertion property
+     * @param {*} key Key to check
+     * @param {*} value Value to check
+     * @example
+     *
+     * ({ a: 10 }).should.have.value('a', 10);
+     * (new Map([[1, 2]])).should.have.value(1, 2);
+     */
     Assertion.add('value', function(key, value) {
       this.have.key(key).which.is.eql(value);
     });
 
+    /**
+     * Asserts given object has such size.
+     *
+     * @name size
+     * @memberOf Assertion
+     * @category assertion property
+     * @param {number} s Size to check
+     * @example
+     *
+     * ({ a: 10 }).should.have.size(1);
+     * (new Map([[1, 2]])).should.have.size(1);
+     */
     Assertion.add('size', function(s) {
       this.params = { operator: 'to have size ' + s };
       size(this.obj).should.be.exactly(s);
@@ -3851,6 +3878,12 @@
   should.AssertionError = AssertionError;
   should.Assertion = Assertion;
 
+  // exposing modules dirty way
+  should.modules = {
+    format: defaultFormat,
+    type: getGlobalType,
+    equal: eq
+  };
   should.format = format;
 
   /**
