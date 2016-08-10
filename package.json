@@ -21,6 +21,7 @@
   "devDependencies": {
     "bluebird": "^3.0.6",
     "eslint": "^3.0.0",
+    "eslint-config-shouldjs": "^1.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
     "rollup": "0.34.4",
