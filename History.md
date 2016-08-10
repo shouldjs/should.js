@@ -1,3 +1,15 @@
+11.0.0 / 2016-08-10
+===================
+
+  * From code extracted parts for traversing different types in similar way.
+  This allows from now easy extend library to almost any collection class.
+  Now should.js everywhere supports Set/Map/WeakSet/WeakMap.
+  * .empty() now uses new type adaptors
+  * brecking change in .keys()/.key() now checks only for passed keys also uses type adaptors - it can check for keys in Map/Set e.g
+  * Added .value(key, value) to assert if key-value object has such value with this key
+  * Added .size() to get size of collection, works also with type adaptors
+  * .containEql uses type adaptors and can check if something contained within collection or subpart of key-value object
+
 10.0.0 / 2016-07-18
 ===================
 
@@ -16,7 +28,7 @@
 9.0.0 / 2016-05-30
 ==================
 
-  * Set should.config values to be more obvious. Pls check breacking changes page for exact values.
+  * Set should.config values to be more obvious. Pls check brecking changes page for exact values.
   * Add support for SIMD data types.
   * Fixed minor bugs in .eql
   * Allow to show all equality check fails in .eql
