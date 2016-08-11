@@ -186,11 +186,11 @@ AssertionError: expected { id: 10 } to be asset
 
 ## Additional projects
 
-`should-sinon` - adds additional assertions for sinon.js
-`should-immutable` - extends different parts of should.js to make immutable.js first-class citizen in should.js
-`should-http` - adds small assetions for assertion on http responses for node only
-`should-jq` - asserions for jq (need maintainer)
-`karma-should` - make more or less easy to work karma with should.js
+* [`should-sinon`](https://github.com/shouldjs/sinon) - adds additional assertions for sinon.js
+* [`should-immutable`](https://github.com/shouldjs/should-immutable) - extends different parts of should.js to make immutable.js first-class citizen in should.js
+* [`should-http`](https://github.com/shouldjs/http) - adds small assetions for assertion on http responses for node only
+* [`should-jq`](https://github.com/shouldjs/jq) - asserions for jq (need maintainer)
+* [`karma-should`](https://github.com/seegno/karma-should) - make more or less easy to work karma with should.js
 
 
 ## Contributions
