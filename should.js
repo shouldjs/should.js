@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v11.0.0
+ * @version v11.1.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -52,9 +52,7 @@
     SIMD: 'simd'
   };
 
-  var toString = Object.prototype.toString;
-
-  /**
+  /*
    * Simple data function to store type information
    * @param {string} type Usually what is returned from typeof
    * @param {string} cls  Sanitized @Class via Object.prototype.toString
@@ -108,6 +106,10 @@
     }
   };
 
+  var toString = Object.prototype.toString;
+
+
+
   /**
    * Function to store type checks
    * @private
@@ -120,6 +122,15 @@
     add: function(func) {
       this.checks.push(func);
       return this;
+    },
+
+    addBeforeFirstMatch: function(obj, func) {
+      var match = this.getFirstMatch(obj);
+      if (match) {
+        this.checks.splice(match.index, 0, func);
+      } else {
+        this.add(func);
+      }
     },
 
     addTypeOf: function(type, res) {
@@ -138,17 +149,21 @@
       });
     },
 
-    getType: function(obj) {
+    getFirstMatch: function(obj) {
       var typeOf = typeof obj;
       var cls = toString.call(obj);
 
       for (var i = 0, l = this.checks.length; i < l; i++) {
         var res = this.checks[i].call(this, obj, typeOf, cls);
         if (typeof res !== 'undefined') {
-          return res;
+          return { result: res, func: this.checks[i], index: i };
         }
       }
+    },
 
+    getType: function(obj) {
+      var match = this.getFirstMatch(obj);
+      return match && match.result;
     }
   };
 
