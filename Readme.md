@@ -184,6 +184,14 @@ AssertionError: expected { id: 10 } to be asset
     expected { id: 10 } to have property path
 ```
 
+## Additional projects
+
+* [`should-sinon`](https://github.com/shouldjs/sinon) - adds additional assertions for sinon.js
+* [`should-immutable`](https://github.com/shouldjs/should-immutable) - extends different parts of should.js to make immutable.js first-class citizen in should.js
+* [`should-http`](https://github.com/shouldjs/http) - adds small assetions for assertion on http responses for node only
+* [`should-jq`](https://github.com/shouldjs/jq) - asserions for jq (need maintainer)
+* [`karma-should`](https://github.com/seegno/karma-should) - make more or less easy to work karma with should.js
+
 
 ## Contributions
 
@@ -199,7 +207,7 @@ See also [CONTRIBUTING](./CONTRIBUTING.md).
 
 Yes, yes it does, with a single getter _should_, and no it won't break your code, because it does this **properly** with a non-enumerable property.
 
-Also it is possible use it without extension.
+Also it is possible use it without extension. Just use `require('should/as-function')` everywhere.
 
 ## License
 

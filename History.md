@@ -6,14 +6,14 @@
 11.0.0 / 2016-08-10
 ===================
 
-  * From code extracted parts for traversing different types in similar way.
-  This allows from now easy extend library to almost any collection class.
-  Now should.js everywhere supports Set/Map/WeakSet/WeakMap.
-  * .empty() now uses new type adaptors
-  * brecking change in .keys()/.key() now checks only for passed keys also uses type adaptors - it can check for keys in Map/Set e.g
-  * Added .value(key, value) to assert if key-value object has such value with this key
-  * Added .size() to get size of collection, works also with type adaptors
-  * .containEql uses type adaptors and can check if something contained within collection or subpart of key-value object
+  * Extracted parts from code for traversing different data types in similar ways.
+  This allows for easily extending the library to almost any collection class.
+  Now should.js supports `Set`/`Map`/`WeakSet`/`WeakMap` everywhere.
+  * `.empty()` now uses new type adaptors
+  * Breaking change in `.keys()`/`.key()`: now only checks for passed keys (also uses type adaptors) - it can check for keys in `Map`/`Set` e.g
+  * Added `.value(key, value)` to assert if key-value object has such `value` with this `key`
+  * Added `.size()` to get size of collection; also works with type adaptors
+  * `.containEql` uses type adaptors and can check something contained within a collection or sub-part of a key-value object
 
 10.0.0 / 2016-07-18
 ===================
