@@ -191,6 +191,7 @@ AssertionError: expected { id: 10 } to be asset
 * [`should-http`](https://github.com/shouldjs/http) - adds small assetions for assertion on http responses for node only
 * [`should-jq`](https://github.com/shouldjs/jq) - asserions for jq (need maintainer)
 * [`karma-should`](https://github.com/seegno/karma-should) - make more or less easy to work karma with should.js
+* [`should-spies`](https://github.com/shouldjs/spies) - small and dirty simple zero dependcies spies
 
 
 ## Contributions
