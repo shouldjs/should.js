@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v11.1.0
+ * @version v11.1.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -702,8 +702,7 @@
 
   var defaultTypeAdaptorStorage = new TypeAdaptorStorage();
 
-  // default for objects
-  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), {
+  var objectAdaptor = {
     forEach: function(obj, f, context) {
       for (var prop in obj) {
         if (hasOwnProperty$1(obj, prop) && propertyIsEnumerable(obj, prop)) {
@@ -725,7 +724,11 @@
     iterator: function(obj) {
       return new ObjectIterator(obj);
     }
-  });
+  };
+
+  // default for objects
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), objectAdaptor);
+  defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.FUNCTION), objectAdaptor);
 
   var mapAdaptor = {
     has: function(obj, key) {
@@ -918,7 +921,7 @@
     format: function(value) {
       var tp = getGlobalType(value);
 
-      if (tp.type === getGlobalType.OBJECT && this.alreadySeen(value)) {
+      if (this.alreadySeen(value)) {
         return '[Circular]';
       }
 
@@ -1148,11 +1151,7 @@
   }
 
   function formatFunction(value) {
-    var obj = {};
-    Object.keys(value).forEach(function(key) {
-      obj[key] = value[key];
-    });
-    return formatPlainObject.call(this, obj, {
+    return formatPlainObject.call(this, value, {
       prefix: 'Function',
       additionalKeys: [['name', functionName$1(value)]]
     });

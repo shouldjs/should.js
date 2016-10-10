@@ -1,7 +1,7 @@
 {
   "name": "should",
   "description": "test framework agnostic BDD-style assertions",
-  "version": "11.1.0",
+  "version": "11.1.1",
   "author": "TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors",
   "repository": {
     "type": "git",
@@ -38,9 +38,9 @@
   "license": "MIT",
   "dependencies": {
     "should-equal": "^1.0.0",
-    "should-format": "^3.0.1",
+    "should-format": "^3.0.2",
     "should-type": "^1.4.0",
-    "should-type-adaptors": "^1.0.0",
+    "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"
   },
   "files": [
