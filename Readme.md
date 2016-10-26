@@ -212,4 +212,4 @@ Also it is possible use it without extension. Just use `require('should/as-funct
 
 ## License
 
-MIT &copy; 2010-2014 TJ Holowaychuk
+MIT. See LICENSE for details.
