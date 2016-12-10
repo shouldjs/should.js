@@ -1,10 +1,12 @@
 ui: mocha-bdd
 browsers:
   - name: chrome
-    version: 49..latest
+    version: 52..latest
   - name: ie
-    version: 9..latest
+    version: 10..latest
+  - name: edge
+    version: 13..latest
   - name: firefox
-    version: 44..latest
+    version: 48..latest
   - name: safari
-    version: 6..latest
+    version: 8..latest
