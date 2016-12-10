@@ -1,3 +1,8 @@
+11.1.2 / 2016-12-10
+===================
+
+  * Added workaround for runtimes where error's stack populated eagerly
+
 11.1.1 / 2016-10-10
 ===================
 

@@ -1,7 +1,7 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v11.1.1
- * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com> and other contributors
+ * @version v11.1.2
+ * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
  */
@@ -1500,6 +1500,28 @@
     }
   });
 
+  // a bit hacky way how to get error to do not have stack
+  function LightAssertionError(options) {
+    merge(this, options);
+
+    if (!options.message) {
+      Object.defineProperty(this, 'message', {
+        get: function() {
+          if (!this._message) {
+            this._message = this.generateMessage();
+            this.generatedMessage = true;
+          }
+          return this._message;
+        }
+      });
+    }
+  }
+
+  LightAssertionError.prototype = {
+    generateMessage: AssertionError.prototype.generateMessage
+  };
+
+
   /**
    * should Assertion
    * @param {*} obj Given object for assertion
@@ -1562,7 +1584,11 @@
 
       params.assertion = this;
 
-      throw new AssertionError(params);
+      if (this.light) {
+        throw new LightAssertionError(params);
+      } else {
+        throw new AssertionError(params);
+      }
     },
 
     /**
@@ -1635,12 +1661,13 @@
       value: function() {
         var context = new Assertion(this.obj, this, name);
         context.anyOne = this.anyOne;
+        context.light = true;
 
         try {
           func.apply(context, arguments);
         } catch (e) {
           // check for fail
-          if (e instanceof AssertionError) {
+          if (e instanceof AssertionError || e instanceof LightAssertionError) {
             // negative fail
             if (this.negate) {
               this.obj = context.obj;
@@ -1654,6 +1681,7 @@
 
             // positive fail
             context.negate = false;
+            context.light = false;
             context.fail();
           }
           // throw if it is another exception
@@ -1664,6 +1692,7 @@
         if (this.negate) {
           context.negate = true; // because .fail will set negate
           context.params.details = 'false negative fail';
+          context.light = false;
           context.fail();
         }
 
