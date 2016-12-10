@@ -14,7 +14,7 @@
     "build": "npm run cjs && npm run es6",
     "prepublish": "npm run build && npm run browser",
     "pretest": "npm run build",
-    "test": "mocha -R mocha-better-spec-reporter --check-leaks ./test/*.test.js ./test/**/*.test.js",
+    "test": "mocha -R mocha-better-spec-reporter --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
     "browser": "rollup -c rollup.config.js  --output ./should.js"
   },
