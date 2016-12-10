@@ -2131,6 +2131,7 @@
      * @alias Assertion#of
      * @alias Assertion#a
      * @alias Assertion#and
+     * @alias Assertion#been
      * @alias Assertion#have
      * @alias Assertion#has
      * @alias Assertion#with
@@ -2140,7 +2141,7 @@
      * @alias Assertion#it
      * @category assertion chaining
      */
-    ['an', 'of', 'a', 'and', 'be', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
+    ['an', 'of', 'a', 'and', 'be', 'been', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
       Assertion.addChain(name);
     });
   }
