@@ -179,6 +179,10 @@ describe('property', function() {
 
     ({ '1': 'cancelled', '3': 'deleted' }).should.have.keys(1, 3);
 
+    ({ a: 10, b: 11 }).should.only.have.keys('a', 'b');
+
+    ({ a: 10, b: 11, c: 999 }).should.not.only.have.keys('a', 'b');
+
     err(function() {
       ({ foo: 1 }).should.have.keys('bar');
     }, "expected Object { foo: 1 } to have key bar\n\tmissing keys: bar");
