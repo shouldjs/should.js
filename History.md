@@ -1,3 +1,9 @@
+11.2.0 / 2017-01-27
+===================
+
+  * Added `.only` modifier for `.keys` to check also size
+  * Soft deprecate `.enumerable(s)` 
+
 11.1.2 / 2016-12-10
 ===================
 

@@ -1,7 +1,7 @@
 {
   "name": "should",
   "description": "test framework agnostic BDD-style assertions",
-  "version": "11.1.2",
+  "version": "11.2.0",
   "author": "TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
     "eslint-config-shouldjs": "^1.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
-    "rollup": "0.34.7",
+    "rollup": "^0.41.4",
     "rollup-plugin-node-resolve": "^2.0.0",
     "zuul": "latest"
   },
