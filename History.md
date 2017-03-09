@@ -1,8 +1,13 @@
+11.2.1 / 2017-03-09
+===================
+
+  * Fix `.match(regex)` for not supported cases
+
 11.2.0 / 2017-01-27
 ===================
 
   * Added `.only` modifier for `.keys` to check also size
-  * Soft deprecate `.enumerable(s)` 
+  * Soft deprecate `.enumerable(s)`
 
 11.1.2 / 2016-12-10
 ===================

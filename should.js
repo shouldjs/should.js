@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v11.2.0
+ * @version v11.2.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1388,6 +1388,12 @@ Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOS
   return '[Host]';
 });
 
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 function isWrapperType(obj) {
   return obj instanceof Number ||
     obj instanceof String ||
@@ -1400,6 +1406,13 @@ function convertPropertyName(name) {
 }
 
 var functionName = defaultFormat.functionName;
+
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 
 var config = {
   typeAdaptors: defaultTypeAdaptorStorage,
@@ -1418,6 +1431,12 @@ function formatProp(value) {
   return defaultFormat.formatPlainObjectKey.call(formatter, value);
 }
 
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 /**
  * should AssertionError
  * @param {Object} options
@@ -1500,6 +1519,13 @@ AssertionError.prototype = Object.create(Error.prototype, {
     }
   }
 });
+
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 
 // a bit hacky way how to get error to do not have stack
 function LightAssertionError(options) {
@@ -1816,6 +1842,35 @@ Assertion.addChain('only', function() {
   this.onlyThis = true;
 });
 
+// implement assert interface using already written peaces of should.js
+
+// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
+//
+// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
+//
+// Originally from narwhal.js (http://narwhaljs.org)
+// Copyright (c) 2009 Thomas Robinson <280north.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the 'Software'), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// when used in node, this will actually load the util module we depend on
+// versus loading the builtin util module as happens otherwise
+// this is a bug in node module loading as far as I am concerned
 var pSlice = Array.prototype.slice;
 
 // 1. The assert module provides functions that throw
@@ -2070,7 +2125,14 @@ assert.ifError = function(err) {
   }
 };
 
-function assertExtensions(should) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+
+var assertExtensions = function(should) {
   var i = should.format;
 
   /*
@@ -2129,7 +2191,7 @@ function assertExtensions(should) {
       });
     }
   };
-}
+};
 
 /*
  * should.js - assertion library
@@ -2138,9 +2200,9 @@ function assertExtensions(should) {
  * MIT Licensed
  */
 
-function chainAssertions(should, Assertion) {
+var chainAssertions = function(should, Assertion) {
   /**
-   * Simple chaining. It actually do nothing.
+   * Simple chaining to improve readability. Does nothing.
    *
    * @memberOf Assertion
    * @name be
@@ -2162,7 +2224,7 @@ function chainAssertions(should, Assertion) {
   ['an', 'of', 'a', 'and', 'be', 'been', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
     Assertion.addChain(name);
   });
-}
+};
 
 /*
  * should.js - assertion library
@@ -2171,7 +2233,7 @@ function chainAssertions(should, Assertion) {
  * MIT Licensed
  */
 
-function booleanAssertions(should, Assertion) {
+var booleanAssertions = function(should, Assertion) {
   /**
    * Assert given object is exactly `true`.
    *
@@ -2233,7 +2295,7 @@ function booleanAssertions(should, Assertion) {
 
     this.assert(this.obj);
   });
-}
+};
 
 /*
  * should.js - assertion library
@@ -2242,7 +2304,7 @@ function booleanAssertions(should, Assertion) {
  * MIT Licensed
  */
 
-function numberAssertions(should, Assertion) {
+var numberAssertions = function(should, Assertion) {
 
   /**
    * Assert given object is NaN
@@ -2401,9 +2463,16 @@ function numberAssertions(should, Assertion) {
   Assertion.alias('aboveOrEqual', 'greaterThanOrEqual');
   Assertion.alias('belowOrEqual', 'lessThanOrEqual');
 
-}
+};
 
-function typeAssertions(should, Assertion) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+
+var typeAssertions = function(should, Assertion) {
   /**
    * Assert given object is number
    * @name Number
@@ -2630,7 +2699,14 @@ function typeAssertions(should, Assertion) {
       .and.iterator
       .and.it.is.equal(this.obj[Symbol.iterator]());
   });
-}
+};
+
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 
 function formatEqlResult(r, a, b) {
   return ((r.path.length > 0 ? 'at ' + r.path.map(formatProp).join(' -> ') : '') +
@@ -2639,7 +2715,7 @@ function formatEqlResult(r, a, b) {
   (r.showReason ? ' because ' + r.reason : '')).trim();
 }
 
-function equalityAssertions(should, Assertion) {
+var equalityAssertions = function(should, Assertion) {
 
 
   /**
@@ -2760,9 +2836,16 @@ function equalityAssertions(should, Assertion) {
    */
   addOneOf('oneOf', 'to be one of', 'eql');
 
-}
+};
 
-function promiseAssertions(should, Assertion) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+
+var promiseAssertions = function(should, Assertion$$1) {
   /**
    * Assert given object is a Promise
    *
@@ -2775,7 +2858,7 @@ function promiseAssertions(should, Assertion) {
    * (new Promise(function(resolve, reject) { resolve(10); })).should.be.a.Promise()
    * (10).should.not.be.a.Promise()
    */
-  Assertion.add('Promise', function() {
+  Assertion$$1.add('Promise', function() {
     this.params = {operator: 'to be promise'};
 
     var obj = this.obj;
@@ -2802,7 +2885,7 @@ function promiseAssertions(should, Assertion) {
    *      .should.be.fulfilled();
    * });
    */
-  Assertion.prototype.fulfilled = function Assertion$fulfilled() {
+  Assertion$$1.prototype.fulfilled = function Assertion$fulfilled() {
     this.params = {operator: 'to be fulfilled'};
 
     should(this.obj).be.a.Promise();
@@ -2841,7 +2924,7 @@ function promiseAssertions(should, Assertion) {
    *      .should.be.rejected();
    * });
    */
-  Assertion.prototype.rejected = function() {
+  Assertion$$1.prototype.rejected = function() {
     this.params = {operator: 'to be rejected'};
 
     should(this.obj).be.a.Promise();
@@ -2884,7 +2967,7 @@ function promiseAssertions(should, Assertion) {
    *       .should.be.fulfilledWith(10);
    * });
    */
-  Assertion.prototype.fulfilledWith = function(expectedValue) {
+  Assertion$$1.prototype.fulfilledWith = function(expectedValue) {
     this.params = {operator: 'to be fulfilled with ' + should.format(expectedValue)};
 
     should(this.obj).be.a.Promise();
@@ -2931,7 +3014,7 @@ function promiseAssertions(should, Assertion) {
    *    return failedPromise().should.be.rejectedWith({ message: 'boom' });
    * });
    */
-  Assertion.prototype.rejectedWith = function(message, properties) {
+  Assertion$$1.prototype.rejectedWith = function(message, properties) {
     this.params = {operator: 'to be rejected'};
 
     should(this.obj).be.a.Promise();
@@ -3017,7 +3100,7 @@ function promiseAssertions(should, Assertion) {
    *      .should.be.finally.equal(10);
    * });
    */
-  Object.defineProperty(Assertion.prototype, 'finally', {
+  Object.defineProperty(Assertion$$1.prototype, 'finally', {
     get: function() {
       should(this.obj).be.a.Promise();
 
@@ -3034,8 +3117,8 @@ function promiseAssertions(should, Assertion) {
     }
   });
 
-  Assertion.alias('finally', 'eventually');
-}
+  Assertion$$1.alias('finally', 'eventually');
+};
 
 /*
  * should.js - assertion library
@@ -3044,7 +3127,7 @@ function promiseAssertions(should, Assertion) {
  * MIT Licensed
  */
 
-function stringAssertions(should, Assertion) {
+var stringAssertions = function(should, Assertion) {
   /**
    * Assert given string starts with prefix
    * @name startWith
@@ -3078,9 +3161,16 @@ function stringAssertions(should, Assertion) {
 
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
-}
+};
 
-function containAssertions(should, Assertion) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+
+var containAssertions = function(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3237,11 +3327,18 @@ function containAssertions(should, Assertion) {
     }
   });
 
-}
+};
+
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 
 var aSlice = Array.prototype.slice;
 
-function propertyAssertions(should, Assertion) {
+var propertyAssertions = function(should, Assertion) {
   var i = should.format;
   /**
    * Asserts given object has some descriptor. **On success it change given object to be value of property**.
@@ -3280,20 +3377,6 @@ function propertyAssertions(should, Assertion) {
     return args;
   }
 
-
-  /**
-   * Asserts given object has enumerable property with optionally value. **On success it change given object to be value of property**.
-   * **Deprecated**. Use .keys
-   *
-   * @name enumerable
-   * @memberOf Assertion
-   * @category assertion property
-   * @param {string} name Name of property
-   * @param {*} [val] Optional property value to check
-   * @example
-   *
-   * ({ a: 10 }).should.have.enumerable('a');
-   */
   Assertion.add('enumerable', function(name, val) {
     name = convertPropertyName(name);
 
@@ -3308,18 +3391,6 @@ function propertyAssertions(should, Assertion) {
     this.have.propertyWithDescriptor(name, desc);
   });
 
-  /**
-   * Asserts given object has enumerable properties.
-   * **Deprecated**. Use .keys
-   *
-   * @name enumerables
-   * @memberOf Assertion
-   * @category assertion property
-   * @param {Array|...string|Object} names Names of property
-   * @example
-   *
-   * ({ a: 10, b: 10 }).should.have.enumerables('a');
-   */
   Assertion.add('enumerables', function(/*names*/) {
     var args = processPropsArgs.apply(null, arguments);
 
@@ -3621,9 +3692,15 @@ function propertyAssertions(should, Assertion) {
 
     this.obj = obj.obj;
   });
-}
+};
 
-function errorAssertions(should, Assertion) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+var errorAssertions = function(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3724,9 +3801,16 @@ function errorAssertions(should, Assertion) {
   });
 
   Assertion.alias('throw', 'throwError');
-}
+};
 
-function matchingAssertions(should, Assertion) {
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
+
+var matchingAssertions = function(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3814,6 +3898,9 @@ function matchingAssertions(should, Assertion) {
 
           this.assert(notMatchedProps.length === 0);
         } // should we try to convert to String and exec?
+        else {
+          this.assert(false);
+        }
       } else if (typeof other == 'function') {
         var res;
 
@@ -3923,8 +4010,14 @@ function matchingAssertions(should, Assertion) {
 
   Assertion.alias('matchAny', 'matchSome');
   Assertion.alias('matchEach', 'matchEvery');
-}
+};
 
+/*
+ * should.js - assertion library
+ * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
+ * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * MIT Licensed
+ */
 /**
  * Our function should
  *
