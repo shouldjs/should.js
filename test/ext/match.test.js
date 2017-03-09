@@ -1,5 +1,5 @@
 var err = require('../util').err;
-require('../../');
+var should = require('../../');
 
 describe('match', function() {
 
@@ -28,6 +28,8 @@ describe('match', function() {
     ({ a: 'foo', c: 'barfoo' }).should.match(/foo$/);
 
     ({ a: 'a' }).should.not.match(/^http/);
+
+    should(null).not.match(/bar/);
 
     // positive false
     err(function() {
