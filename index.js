@@ -1,13 +1,19 @@
-var should = require('./cjs/should');
+var should = require("./cjs/should");
 
 var defaultProto = Object.prototype;
-var defaultProperty = 'should';
+var defaultProperty = "should";
 
 //Expose api via `Object#should`.
 try {
   var prevShould = should.extend(defaultProperty, defaultProto);
   should._prevShould = prevShould;
-} catch(e) {
+
+  Object.defineProperty(global, "should", {
+    enumerable: false,
+    configurable: true,
+    value: should
+  });
+} catch (e) {
   //ignore errors
 }
 
