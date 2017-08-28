@@ -1391,7 +1391,7 @@ Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOS
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 function isWrapperType(obj) {
@@ -1410,7 +1410,7 @@ var functionName = defaultFormat.functionName;
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -1434,7 +1434,7 @@ function formatProp(value) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 /**
@@ -1523,7 +1523,7 @@ AssertionError.prototype = Object.create(Error.prototype, {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2128,7 +2128,7 @@ assert.ifError = function(err) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2196,7 +2196,7 @@ var assertExtensions = function(should) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2229,7 +2229,7 @@ var chainAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2300,7 +2300,7 @@ var booleanAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2468,7 +2468,7 @@ var numberAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2704,7 +2704,7 @@ var typeAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -2841,7 +2841,7 @@ var equalityAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -3123,7 +3123,7 @@ var promiseAssertions = function(should, Assertion$$1) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -3166,7 +3166,7 @@ var stringAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -3332,7 +3332,7 @@ var containAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -3697,7 +3697,7 @@ var propertyAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 var errorAssertions = function(should, Assertion) {
@@ -3806,7 +3806,7 @@ var errorAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 
@@ -4015,7 +4015,7 @@ var matchingAssertions = function(should, Assertion) {
 /*
  * should.js - assertion library
  * Copyright(c) 2010-2013 TJ Holowaychuk <tj@vision-media.ca>
- * Copyright(c) 2013-2016 Denis Bardadym <bardadymchik@gmail.com>
+ * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
 /**
