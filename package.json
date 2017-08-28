@@ -9,23 +9,23 @@
   },
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
-    "cjs": "rollup --format=cjs --output=cjs/should.js lib/should.js",
-    "es6": "rollup --format=es --output=es6/should.js lib/should.js",
+    "cjs": "rollup --output.format=cjs --output.file=cjs/should.js lib/should.js",
+    "es6": "rollup --output.format=es --output.file=es6/should.js lib/should.js",
     "build": "npm run cjs && npm run es6",
-    "prepublish": "npm run build && npm run browser",
+    "prepare": "npm run build && npm run browser",
     "pretest": "npm run build",
     "test": "mocha -R mocha-better-spec-reporter --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
-    "browser": "rollup -c rollup.config.js  --output ./should.js"
+    "browser": "rollup -c rollup.config.js --output.format=iife  --output.file ./should.js"
   },
   "devDependencies": {
-    "bluebird": "^3.0.6",
-    "eslint": "^3.0.0",
+    "bluebird": "^3.5.0",
+    "eslint": "^3.19.0",
     "eslint-config-shouldjs": "^1.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
-    "rollup": "^0.41.4",
-    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup": "^0.49.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
     "zuul": "latest"
   },
   "keywords": [
@@ -37,8 +37,8 @@
   "main": "./index.js",
   "license": "MIT",
   "dependencies": {
-    "should-equal": "^1.0.0",
-    "should-format": "^3.0.2",
+    "should-equal": "^2.0.0",
+    "should-format": "^3.0.3",
     "should-type": "^1.4.0",
     "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"

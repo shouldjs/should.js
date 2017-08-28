@@ -1,9 +1,9 @@
 /*eslint-env node */
-'use strict';
+"use strict";
 
-const nodeResolve = require('rollup-plugin-node-resolve');
+const nodeResolve = require("rollup-plugin-node-resolve");
 
-const pkg = require('./package.json');
+const pkg = require("./package.json");
 
 const banner = `/*!
  * ${pkg.name} - ${pkg.description}
@@ -15,18 +15,18 @@ const banner = `/*!
 `;
 
 module.exports = {
-  entry: 'browser-entry.js',
+  input: "browser-entry.js",
   banner,
-  format: 'iife',
   plugins: [
     nodeResolve({
+      module: true,
       jsnext: true,
       main: true,
       preferBuiltins: false
     })
   ],
-  external: ['root'],
+  external: ["root"],
   globals: {
-    root: 'this'
+    root: "this"
   }
 };
