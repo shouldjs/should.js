@@ -1,3 +1,9 @@
+12.0.0 / 2017-08-28
+===================
+
+  * Update `should-equal` to 2.x
+  * Update entry points to do the same thing (global should entry)
+
 11.2.1 / 2017-03-09
 ===================
 

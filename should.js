@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v11.2.1
+ * @version v12.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -257,16 +257,16 @@ main
  * @return {Type}    type info
  * @private
  */
-function getGlobalType(obj) {
+function getGlobalType$1(obj) {
   return main.getType(obj);
 }
 
-getGlobalType.checker = main;
-getGlobalType.TypeChecker = TypeChecker;
-getGlobalType.Type = Type;
+getGlobalType$1.checker = main;
+getGlobalType$1.TypeChecker = TypeChecker;
+getGlobalType$1.Type = Type;
 
 Object.keys(types).forEach(function(typeName) {
-  getGlobalType[typeName] = types[typeName];
+  getGlobalType$1[typeName] = types[typeName];
 });
 
 function format$1(msg) {
@@ -287,18 +287,17 @@ function EqualityFail(a, b, reason, path) {
 }
 
 function typeToString(tp) {
-  return tp.type + (tp.cls ? '(' + tp.cls + (tp.sub ? ' ' + tp.sub : '') + ')' : '');
+  return tp.type + (tp.cls ? "(" + tp.cls + (tp.sub ? " " + tp.sub : "") + ")" : "");
 }
 
-var PLUS_0_AND_MINUS_0 = '+0 is not equal to -0';
-var DIFFERENT_TYPES = 'A has type %s and B has type %s';
-var EQUALITY = 'A is not equal to B';
-var EQUALITY_PROTOTYPE = 'A and B have different prototypes';
-var WRAPPED_VALUE = 'A wrapped value is not equal to B wrapped value';
-var FUNCTION_SOURCES = 'function A is not equal to B by source code value (via .toString call)';
-var MISSING_KEY = '%s has no key %s';
-var SET_MAP_MISSING_KEY = 'Set/Map missing key %s';
-
+var PLUS_0_AND_MINUS_0 = "+0 is not equal to -0";
+var DIFFERENT_TYPES = "A has type %s and B has type %s";
+var EQUALITY = "A is not equal to B";
+var EQUALITY_PROTOTYPE = "A and B have different prototypes";
+var WRAPPED_VALUE = "A wrapped value is not equal to B wrapped value";
+var FUNCTION_SOURCES = "function A is not equal to B by source code value (via .toString call)";
+var MISSING_KEY = "%s has no key %s";
+var SET_MAP_MISSING_KEY = "Set/Map missing key %s";
 
 var DEFAULT_OPTIONS = {
   checkProtoEql: true,
@@ -308,18 +307,18 @@ var DEFAULT_OPTIONS = {
 };
 
 function setBooleanDefault(property, obj, opts, defaults) {
-  obj[property] = typeof opts[property] !== 'boolean' ? defaults[property] : opts[property];
+  obj[property] = typeof opts[property] !== "boolean" ? defaults[property] : opts[property];
 }
 
-var METHOD_PREFIX = '_check_';
+var METHOD_PREFIX = "_check_";
 
 function EQ(opts, a, b, path) {
   opts = opts || {};
 
-  setBooleanDefault('checkProtoEql', this, opts, DEFAULT_OPTIONS);
-  setBooleanDefault('plusZeroAndMinusZeroEqual', this, opts, DEFAULT_OPTIONS);
-  setBooleanDefault('checkSubType', this, opts, DEFAULT_OPTIONS);
-  setBooleanDefault('collectAllFails', this, opts, DEFAULT_OPTIONS);
+  setBooleanDefault("checkProtoEql", this, opts, DEFAULT_OPTIONS);
+  setBooleanDefault("plusZeroAndMinusZeroEqual", this, opts, DEFAULT_OPTIONS);
+  setBooleanDefault("checkSubType", this, opts, DEFAULT_OPTIONS);
+  setBooleanDefault("collectAllFails", this, opts, DEFAULT_OPTIONS);
 
   this.a = a;
   this.b = b;
@@ -332,8 +331,8 @@ function EQ(opts, a, b, path) {
 }
 
 function ShortcutError(fail) {
-  this.name = 'ShortcutError';
-  this.message = 'fail fast';
+  this.name = "ShortcutError";
+  this.message = "fail fast";
   this.fail = fail;
 }
 
@@ -346,7 +345,7 @@ EQ.checkStrictEquality = function(a, b) {
 EQ.add = function add(type, cls, sub, f) {
   var args = Array.prototype.slice.call(arguments);
   f = args.pop();
-  EQ.prototype[METHOD_PREFIX + args.join('_')] = f;
+  EQ.prototype[METHOD_PREFIX + args.join("_")] = f;
 };
 
 EQ.prototype = {
@@ -369,11 +368,11 @@ EQ.prototype = {
     // equal a and b exit early
     if (a === b) {
       // check for +0 !== -0;
-      return this.collectFail(a === 0 && (1 / a !== 1 / b) && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
+      return this.collectFail(a === 0 && 1 / a !== 1 / b && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
     }
 
-    var typeA = getGlobalType(a);
-    var typeB = getGlobalType(b);
+    var typeA = getGlobalType$1(a);
+    var typeB = getGlobalType$1(b);
 
     // if objects has different types they are not equal
     if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
@@ -381,16 +380,21 @@ EQ.prototype = {
     }
 
     // as types the same checks type specific things
-    var name1 = typeA.type, name2 = typeA.type;
+    var name1 = typeA.type,
+      name2 = typeA.type;
     if (typeA.cls) {
-      name1 += '_' + typeA.cls;
-      name2 += '_' + typeA.cls;
+      name1 += "_" + typeA.cls;
+      name2 += "_" + typeA.cls;
     }
     if (typeA.sub) {
-      name2 += '_' + typeA.sub;
+      name2 += "_" + typeA.sub;
     }
 
-    var f = this[METHOD_PREFIX + name2] || this[METHOD_PREFIX + name1] || this[METHOD_PREFIX + typeA.type] || this.defaultCheck;
+    var f =
+      this[METHOD_PREFIX + name2] ||
+      this[METHOD_PREFIX + name1] ||
+      this[METHOD_PREFIX + typeA.type] ||
+      this.defaultCheck;
 
     f.call(this, this.a, this.b);
   },
@@ -431,7 +435,7 @@ EQ.prototype = {
         if (hasOwnProperty.call(a, key)) {
           this.checkPropertyEquality(key);
         } else {
-          this.collectFail(true, format$1(MISSING_KEY, 'A', key));
+          this.collectFail(true, format$1(MISSING_KEY, "A", key));
         }
       }
     }
@@ -439,7 +443,7 @@ EQ.prototype = {
     // ensure both objects have the same number of properties
     for (key in a) {
       if (hasOwnProperty.call(a, key)) {
-        this.collectFail(!hasOwnProperty.call(b, key), format$1(MISSING_KEY, 'B', key));
+        this.collectFail(!hasOwnProperty.call(b, key), format$1(MISSING_KEY, "B", key));
       }
     }
 
@@ -449,7 +453,6 @@ EQ.prototype = {
       //TODO should i check prototypes for === or use eq?
       this.collectFail(Object.getPrototypeOf(a) !== Object.getPrototypeOf(b), EQUALITY_PROTOTYPE, true);
     }
-
   },
 
   checkPropertyEquality: function(propertyName) {
@@ -460,25 +463,24 @@ EQ.prototype = {
   defaultCheck: EQ.checkStrictEquality
 };
 
-
-EQ.add(getGlobalType.NUMBER, function(a, b) {
+EQ.add(getGlobalType$1.NUMBER, function(a, b) {
   this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
 });
 
-[getGlobalType.SYMBOL, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+[getGlobalType$1.SYMBOL, getGlobalType$1.BOOLEAN, getGlobalType$1.STRING].forEach(function(tp) {
   EQ.add(tp, EQ.checkStrictEquality);
 });
 
-EQ.add(getGlobalType.FUNCTION, function(a, b) {
+EQ.add(getGlobalType$1.FUNCTION, function(a, b) {
   // functions are compared by their source code
   this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
   // check user properties
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.REGEXP, function(a, b) {
   // check regexp flags
-  var flags = ['source', 'global', 'multiline', 'lastIndex', 'ignoreCase', 'sticky', 'unicode'];
+  var flags = ["source", "global", "multiline", "lastIndex", "ignoreCase", "sticky", "unicode"];
   while (flags.length) {
     this.checkPropertyEquality(flags.shift());
   }
@@ -486,15 +488,15 @@ EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.DATE, function(a, b) {
   //check by timestamp only (using .valueOf)
   this.collectFail(+a !== +b, EQUALITY);
   // check user properties
   this.checkPlainObjectsEquality(a, b);
 });
 
-[getGlobalType.NUMBER, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
-  EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
+[getGlobalType$1.NUMBER, getGlobalType$1.BOOLEAN, getGlobalType$1.STRING].forEach(function(tp) {
+  EQ.add(getGlobalType$1.OBJECT, tp, function(a, b) {
     //primitive type wrappers
     this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
     // check user properties
@@ -502,33 +504,33 @@ EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
   });
 });
 
-EQ.add(getGlobalType.OBJECT, function(a, b) {
+EQ.add(getGlobalType$1.OBJECT, function(a, b) {
   this.checkPlainObjectsEquality(a, b);
 });
 
-[getGlobalType.ARRAY, getGlobalType.ARGUMENTS, getGlobalType.TYPED_ARRAY].forEach(function(tp) {
-  EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
-    this.checkPropertyEquality('length');
+[getGlobalType$1.ARRAY, getGlobalType$1.ARGUMENTS, getGlobalType$1.TYPED_ARRAY].forEach(function(tp) {
+  EQ.add(getGlobalType$1.OBJECT, tp, function(a, b) {
+    this.checkPropertyEquality("length");
 
     this.checkPlainObjectsEquality(a, b);
   });
 });
 
-EQ.add(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER, function(a, b) {
-  this.checkPropertyEquality('byteLength');
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY_BUFFER, function(a, b) {
+  this.checkPropertyEquality("byteLength");
 
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType.OBJECT, getGlobalType.ERROR, function(a, b) {
-  this.checkPropertyEquality('name');
-  this.checkPropertyEquality('message');
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.ERROR, function(a, b) {
+  this.checkPropertyEquality("name");
+  this.checkPropertyEquality("message");
 
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
-  this.checkPropertyEquality('length');
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.BUFFER, function(a) {
+  this.checkPropertyEquality("length");
 
   var l = a.length;
   while (l--) {
@@ -539,45 +541,59 @@ EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
   //node Buffer have some strange hidden properties
 });
 
-[getGlobalType.MAP, getGlobalType.SET, getGlobalType.WEAK_MAP, getGlobalType.WEAK_SET].forEach(function(tp) {
-  EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
-    this._meet.push([a, b]);
+function checkMapByKeys(a, b) {
+  var iteratorA = a.keys();
 
-    var iteratorA = a.entries();
-    for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
+  for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
+    var key = nextA.value;
+    var hasKey = b.has(key);
+    this.collectFail(!hasKey, format$1(SET_MAP_MISSING_KEY, key));
 
-      var iteratorB = b.entries();
-      var keyFound = false;
-      for (var nextB = iteratorB.next(); !nextB.done; nextB = iteratorB.next()) {
-        // try to check keys first
-        var r = eq(nextA.value[0], nextB.value[0], { collectAllFails: false, _meet: this._meet });
+    if (hasKey) {
+      var valueB = b.get(key);
+      var valueA = a.get(key);
 
-        if (r.length === 0) {
-          keyFound = true;
-
-          // check values also
-          eq(nextA.value[1], nextB.value[1], this);
-        }
-      }
-
-      if (!keyFound) {
-        // no such key at all
-        this.collectFail(true, format$1(SET_MAP_MISSING_KEY, nextA.value[0]));
-      }
+      eq$1(valueA, valueB, this);
     }
+  }
+}
 
-    this._meet.pop();
+function checkSetByKeys(a, b) {
+  var iteratorA = a.keys();
 
-    this.checkPlainObjectsEquality(a, b);
-  });
+  for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
+    var key = nextA.value;
+    var hasKey = b.has(key);
+    this.collectFail(!hasKey, format$1(SET_MAP_MISSING_KEY, key));
+  }
+}
+
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.MAP, function(a, b) {
+  this._meet.push([a, b]);
+
+  checkMapByKeys.call(this, a, b);
+  checkMapByKeys.call(this, b, a);
+
+  this._meet.pop();
+
+  this.checkPlainObjectsEquality(a, b);
+});
+EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.SET, function(a, b) {
+  this._meet.push([a, b]);
+
+  checkSetByKeys.call(this, a, b);
+  checkSetByKeys.call(this, b, a);
+
+  this._meet.pop();
+
+  this.checkPlainObjectsEquality(a, b);
 });
 
-
-function eq(a, b, opts) {
+function eq$1(a, b, opts) {
   return new EQ(opts, a, b).check();
 }
 
-eq.EQ = EQ;
+eq$1.EQ = EQ;
 
 var _hasOwnProperty = Object.prototype.hasOwnProperty;
 var _propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -665,7 +681,7 @@ function TypeAdaptorStorage() {
 
 TypeAdaptorStorage.prototype = {
   add: function(type, cls, sub, adaptor) {
-    return this.addType(new getGlobalType.Type(type, cls, sub), adaptor);
+    return this.addType(new getGlobalType$1.Type(type, cls, sub), adaptor);
   },
 
   addType: function(type, adaptor) {
@@ -727,8 +743,8 @@ var objectAdaptor = {
 };
 
 // default for objects
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), objectAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.FUNCTION), objectAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT), objectAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.FUNCTION), objectAdaptor);
 
 var mapAdaptor = {
   has: function(obj, key) {
@@ -766,12 +782,12 @@ setAdaptor.get = function(obj, key) {
   }
 };
 
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), mapAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), setAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), setAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), mapAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.MAP), mapAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SET), setAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_SET), setAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_MAP), mapAdaptor);
 
-defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.STRING), {
+defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.STRING), {
   isEmpty: function(obj) {
     return obj === '';
   },
@@ -781,8 +797,8 @@ defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.STRING), 
   }
 });
 
-defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY));
-defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS));
+defaultTypeAdaptorStorage.addIterableType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY));
+defaultTypeAdaptorStorage.addIterableType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARGUMENTS));
 
 function forEach(obj, f, context) {
   if (isGeneratorFunction(obj)) {
@@ -796,7 +812,7 @@ function forEach(obj, f, context) {
       value = obj.next();
     }
   } else {
-    var type = getGlobalType(obj);
+    var type = getGlobalType$1(obj);
     var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'forEach');
     func(obj, f, context);
   }
@@ -804,7 +820,7 @@ function forEach(obj, f, context) {
 
 
 function size(obj) {
-  var type = getGlobalType(obj);
+  var type = getGlobalType$1(obj);
   var func = defaultTypeAdaptorStorage.getAdaptor(type, 'size');
   if (func) {
     return func(obj);
@@ -818,7 +834,7 @@ function size(obj) {
 }
 
 function isEmpty(obj) {
-  var type = getGlobalType(obj);
+  var type = getGlobalType$1(obj);
   var func = defaultTypeAdaptorStorage.getAdaptor(type, 'isEmpty');
   if (func) {
     return func(obj);
@@ -834,14 +850,14 @@ function isEmpty(obj) {
 
 // return boolean if obj has such 'key'
 function has(obj, key) {
-  var type = getGlobalType(obj);
+  var type = getGlobalType$1(obj);
   var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'has');
   return func(obj, key);
 }
 
 // return value for given key
 function get(obj, key) {
-  var type = getGlobalType(obj);
+  var type = getGlobalType$1(obj);
   var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'get');
   return func(obj, key);
 }
@@ -858,11 +874,11 @@ function some(obj, f, context) {
 }
 
 function isIterable(obj) {
-  return defaultTypeAdaptorStorage.isIterableType(getGlobalType(obj));
+  return defaultTypeAdaptorStorage.isIterableType(getGlobalType$1(obj));
 }
 
 function iterator(obj) {
-  return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType(obj), 'iterator')(obj);
+  return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType$1(obj), 'iterator')(obj);
 }
 
 function looksLikeANumber(n) {
@@ -919,7 +935,7 @@ Formatter.prototype = {
   constructor: Formatter,
 
   format: function(value) {
-    var tp = getGlobalType(value);
+    var tp = getGlobalType$1(value);
 
     if (this.alreadySeen(value)) {
       return '[Circular]';
@@ -1291,100 +1307,101 @@ defaultFormat.pad0 = pad0;
 defaultFormat.functionName = functionName$1;
 defaultFormat.constructorName = constructorName;
 defaultFormat.formatPlainObjectKey = formatPlainObjectKey;
+defaultFormat.formatPlainObject = formatPlainObject;
 defaultFormat.typeAdaptorForEachFormat = typeAdaptorForEachFormat;
 // adding primitive types
-Formatter.addType(new getGlobalType.Type(getGlobalType.UNDEFINED), function() {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.UNDEFINED), function() {
   return 'undefined';
 });
-Formatter.addType(new getGlobalType.Type(getGlobalType.NULL), function() {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.NULL), function() {
   return 'null';
 });
-Formatter.addType(new getGlobalType.Type(getGlobalType.BOOLEAN), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.BOOLEAN), function(value) {
   return value ? 'true': 'false';
 });
-Formatter.addType(new getGlobalType.Type(getGlobalType.SYMBOL), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.SYMBOL), function(value) {
   return value.toString();
 });
-Formatter.addType(new getGlobalType.Type(getGlobalType.NUMBER), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.NUMBER), function(value) {
   if (value === 0 && 1 / value < 0) {
     return '-0';
   }
   return String(value);
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.STRING), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.STRING), function(value) {
   return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
       .replace(/'/g, "\\'")
       .replace(/\\"/g, '"') + '\'';
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.FUNCTION), formatFunction);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.FUNCTION), formatFunction);
 
 // plain object
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT), formatPlainObject);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT), formatPlainObject);
 
 // type wrappers
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.NUMBER), formatWrapper1);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BOOLEAN), formatWrapper1);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.STRING), formatWrapper2);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.NUMBER), formatWrapper1);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.BOOLEAN), formatWrapper1);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.STRING), formatWrapper2);
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.REGEXP), formatRegExp);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY), formatArray);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS), formatArguments);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.DATE), formatDate);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ERROR), formatError);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), formatSet);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), formatMap);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), formatMap);
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), formatSet);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.REGEXP), formatRegExp);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY), formatArray);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARGUMENTS), formatArguments);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.DATE), formatDate);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ERROR), formatError);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SET), formatSet);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.MAP), formatMap);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_MAP), formatMap);
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_SET), formatSet);
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BUFFER), generateFormatForNumberArray('length', 'Buffer', 2));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.BUFFER), generateFormatForNumberArray('length', 'Buffer', 2));
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER), generateFormatForNumberArray('byteLength', 'ArrayBuffer', 2));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY_BUFFER), generateFormatForNumberArray('byteLength', 'ArrayBuffer', 2));
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int8'), generateFormatForNumberArray('length', 'Int8Array', 2));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8'), generateFormatForNumberArray('length', 'Uint8Array', 2));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8clamped'), generateFormatForNumberArray('length', 'Uint8ClampedArray', 2));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int8'), generateFormatForNumberArray('length', 'Int8Array', 2));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint8'), generateFormatForNumberArray('length', 'Uint8Array', 2));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint8clamped'), generateFormatForNumberArray('length', 'Uint8ClampedArray', 2));
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int16'), generateFormatForNumberArray('length', 'Int16Array', 4));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint16'), generateFormatForNumberArray('length', 'Uint16Array', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int16'), generateFormatForNumberArray('length', 'Int16Array', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint16'), generateFormatForNumberArray('length', 'Uint16Array', 4));
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int32'), generateFormatForNumberArray('length', 'Int32Array', 8));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint32'), generateFormatForNumberArray('length', 'Uint32Array', 8));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int32'), generateFormatForNumberArray('length', 'Int32Array', 8));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint32'), generateFormatForNumberArray('length', 'Uint32Array', 8));
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool16x8'), genSimdVectorFormat('Bool16x8', 8));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool32x4'), genSimdVectorFormat('Bool32x4', 4));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool8x16'), genSimdVectorFormat('Bool8x16', 16));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'float32x4'), genSimdVectorFormat('Float32x4', 4));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int16x8'), genSimdVectorFormat('Int16x8', 8));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int32x4'), genSimdVectorFormat('Int32x4', 4));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int8x16'), genSimdVectorFormat('Int8x16', 16));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint16x8'), genSimdVectorFormat('Uint16x8', 8));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint32x4'), genSimdVectorFormat('Uint32x4', 4));
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint8x16'), genSimdVectorFormat('Uint8x16', 16));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool16x8'), genSimdVectorFormat('Bool16x8', 8));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool32x4'), genSimdVectorFormat('Bool32x4', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool8x16'), genSimdVectorFormat('Bool8x16', 16));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'float32x4'), genSimdVectorFormat('Float32x4', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int16x8'), genSimdVectorFormat('Int16x8', 8));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int32x4'), genSimdVectorFormat('Int32x4', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int8x16'), genSimdVectorFormat('Int8x16', 16));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint16x8'), genSimdVectorFormat('Uint16x8', 8));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint32x4'), genSimdVectorFormat('Uint32x4', 4));
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint8x16'), genSimdVectorFormat('Uint8x16', 16));
 
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.PROMISE), function() {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.PROMISE), function() {
   return '[Promise]';//TODO it could be nice to inspect its state and value
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.XHR), function() {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.XHR), function() {
   return '[XMLHttpRequest]';//TODO it could be nice to inspect its state
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT), function(value) {
   return value.outerHTML;
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#text'), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT, '#text'), function(value) {
   return value.nodeValue;
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#document'), function(value) {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT, '#document'), function(value) {
   return value.documentElement.outerHTML;
 });
 
-Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOST), function() {
+Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HOST), function() {
   return '[Host]';
 });
 
@@ -1395,14 +1412,14 @@ Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOS
  * MIT Licensed
  */
 function isWrapperType(obj) {
-  return obj instanceof Number ||
-    obj instanceof String ||
-    obj instanceof Boolean;
+  return (
+    obj instanceof Number || obj instanceof String || obj instanceof Boolean
+  );
 }
 
 // XXX make it more strict: numbers, strings, symbols - and nothing else
 function convertPropertyName(name) {
-  return (typeof name === 'symbol') ? name : String(name);
+  return typeof name === "symbol" ? name : String(name);
 }
 
 var functionName = defaultFormat.functionName;
@@ -1448,18 +1465,17 @@ function AssertionError(options) {
   merge(this, options);
 
   if (!options.message) {
-    Object.defineProperty(this, 'message', {
-        get: function() {
-          if (!this._message) {
-            this._message = this.generateMessage();
-            this.generatedMessage = true;
-          }
-          return this._message;
-        },
-        configurable: true,
-        enumerable: false
-      }
-    );
+    Object.defineProperty(this, "message", {
+      get: function() {
+        if (!this._message) {
+          this._message = this.generateMessage();
+          this.generatedMessage = true;
+        }
+        return this._message;
+      },
+      configurable: true,
+      enumerable: false
+    });
   }
 
   if (Error.captureStackTrace) {
@@ -1473,11 +1489,11 @@ function AssertionError(options) {
       if (this.stackStartFunction) {
         // try to strip useless frames
         var fn_name = functionName(this.stackStartFunction);
-        var idx = out.indexOf('\n' + fn_name);
+        var idx = out.indexOf("\n" + fn_name);
         if (idx >= 0) {
           // once we have located the function frame
           // we need to strip out everything before it (and its line)
-          var next_line = out.indexOf('\n', idx + 1);
+          var next_line = out.indexOf("\n", idx + 1);
           out = out.substring(next_line + 1);
         }
       }
@@ -1487,21 +1503,19 @@ function AssertionError(options) {
   }
 }
 
-
-var indent = '    ';
+var indent = "    ";
 function prependIndent(line) {
   return indent + line;
 }
 
 function indentLines(text) {
-  return text.split('\n').map(prependIndent).join('\n');
+  return text.split("\n").map(prependIndent).join("\n");
 }
-
 
 // assert.AssertionError instanceof Error
 AssertionError.prototype = Object.create(Error.prototype, {
   name: {
-    value: 'AssertionError'
+    value: "AssertionError"
   },
 
   generateMessage: {
@@ -1510,12 +1524,23 @@ AssertionError.prototype = Object.create(Error.prototype, {
         return this.previous.message;
       }
       var actual = format(this.actual);
-      var expected = 'expected' in this ? ' ' + format(this.expected) : '';
-      var details = 'details' in this && this.details ? ' (' + this.details + ')' : '';
+      var expected = "expected" in this ? " " + format(this.expected) : "";
+      var details =
+        "details" in this && this.details ? " (" + this.details + ")" : "";
 
-      var previous = this.previous ? '\n' + indentLines(this.previous.message) : '';
+      var previous = this.previous
+        ? "\n" + indentLines(this.previous.message)
+        : "";
 
-      return 'expected ' + actual + (this.negate ? ' not ' : ' ') + this.operator + expected + details + previous;
+      return (
+        "expected " +
+        actual +
+        (this.negate ? " not " : " ") +
+        this.operator +
+        expected +
+        details +
+        previous
+      );
     }
   }
 });
@@ -1532,7 +1557,7 @@ function LightAssertionError(options) {
   merge(this, options);
 
   if (!options.message) {
-    Object.defineProperty(this, 'message', {
+    Object.defineProperty(this, "message", {
       get: function() {
         if (!this._message) {
           this._message = this.generateMessage();
@@ -1548,7 +1573,6 @@ LightAssertionError.prototype = {
   generateMessage: AssertionError.prototype.generateMessage
 };
 
-
 /**
  * should Assertion
  * @param {*} obj Given object for assertion
@@ -1562,7 +1586,7 @@ function Assertion(obj) {
   this.anyOne = false;
   this.negate = false;
 
-  this.params = {actual: obj};
+  this.params = { actual: obj };
 }
 
 Assertion.prototype = {
@@ -1600,9 +1624,9 @@ Assertion.prototype = {
 
     var params = this.params;
 
-    if ('obj' in params && !('actual' in params)) {
+    if ("obj" in params && !("actual" in params)) {
       params.actual = params.obj;
-    } else if (!('obj' in params) && !('actual' in params)) {
+    } else if (!("obj" in params) && !("actual" in params)) {
       params.actual = this.obj;
     }
 
@@ -1638,8 +1662,6 @@ Assertion.prototype = {
     return this.assert(false);
   }
 };
-
-
 
 /**
  * Assertion used to delegate calls of Assertion methods inside of Promise.
@@ -1721,7 +1743,7 @@ Assertion.add = function(name, func) {
       // negative pass
       if (this.negate) {
         context.negate = true; // because .fail will set negate
-        context.params.details = 'false negative fail';
+        context.params.details = "false negative fail";
         // hack
         context.light = false;
         context.fail();
@@ -1796,11 +1818,22 @@ Assertion.addChain = function(name, onCall) {
 Assertion.alias = function(from, to) {
   var desc = Object.getOwnPropertyDescriptor(Assertion.prototype, from);
   if (!desc) {
-    throw new Error('Alias ' + from + ' -> ' + to + ' could not be created as ' + from + ' not defined');
+    throw new Error(
+      "Alias " +
+        from +
+        " -> " +
+        to +
+        " could not be created as " +
+        from +
+        " not defined"
+    );
   }
   Object.defineProperty(Assertion.prototype, to, desc);
 
-  var desc2 = Object.getOwnPropertyDescriptor(PromisedAssertion.prototype, from);
+  var desc2 = Object.getOwnPropertyDescriptor(
+    PromisedAssertion.prototype,
+    from
+  );
   if (desc2) {
     Object.defineProperty(PromisedAssertion.prototype, to, desc2);
   }
@@ -1813,7 +1846,7 @@ Assertion.alias = function(from, to) {
  * @memberOf Assertion
  * @category assertion
  */
-Assertion.addChain('not', function() {
+Assertion.addChain("not", function() {
   this.negate = !this.negate;
 });
 
@@ -1825,10 +1858,9 @@ Assertion.addChain('not', function() {
  * @memberOf Assertion
  * @category assertion
  */
-Assertion.addChain('any', function() {
+Assertion.addChain("any", function() {
   this.anyOne = true;
 });
-
 
 /**
  * Only modifier - currently used with .keys to check if object contains only exactly this .keys
@@ -1838,7 +1870,7 @@ Assertion.addChain('any', function() {
  * @memberOf Assertion
  * @category assertion
  */
-Assertion.addChain('only', function() {
+Assertion.addChain("only", function() {
   this.onlyThis = true;
 });
 
@@ -1924,7 +1956,7 @@ assert.fail = fail;
  */
 function ok(value, message) {
   if (!value) {
-    fail(value, true, message, '==', assert.ok);
+    fail(value, true, message, "==", assert.ok);
   }
 }
 assert.ok = ok;
@@ -1944,7 +1976,7 @@ assert.ok = ok;
  */
 assert.equal = function equal(actual, expected, message) {
   if (actual != expected) {
-    fail(actual, expected, message, '==', assert.equal);
+    fail(actual, expected, message, "==", assert.equal);
   }
 };
 
@@ -1961,7 +1993,7 @@ assert.equal = function equal(actual, expected, message) {
  */
 assert.notEqual = function notEqual(actual, expected, message) {
   if (actual == expected) {
-    fail(actual, expected, message, '!=', assert.notEqual);
+    fail(actual, expected, message, "!=", assert.notEqual);
   }
 };
 
@@ -1979,11 +2011,10 @@ assert.notEqual = function notEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.deepEqual = function deepEqual(actual, expected, message) {
-  if (eq(actual, expected).length !== 0) {
-    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
+  if (eq$1(actual, expected).length !== 0) {
+    fail(actual, expected, message, "deepEqual", assert.deepEqual);
   }
 };
-
 
 // 8. The non-equivalence assertion tests for any deep inequality.
 // assert.notDeepEqual(actual, expected, message_opt);
@@ -1999,8 +2030,8 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if (eq(actual, expected).result) {
-    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
+  if (eq$1(actual, expected).result) {
+    fail(actual, expected, message, "notDeepEqual", assert.notDeepEqual);
   }
 };
 
@@ -2017,7 +2048,7 @@ assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
  */
 assert.strictEqual = function strictEqual(actual, expected, message) {
   if (actual !== expected) {
-    fail(actual, expected, message, '===', assert.strictEqual);
+    fail(actual, expected, message, "===", assert.strictEqual);
   }
 };
 
@@ -2034,7 +2065,7 @@ assert.strictEqual = function strictEqual(actual, expected, message) {
  */
 assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
   if (actual === expected) {
-    fail(actual, expected, message, '!==', assert.notStrictEqual);
+    fail(actual, expected, message, "!==", assert.notStrictEqual);
   }
 };
 
@@ -2043,7 +2074,7 @@ function expectedException(actual, expected) {
     return false;
   }
 
-  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
+  if (Object.prototype.toString.call(expected) == "[object RegExp]") {
     return expected.test(actual);
   } else if (actual instanceof expected) {
     return true;
@@ -2057,7 +2088,7 @@ function expectedException(actual, expected) {
 function _throws(shouldThrow, block, expected, message) {
   var actual;
 
-  if (typeof expected == 'string') {
+  if (typeof expected == "string") {
     message = expected;
     expected = null;
   }
@@ -2068,18 +2099,25 @@ function _throws(shouldThrow, block, expected, message) {
     actual = e;
   }
 
-  message = (expected && expected.name ? ' (' + expected.name + ')' : '.') +
-  (message ? ' ' + message : '.');
+  message =
+    (expected && expected.name ? " (" + expected.name + ")" : ".") +
+    (message ? " " + message : ".");
 
   if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
+    fail(actual, expected, "Missing expected exception" + message);
   }
 
   if (!shouldThrow && expectedException(actual, expected)) {
-    fail(actual, expected, 'Got unwanted exception' + message);
+    fail(actual, expected, "Got unwanted exception" + message);
   }
 
-  if ((shouldThrow && actual && expected && !expectedException(actual, expected)) || (!shouldThrow && actual)) {
+  if (
+    (shouldThrow &&
+      actual &&
+      expected &&
+      !expectedException(actual, expected)) ||
+    (!shouldThrow && actual)
+  ) {
     throw actual;
   }
 }
@@ -2163,7 +2201,8 @@ var assertExtensions = function(should) {
   should.exist = should.exists = function(obj, msg) {
     if (null == obj) {
       throw new AssertionError({
-        message: msg || ('expected ' + i(obj) + ' to exist'), stackStartFunction: should.exist
+        message: msg || "expected " + i(obj) + " to exist",
+        stackStartFunction: should.exist
       });
     }
   };
@@ -2187,7 +2226,8 @@ var assertExtensions = function(should) {
   should.not.exist = should.not.exists = function(obj, msg) {
     if (null != obj) {
       throw new AssertionError({
-        message: msg || ('expected ' + i(obj) + ' to not exist'), stackStartFunction: should.not.exist
+        message: msg || "expected " + i(obj) + " to not exist",
+        stackStartFunction: should.not.exist
       });
     }
   };
@@ -2221,7 +2261,21 @@ var chainAssertions = function(should, Assertion) {
    * @alias Assertion#it
    * @category assertion chaining
    */
-  ['an', 'of', 'a', 'and', 'be', 'been', 'has', 'have', 'with', 'is', 'which', 'the', 'it'].forEach(function(name) {
+  [
+    "an",
+    "of",
+    "a",
+    "and",
+    "be",
+    "been",
+    "has",
+    "have",
+    "with",
+    "is",
+    "which",
+    "the",
+    "it"
+  ].forEach(function(name) {
     Assertion.addChain(name);
   });
 };
@@ -2249,11 +2303,11 @@ var booleanAssertions = function(should, Assertion) {
    *
    * ({ a: 10}).should.not.be.true();
    */
-  Assertion.add('true', function(message) {
+  Assertion.add("true", function(message) {
     this.is.exactly(true, message);
   });
 
-  Assertion.alias('true', 'True');
+  Assertion.alias("true", "True");
 
   /**
    * Assert given object is exactly `false`.
@@ -2268,11 +2322,11 @@ var booleanAssertions = function(should, Assertion) {
    * (true).should.not.be.false();
    * false.should.be.false();
    */
-  Assertion.add('false', function(message) {
+  Assertion.add("false", function(message) {
     this.is.exactly(false, message);
   });
 
-  Assertion.alias('false', 'False');
+  Assertion.alias("false", "False");
 
   /**
    * Assert given object is truthy according javascript type conversions.
@@ -2290,8 +2344,8 @@ var booleanAssertions = function(should, Assertion) {
    * (10).should.be.ok();
    * (0).should.not.be.ok();
    */
-  Assertion.add('ok', function() {
-    this.params = { operator: 'to be truthy' };
+  Assertion.add("ok", function() {
+    this.params = { operator: "to be truthy" };
 
     this.assert(this.obj);
   });
@@ -2305,7 +2359,6 @@ var booleanAssertions = function(should, Assertion) {
  */
 
 var numberAssertions = function(should, Assertion) {
-
   /**
    * Assert given object is NaN
    * @name NaN
@@ -2316,8 +2369,8 @@ var numberAssertions = function(should, Assertion) {
    * (10).should.not.be.NaN();
    * NaN.should.be.NaN();
    */
-  Assertion.add('NaN', function() {
-    this.params = { operator: 'to be NaN' };
+  Assertion.add("NaN", function() {
+    this.params = { operator: "to be NaN" };
 
     this.assert(this.obj !== this.obj);
   });
@@ -2333,12 +2386,10 @@ var numberAssertions = function(should, Assertion) {
    * (10).should.not.be.Infinity();
    * NaN.should.not.be.Infinity();
    */
-  Assertion.add('Infinity', function() {
-    this.params = { operator: 'to be Infinity' };
+  Assertion.add("Infinity", function() {
+    this.params = { operator: "to be Infinity" };
 
-    this.is.a.Number()
-      .and.not.a.NaN()
-      .and.assert(!isFinite(this.obj));
+    this.is.a.Number().and.not.a.NaN().and.assert(!isFinite(this.obj));
   });
 
   /**
@@ -2354,8 +2405,11 @@ var numberAssertions = function(should, Assertion) {
    *
    * (10).should.be.within(0, 20);
    */
-  Assertion.add('within', function(start, finish, description) {
-    this.params = { operator: 'to be within ' + start + '..' + finish, message: description };
+  Assertion.add("within", function(start, finish, description) {
+    this.params = {
+      operator: "to be within " + start + ".." + finish,
+      message: description
+    };
 
     this.assert(this.obj >= start && this.obj <= finish);
   });
@@ -2373,8 +2427,11 @@ var numberAssertions = function(should, Assertion) {
    *
    * (9.99).should.be.approximately(10, 0.1);
    */
-  Assertion.add('approximately', function(value, delta, description) {
-    this.params = { operator: 'to be approximately ' + value + ' ±' + delta, message: description };
+  Assertion.add("approximately", function(value, delta, description) {
+    this.params = {
+      operator: "to be approximately " + value + " ±" + delta,
+      message: description
+    };
 
     this.assert(Math.abs(this.obj - value) <= delta);
   });
@@ -2392,8 +2449,8 @@ var numberAssertions = function(should, Assertion) {
    *
    * (10).should.be.above(0);
    */
-  Assertion.add('above', function(n, description) {
-    this.params = { operator: 'to be above ' + n, message: description };
+  Assertion.add("above", function(n, description) {
+    this.params = { operator: "to be above " + n, message: description };
 
     this.assert(this.obj > n);
   });
@@ -2411,14 +2468,14 @@ var numberAssertions = function(should, Assertion) {
    *
    * (0).should.be.below(10);
    */
-  Assertion.add('below', function(n, description) {
-    this.params = { operator: 'to be below ' + n, message: description };
+  Assertion.add("below", function(n, description) {
+    this.params = { operator: "to be below " + n, message: description };
 
     this.assert(this.obj < n);
   });
 
-  Assertion.alias('above', 'greaterThan');
-  Assertion.alias('below', 'lessThan');
+  Assertion.alias("above", "greaterThan");
+  Assertion.alias("below", "lessThan");
 
   /**
    * Assert given number above `n`.
@@ -2434,8 +2491,11 @@ var numberAssertions = function(should, Assertion) {
    * (10).should.be.aboveOrEqual(0);
    * (10).should.be.aboveOrEqual(10);
    */
-  Assertion.add('aboveOrEqual', function(n, description) {
-    this.params = { operator: 'to be above or equal' + n, message: description };
+  Assertion.add("aboveOrEqual", function(n, description) {
+    this.params = {
+      operator: "to be above or equal " + n,
+      message: description
+    };
 
     this.assert(this.obj >= n);
   });
@@ -2454,15 +2514,17 @@ var numberAssertions = function(should, Assertion) {
    * (0).should.be.belowOrEqual(10);
    * (0).should.be.belowOrEqual(0);
    */
-  Assertion.add('belowOrEqual', function(n, description) {
-    this.params = { operator: 'to be below or equal' + n, message: description };
+  Assertion.add("belowOrEqual", function(n, description) {
+    this.params = {
+      operator: "to be below or equal " + n,
+      message: description
+    };
 
     this.assert(this.obj <= n);
   });
 
-  Assertion.alias('aboveOrEqual', 'greaterThanOrEqual');
-  Assertion.alias('belowOrEqual', 'lessThanOrEqual');
-
+  Assertion.alias("aboveOrEqual", "greaterThanOrEqual");
+  Assertion.alias("belowOrEqual", "lessThanOrEqual");
 };
 
 /*
@@ -2479,10 +2541,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Number', function() {
-    this.params = {operator: 'to be a number'};
+  Assertion.add("Number", function() {
+    this.params = { operator: "to be a number" };
 
-    this.have.type('number');
+    this.have.type("number");
   });
 
   /**
@@ -2492,13 +2554,13 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('arguments', function() {
-    this.params = {operator: 'to be arguments'};
+  Assertion.add("arguments", function() {
+    this.params = { operator: "to be arguments" };
 
-    this.have.class('Arguments');
+    this.have.class("Arguments");
   });
 
-  Assertion.alias('arguments', 'Arguments');
+  Assertion.alias("arguments", "Arguments");
 
   /**
    * Assert given object has some type using `typeof`
@@ -2508,8 +2570,8 @@ var typeAssertions = function(should, Assertion) {
    * @param {string} [description] Optional message
    * @category assertion types
    */
-  Assertion.add('type', function(type, description) {
-    this.params = {operator: 'to have type ' + type, message: description};
+  Assertion.add("type", function(type, description) {
+    this.params = { operator: "to have type " + type, message: description };
 
     should(typeof this.obj).be.exactly(type);
   });
@@ -2523,13 +2585,16 @@ var typeAssertions = function(should, Assertion) {
    * @param {string} [description] Optional message
    * @category assertion types
    */
-  Assertion.add('instanceof', function(constructor, description) {
-    this.params = {operator: 'to be an instance of ' + functionName(constructor), message: description};
+  Assertion.add("instanceof", function(constructor, description) {
+    this.params = {
+      operator: "to be an instance of " + functionName(constructor),
+      message: description
+    };
 
     this.assert(Object(this.obj) instanceof constructor);
   });
 
-  Assertion.alias('instanceof', 'instanceOf');
+  Assertion.alias("instanceof", "instanceOf");
 
   /**
    * Assert given object is function
@@ -2537,10 +2602,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Function', function() {
-    this.params = {operator: 'to be a function'};
+  Assertion.add("Function", function() {
+    this.params = { operator: "to be a function" };
 
-    this.have.type('function');
+    this.have.type("function");
   });
 
   /**
@@ -2549,10 +2614,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Object', function() {
-    this.params = {operator: 'to be an object'};
+  Assertion.add("Object", function() {
+    this.params = { operator: "to be an object" };
 
-    this.is.not.null().and.have.type('object');
+    this.is.not.null().and.have.type("object");
   });
 
   /**
@@ -2561,10 +2626,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('String', function() {
-    this.params = {operator: 'to be a string'};
+  Assertion.add("String", function() {
+    this.params = { operator: "to be a string" };
 
-    this.have.type('string');
+    this.have.type("string");
   });
 
   /**
@@ -2573,10 +2638,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Array', function() {
-    this.params = {operator: 'to be an array'};
+  Assertion.add("Array", function() {
+    this.params = { operator: "to be an array" };
 
-    this.have.class('Array');
+    this.have.class("Array");
   });
 
   /**
@@ -2585,10 +2650,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Boolean', function() {
-    this.params = {operator: 'to be a boolean'};
+  Assertion.add("Boolean", function() {
+    this.params = { operator: "to be a boolean" };
 
-    this.have.type('boolean');
+    this.have.type("boolean");
   });
 
   /**
@@ -2597,8 +2662,8 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Error', function() {
-    this.params = {operator: 'to be an error'};
+  Assertion.add("Error", function() {
+    this.params = { operator: "to be an error" };
 
     this.have.instanceOf(Error);
   });
@@ -2609,8 +2674,8 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('Date', function() {
-    this.params = {operator: 'to be a date'};
+  Assertion.add("Date", function() {
+    this.params = { operator: "to be a date" };
 
     this.have.instanceOf(Date);
   });
@@ -2622,13 +2687,13 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('null', function() {
-    this.params = {operator: 'to be null'};
+  Assertion.add("null", function() {
+    this.params = { operator: "to be null" };
 
     this.assert(this.obj === null);
   });
 
-  Assertion.alias('null', 'Null');
+  Assertion.alias("null", "Null");
 
   /**
    * Assert given object has some internal [[Class]], via Object.prototype.toString call
@@ -2637,13 +2702,15 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('class', function(cls) {
-    this.params = {operator: 'to have [[Class]] ' + cls};
+  Assertion.add("class", function(cls) {
+    this.params = { operator: "to have [[Class]] " + cls };
 
-    this.assert(Object.prototype.toString.call(this.obj) === '[object ' + cls + ']');
+    this.assert(
+      Object.prototype.toString.call(this.obj) === "[object " + cls + "]"
+    );
   });
 
-  Assertion.alias('class', 'Class');
+  Assertion.alias("class", "Class");
 
   /**
    * Assert given object is undefined
@@ -2652,13 +2719,13 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion types
    */
-  Assertion.add('undefined', function() {
-    this.params = {operator: 'to be undefined'};
+  Assertion.add("undefined", function() {
+    this.params = { operator: "to be undefined" };
 
     this.assert(this.obj === void 0);
   });
 
-  Assertion.alias('undefined', 'Undefined');
+  Assertion.alias("undefined", "Undefined");
 
   /**
    * Assert given object supports es6 iterable protocol (just check
@@ -2667,8 +2734,8 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion es6
    */
-  Assertion.add('iterable', function() {
-    this.params = {operator: 'to be iterable'};
+  Assertion.add("iterable", function() {
+    this.params = { operator: "to be iterable" };
 
     should(this.obj).have.property(Symbol.iterator).which.is.a.Function();
   });
@@ -2680,10 +2747,10 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion es6
    */
-  Assertion.add('iterator', function() {
-    this.params = {operator: 'to be iterator'};
+  Assertion.add("iterator", function() {
+    this.params = { operator: "to be iterator" };
 
-    should(this.obj).have.property('next').which.is.a.Function();
+    should(this.obj).have.property("next").which.is.a.Function();
   });
 
   /**
@@ -2692,12 +2759,12 @@ var typeAssertions = function(should, Assertion) {
    * @memberOf Assertion
    * @category assertion es6
    */
-  Assertion.add('generator', function() {
-    this.params = {operator: 'to be generator'};
+  Assertion.add("generator", function() {
+    this.params = { operator: "to be generator" };
 
-    should(this.obj).be.iterable
-      .and.iterator
-      .and.it.is.equal(this.obj[Symbol.iterator]());
+    should(this.obj).be.iterable.and.iterator.and.it.is.equal(
+      this.obj[Symbol.iterator]()
+    );
   });
 };
 
@@ -2709,21 +2776,22 @@ var typeAssertions = function(should, Assertion) {
  */
 
 function formatEqlResult(r, a, b) {
-  return ((r.path.length > 0 ? 'at ' + r.path.map(formatProp).join(' -> ') : '') +
-  (r.a === a ? '' : ', A has ' + format(r.a)) +
-  (r.b === b ? '' : ' and B has ' + format(r.b)) +
-  (r.showReason ? ' because ' + r.reason : '')).trim();
+  return ((r.path.length > 0
+    ? "at " + r.path.map(formatProp).join(" -> ")
+    : "") +
+    (r.a === a ? "" : ", A has " + format(r.a)) +
+    (r.b === b ? "" : " and B has " + format(r.b)) +
+    (r.showReason ? " because " + r.reason : "")).trim();
 }
 
 var equalityAssertions = function(should, Assertion) {
-
-
   /**
    * Deep object equality comparison. For full spec see [`should-equal tests`](https://github.com/shouldjs/equal/blob/master/test.js).
    *
    * @name eql
    * @memberOf Assertion
    * @category assertion equality
+   * @alias Assertion#eqls
    * @alias Assertion#deepEqual
    * @param {*} val Expected value
    * @param {string} [description] Optional message
@@ -2738,15 +2806,17 @@ var equalityAssertions = function(should, Assertion) {
    * ({ a: 10}).should.be.eql({ a: 10 });
    * [ 'a' ].should.not.be.eql({ '0': 'a' });
    */
-  Assertion.add('eql', function(val, description) {
-    this.params = {operator: 'to equal', expected: val, message: description};
+  Assertion.add("eql", function(val, description) {
+    this.params = { operator: "to equal", expected: val, message: description };
     var obj = this.obj;
-    var fails = eq(this.obj, val, should.config);
-    this.params.details = fails.map(function(fail) {
-      return formatEqlResult(fail, obj, val);
-    }).join(', ');
+    var fails = eq$1(this.obj, val, should.config);
+    this.params.details = fails
+      .map(function(fail) {
+        return formatEqlResult(fail, obj, val);
+      })
+      .join(", ");
 
-    this.params.showDiff = eq(getGlobalType(obj), getGlobalType(val)).length === 0;
+    this.params.showDiff = eq$1(getGlobalType$1(obj), getGlobalType$1(val)).length === 0;
 
     this.assert(fails.length === 0);
   });
@@ -2757,6 +2827,7 @@ var equalityAssertions = function(should, Assertion) {
    * @name equal
    * @memberOf Assertion
    * @category assertion equality
+   * @alias Assertion#equals
    * @alias Assertion#exactly
    * @param {*} val Expected value
    * @param {string} [description] Optional message
@@ -2767,16 +2838,18 @@ var equalityAssertions = function(should, Assertion) {
    *
    * should(null).be.exactly(null);
    */
-  Assertion.add('equal', function(val, description) {
-    this.params = {operator: 'to be', expected: val, message: description};
+  Assertion.add("equal", function(val, description) {
+    this.params = { operator: "to be", expected: val, message: description };
 
-    this.params.showDiff = eq(getGlobalType(this.obj), getGlobalType(val)).length === 0;
+    this.params.showDiff = eq$1(getGlobalType$1(this.obj), getGlobalType$1(val)).length === 0;
 
     this.assert(val === this.obj);
   });
 
-  Assertion.alias('equal', 'exactly');
-  Assertion.alias('eql', 'deepEqual');
+  Assertion.alias("equal", "equals");
+  Assertion.alias("equal", "exactly");
+  Assertion.alias("eql", "eqls");
+  Assertion.alias("eql", "deepEqual");
 
   function addOneOf(name, message, method) {
     Assertion.add(name, function(vals) {
@@ -2786,7 +2859,7 @@ var equalityAssertions = function(should, Assertion) {
         should(vals).be.Array();
       }
 
-      this.params = {operator: message, expected: vals};
+      this.params = { operator: message, expected: vals };
 
       var obj = this.obj;
       var found = false;
@@ -2798,7 +2871,7 @@ var equalityAssertions = function(should, Assertion) {
           return false;
         } catch (e) {
           if (e instanceof should.AssertionError) {
-            return;//do nothing
+            return; //do nothing
           }
           throw e;
         }
@@ -2820,7 +2893,7 @@ var equalityAssertions = function(should, Assertion) {
    * 'ab'.should.be.equalOneOf('a', 10, 'ab');
    * 'ab'.should.be.equalOneOf(['a', 10, 'ab']);
    */
-  addOneOf('equalOneOf', 'to be equals one of', 'equal');
+  addOneOf("equalOneOf", "to be equals one of", "equal");
 
   /**
    * Exact comparison using .eql to be one of supplied objects.
@@ -2834,8 +2907,7 @@ var equalityAssertions = function(should, Assertion) {
    * ({a: 10}).should.be.oneOf('a', 10, 'ab', {a: 10});
    * ({a: 10}).should.be.oneOf(['a', 10, 'ab', {a: 10}]);
    */
-  addOneOf('oneOf', 'to be one of', 'eql');
-
+  addOneOf("oneOf", "to be one of", "eql");
 };
 
 /*
@@ -2858,13 +2930,12 @@ var promiseAssertions = function(should, Assertion$$1) {
    * (new Promise(function(resolve, reject) { resolve(10); })).should.be.a.Promise()
    * (10).should.not.be.a.Promise()
    */
-  Assertion$$1.add('Promise', function() {
-    this.params = {operator: 'to be promise'};
+  Assertion$$1.add("Promise", function() {
+    this.params = { operator: "to be promise" };
 
     var obj = this.obj;
 
-    should(obj).have.property('then')
-      .which.is.a.Function();
+    should(obj).have.property("then").which.is.a.Function();
   });
 
   /**
@@ -2886,23 +2957,27 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.fulfilled = function Assertion$fulfilled() {
-    this.params = {operator: 'to be fulfilled'};
+    this.params = { operator: "to be fulfilled" };
 
     should(this.obj).be.a.Promise();
 
     var that = this;
-    return this.obj.then(function next$onResolve(value) {
-      if (that.negate) {
-        that.fail();
+    return this.obj.then(
+      function next$onResolve(value) {
+        if (that.negate) {
+          that.fail();
+        }
+        return value;
+      },
+      function next$onReject(err) {
+        if (!that.negate) {
+          that.params.operator +=
+            ", but it was rejected with " + should.format(err);
+          that.fail();
+        }
+        return err;
       }
-      return value;
-    }, function next$onReject(err) {
-      if (!that.negate) {
-        that.params.operator += ', but it was rejected with ' + should.format(err);
-        that.fail();
-      }
-      return err;
-    });
+    );
   };
 
   /**
@@ -2925,26 +3000,29 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.rejected = function() {
-    this.params = {operator: 'to be rejected'};
+    this.params = { operator: "to be rejected" };
 
     should(this.obj).be.a.Promise();
 
     var that = this;
-    return this.obj.then(function(value) {
-      if (!that.negate) {
-        that.params.operator += ', but it was fulfilled';
-        if (arguments.length != 0) {
-          that.params.operator += ' with ' + should.format(value);
+    return this.obj.then(
+      function(value) {
+        if (!that.negate) {
+          that.params.operator += ", but it was fulfilled";
+          if (arguments.length != 0) {
+            that.params.operator += " with " + should.format(value);
+          }
+          that.fail();
         }
-        that.fail();
+        return value;
+      },
+      function next$onError(err) {
+        if (that.negate) {
+          that.fail();
+        }
+        return err;
       }
-      return value;
-    }, function next$onError(err) {
-      if (that.negate) {
-        that.fail();
-      }
-      return err;
-    });
+    );
   };
 
   /**
@@ -2968,24 +3046,30 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.fulfilledWith = function(expectedValue) {
-    this.params = {operator: 'to be fulfilled with ' + should.format(expectedValue)};
+    this.params = {
+      operator: "to be fulfilled with " + should.format(expectedValue)
+    };
 
     should(this.obj).be.a.Promise();
 
     var that = this;
-    return this.obj.then(function(value) {
-      if (that.negate) {
-        that.fail();
+    return this.obj.then(
+      function(value) {
+        if (that.negate) {
+          that.fail();
+        }
+        should(value).eql(expectedValue);
+        return value;
+      },
+      function next$onError(err) {
+        if (!that.negate) {
+          that.params.operator +=
+            ", but it was rejected with " + should.format(err);
+          that.fail();
+        }
+        return err;
       }
-      should(value).eql(expectedValue);
-      return value;
-    }, function next$onError(err) {
-      if (!that.negate) {
-        that.params.operator += ', but it was rejected with ' + should.format(err);
-        that.fail();
-      }
-      return err;
-    });
+    );
   };
 
   /**
@@ -3015,68 +3099,80 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.rejectedWith = function(message, properties) {
-    this.params = {operator: 'to be rejected'};
+    this.params = { operator: "to be rejected" };
 
     should(this.obj).be.a.Promise();
 
     var that = this;
-    return this.obj.then(function(value) {
-      if (!that.negate) {
-        that.fail();
-      }
-      return value;
-    }, function next$onError(err) {
-      if (that.negate) {
-        that.fail();
-      }
+    return this.obj.then(
+      function(value) {
+        if (!that.negate) {
+          that.fail();
+        }
+        return value;
+      },
+      function next$onError(err) {
+        if (that.negate) {
+          that.fail();
+        }
 
-      var errorMatched = true;
-      var errorInfo = '';
+        var errorMatched = true;
+        var errorInfo = "";
 
-      if ('string' === typeof message) {
-        errorMatched = message === err.message;
-      } else if (message instanceof RegExp) {
-        errorMatched = message.test(err.message);
-      } else if ('function' === typeof message) {
-        errorMatched = err instanceof message;
-      } else if (message !== null && typeof message === 'object') {
-        try {
-          should(err).match(message);
-        } catch (e) {
-          if (e instanceof should.AssertionError) {
-            errorInfo = ': ' + e.message;
-            errorMatched = false;
-          } else {
-            throw e;
+        if ("string" === typeof message) {
+          errorMatched = message === err.message;
+        } else if (message instanceof RegExp) {
+          errorMatched = message.test(err.message);
+        } else if ("function" === typeof message) {
+          errorMatched = err instanceof message;
+        } else if (message !== null && typeof message === "object") {
+          try {
+            should(err).match(message);
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
+              errorInfo = ": " + e.message;
+              errorMatched = false;
+            } else {
+              throw e;
+            }
           }
         }
-      }
 
-      if (!errorMatched) {
-        if ( typeof message === 'string' || message instanceof RegExp) {
-          errorInfo = ' with a message matching ' + should.format(message) + ", but got '" + err.message + "'";
-        } else if ('function' === typeof message) {
-          errorInfo = ' of type ' + functionName(message) + ', but got ' + functionName(err.constructor);
-        }
-      } else if ('function' === typeof message && properties) {
-        try {
-          should(err).match(properties);
-        } catch (e) {
-          if (e instanceof should.AssertionError) {
-            errorInfo = ': ' + e.message;
-            errorMatched = false;
-          } else {
-            throw e;
+        if (!errorMatched) {
+          if (typeof message === "string" || message instanceof RegExp) {
+            errorInfo =
+              " with a message matching " +
+              should.format(message) +
+              ", but got '" +
+              err.message +
+              "'";
+          } else if ("function" === typeof message) {
+            errorInfo =
+              " of type " +
+              functionName(message) +
+              ", but got " +
+              functionName(err.constructor);
+          }
+        } else if ("function" === typeof message && properties) {
+          try {
+            should(err).match(properties);
+          } catch (e) {
+            if (e instanceof should.AssertionError) {
+              errorInfo = ": " + e.message;
+              errorMatched = false;
+            } else {
+              throw e;
+            }
           }
         }
+
+        that.params.operator += errorInfo;
+
+        that.assert(errorMatched);
+
+        return err;
       }
-
-      that.params.operator += errorInfo;
-
-      that.assert(errorMatched);
-
-      return err;
-    });
+    );
   };
 
   /**
@@ -3100,24 +3196,26 @@ var promiseAssertions = function(should, Assertion$$1) {
    *      .should.be.finally.equal(10);
    * });
    */
-  Object.defineProperty(Assertion$$1.prototype, 'finally', {
+  Object.defineProperty(Assertion$$1.prototype, "finally", {
     get: function() {
       should(this.obj).be.a.Promise();
 
       var that = this;
 
-      return new PromisedAssertion(this.obj.then(function(obj) {
-        var a = should(obj);
+      return new PromisedAssertion(
+        this.obj.then(function(obj) {
+          var a = should(obj);
 
-        a.negate = that.negate;
-        a.anyOne = that.anyOne;
+          a.negate = that.negate;
+          a.anyOne = that.anyOne;
 
-        return a;
-      }));
+          return a;
+        })
+      );
     }
   });
 
-  Assertion$$1.alias('finally', 'eventually');
+  Assertion$$1.alias("finally", "eventually");
 };
 
 /*
@@ -3139,8 +3237,11 @@ var stringAssertions = function(should, Assertion) {
    *
    * 'abc'.should.startWith('a');
    */
-  Assertion.add('startWith', function(str, description) {
-    this.params = { operator: 'to start with ' + should.format(str), message: description };
+  Assertion.add("startWith", function(str, description) {
+    this.params = {
+      operator: "to start with " + should.format(str),
+      message: description
+    };
 
     this.assert(0 === this.obj.indexOf(str));
   });
@@ -3156,8 +3257,11 @@ var stringAssertions = function(should, Assertion) {
    *
    * 'abca'.should.endWith('a');
    */
-  Assertion.add('endWith', function(str, description) {
-    this.params = { operator: 'to end with ' + should.format(str), message: description };
+  Assertion.add("endWith", function(str, description) {
+    this.params = {
+      operator: "to end with " + should.format(str),
+      message: description
+    };
 
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
@@ -3197,23 +3301,29 @@ var containAssertions = function(should, Assertion) {
    * // throws AssertionError: expected { a: 10, c: { d: 10 } } to contain { b: 10 }
    * //            expected { a: 10, c: { d: 10 } } to have property b
    */
-  Assertion.add('containEql', function(other) {
-    this.params = { operator: 'to contain ' + i(other) };
+  Assertion.add("containEql", function(other) {
+    this.params = { operator: "to contain " + i(other) };
 
     this.is.not.null().and.not.undefined();
 
     var obj = this.obj;
 
-    if (typeof obj == 'string') {
+    if (typeof obj == "string") {
       this.assert(obj.indexOf(String(other)) >= 0);
     } else if (isIterable(obj)) {
-      this.assert(some(obj, function(v) {
-        return eq(v, other).length === 0;
-      }));
+      this.assert(
+        some(obj, function(v) {
+          return eq$1(v, other).length === 0;
+        })
+      );
     } else {
-      forEach(other, function(value, key) {
-        should(obj).have.value(key, value);
-      }, this);
+      forEach(
+        other,
+        function(value, key) {
+          should(obj).have.value(key, value);
+        },
+        this
+      );
     }
   });
 
@@ -3236,11 +3346,12 @@ var containAssertions = function(should, Assertion) {
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({b: {c: 10}});
    * ({ a: 10, b: { c: 10, d: [1, 2, 3] }}).should.containDeepOrdered({b: {d: [1, 3]}});
    */
-  Assertion.add('containDeepOrdered', function(other) {
-    this.params = {operator: 'to contain ' + i(other)};
+  Assertion.add("containDeepOrdered", function(other) {
+    this.params = { operator: "to contain " + i(other) };
 
     var obj = this.obj;
-    if (typeof obj == 'string') {// expect other to be string
+    if (typeof obj == "string") {
+      // expect other to be string
       this.is.equal(String(other));
     } else if (isIterable(obj) && isIterable(other)) {
       var objIterator = iterator(obj);
@@ -3261,7 +3372,13 @@ var containAssertions = function(should, Assertion) {
       }
 
       this.assert(nextOther.done);
-    } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {//TODO compare types object contains object case
+    } else if (
+      obj != null &&
+      other != null &&
+      typeof obj == "object" &&
+      typeof other == "object"
+    ) {
+      //TODO compare types object contains object case
       forEach(other, function(value, key) {
         should(obj[key]).containDeepOrdered(value);
       });
@@ -3287,33 +3404,46 @@ var containAssertions = function(should, Assertion) {
    * [ 1, 2, 3].should.containDeep([2, 1]);
    * [ 1, 2, [ 1, 2, 3 ]].should.containDeep([ 1, [ 3, 1 ]]);
    */
-  Assertion.add('containDeep', function(other) {
-    this.params = {operator: 'to contain ' + i(other)};
+  Assertion.add("containDeep", function(other) {
+    this.params = { operator: "to contain " + i(other) };
 
     var obj = this.obj;
-    if (typeof obj == 'string') {// expect other to be string
+    if (typeof obj == "string") {
+      // expect other to be string
       this.is.equal(String(other));
     } else if (isIterable(obj) && isIterable(other)) {
       var usedKeys = {};
-      forEach(other, function(otherItem) {
-        this.assert(some(obj, function(item, index) {
-          if (index in usedKeys) {
-            return false;
-          }
+      forEach(
+        other,
+        function(otherItem) {
+          this.assert(
+            some(obj, function(item, index) {
+              if (index in usedKeys) {
+                return false;
+              }
 
-          try {
-            should(item).containDeep(otherItem);
-            usedKeys[index] = true;
-            return true;
-          } catch (e) {
-            if (e instanceof should.AssertionError) {
-              return false;
-            }
-            throw e;
-          }
-        }));
-      }, this);
-    } else if (obj != null && other != null && typeof obj == 'object' && typeof other == 'object') {// object contains object case
+              try {
+                should(item).containDeep(otherItem);
+                usedKeys[index] = true;
+                return true;
+              } catch (e) {
+                if (e instanceof should.AssertionError) {
+                  return false;
+                }
+                throw e;
+              }
+            })
+          );
+        },
+        this
+      );
+    } else if (
+      obj != null &&
+      other != null &&
+      typeof obj == "object" &&
+      typeof other == "object"
+    ) {
+      // object contains object case
       forEach(other, function(value, key) {
         should(obj[key]).containDeep(value);
       });
@@ -3326,7 +3456,6 @@ var containAssertions = function(should, Assertion) {
       this.eql(other);
     }
   });
-
 };
 
 /*
@@ -3352,11 +3481,16 @@ var propertyAssertions = function(should, Assertion) {
    *
    * ({ a: 10 }).should.have.propertyWithDescriptor('a', { enumerable: true });
    */
-  Assertion.add('propertyWithDescriptor', function(name, desc) {
-    this.params = {actual: this.obj, operator: 'to have own property with descriptor ' + i(desc)};
+  Assertion.add("propertyWithDescriptor", function(name, desc) {
+    this.params = {
+      actual: this.obj,
+      operator: "to have own property with descriptor " + i(desc)
+    };
     var obj = this.obj;
     this.have.ownProperty(name);
-    should(Object.getOwnPropertyDescriptor(Object(obj), name)).have.properties(desc);
+    should(Object.getOwnPropertyDescriptor(Object(obj), name)).have.properties(
+      desc
+    );
   });
 
   function processPropsArgs() {
@@ -3365,7 +3499,7 @@ var propertyAssertions = function(should, Assertion) {
       args.names = aSlice.call(arguments);
     } else {
       var arg = arguments[0];
-      if (typeof arg === 'string') {
+      if (typeof arg === "string") {
         args.names = [arg];
       } else if (Array.isArray(arg)) {
         args.names = arg;
@@ -3377,11 +3511,14 @@ var propertyAssertions = function(should, Assertion) {
     return args;
   }
 
-  Assertion.add('enumerable', function(name, val) {
+  Assertion.add("enumerable", function(name, val) {
     name = convertPropertyName(name);
 
     this.params = {
-      operator: "to have enumerable property " + formatProp(name) + (arguments.length > 1 ? " equal to " + i(val): "")
+      operator:
+        "to have enumerable property " +
+        formatProp(name) +
+        (arguments.length > 1 ? " equal to " + i(val) : "")
     };
 
     var desc = { enumerable: true };
@@ -3391,18 +3528,21 @@ var propertyAssertions = function(should, Assertion) {
     this.have.propertyWithDescriptor(name, desc);
   });
 
-  Assertion.add('enumerables', function(/*names*/) {
-    var args = processPropsArgs.apply(null, arguments);
+  Assertion.add(
+    "enumerables",
+    function(/*names*/) {
+      var args = processPropsArgs.apply(null, arguments);
 
-    this.params = {
-      operator: "to have enumerables " + args.names.map(formatProp)
-    };
+      this.params = {
+        operator: "to have enumerables " + args.names.map(formatProp)
+      };
 
-    var obj = this.obj;
-    args.names.forEach(function(name) {
-      should(obj).have.enumerable(name);
-    });
-  });
+      var obj = this.obj;
+      args.names.forEach(function(name) {
+        should(obj).have.enumerable(name);
+      });
+    }
+  );
 
   /**
    * Asserts given object has property with optionally value. **On success it change given object to be value of property**.
@@ -3416,7 +3556,7 @@ var propertyAssertions = function(should, Assertion) {
    *
    * ({ a: 10 }).should.have.property('a');
    */
-  Assertion.add('property', function(name, val) {
+  Assertion.add("property", function(name, val) {
     name = convertPropertyName(name);
     if (arguments.length > 1) {
       var p = {};
@@ -3441,12 +3581,12 @@ var propertyAssertions = function(should, Assertion) {
    * ({ a: 10, b: 20 }).should.have.properties([ 'a' ]);
    * ({ a: 10, b: 20 }).should.have.properties({ b: 20 });
    */
-  Assertion.add('properties', function(names) {
+  Assertion.add("properties", function(names) {
     var values = {};
     if (arguments.length > 1) {
       names = aSlice.call(arguments);
     } else if (!Array.isArray(names)) {
-      if (typeof names == 'string' || typeof names == 'symbol') {
+      if (typeof names == "string" || typeof names == "symbol") {
         names = [names];
       } else {
         values = names;
@@ -3454,7 +3594,8 @@ var propertyAssertions = function(should, Assertion) {
       }
     }
 
-    var obj = Object(this.obj), missingProperties = [];
+    var obj = Object(this.obj),
+      missingProperties = [];
 
     //just enumerate properties and check if they all present
     names.forEach(function(name) {
@@ -3467,19 +3608,27 @@ var propertyAssertions = function(should, Assertion) {
     if (props.length === 0) {
       props = names.map(formatProp);
     } else if (this.anyOne) {
-      props = names.filter(function(name) {
-        return missingProperties.indexOf(formatProp(name)) < 0;
-      }).map(formatProp);
+      props = names
+        .filter(function(name) {
+          return missingProperties.indexOf(formatProp(name)) < 0;
+        })
+        .map(formatProp);
     }
 
-    var operator = (props.length === 1 ?
-        'to have property ' : 'to have ' + (this.anyOne ? 'any of ' : '') + 'properties ') + props.join(', ');
+    var operator =
+      (props.length === 1
+        ? "to have property "
+        : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
+      props.join(", ");
 
-    this.params = {obj: this.obj, operator: operator};
+    this.params = { obj: this.obj, operator: operator };
 
     //check that all properties presented
     //or if we request one of them that at least one them presented
-    this.assert(missingProperties.length === 0 || (this.anyOne && missingProperties.length != names.length));
+    this.assert(
+      missingProperties.length === 0 ||
+        (this.anyOne && missingProperties.length != names.length)
+    );
 
     // check if values in object matched expected
     var valueCheckNames = Object.keys(values);
@@ -3490,25 +3639,36 @@ var propertyAssertions = function(should, Assertion) {
       // now check values, as there we have all properties
       valueCheckNames.forEach(function(name) {
         var value = values[name];
-        if (eq(obj[name], value).length !== 0) {
-          wrongValues.push(formatProp(name) + ' of ' + i(value) + ' (got ' + i(obj[name]) + ')');
+        if (eq$1(obj[name], value).length !== 0) {
+          wrongValues.push(
+            formatProp(name) + " of " + i(value) + " (got " + i(obj[name]) + ")"
+          );
         } else {
-          props.push(formatProp(name) + ' of ' + i(value));
+          props.push(formatProp(name) + " of " + i(value));
         }
       });
 
-      if ((wrongValues.length !== 0 && !this.anyOne) || (this.anyOne && props.length === 0)) {
+      if (
+        (wrongValues.length !== 0 && !this.anyOne) ||
+        (this.anyOne && props.length === 0)
+      ) {
         props = wrongValues;
       }
 
-      operator = (props.length === 1 ?
-        'to have property ' : 'to have ' + (this.anyOne ? 'any of ' : '') + 'properties ') + props.join(', ');
+      operator =
+        (props.length === 1
+          ? "to have property "
+          : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
+        props.join(", ");
 
-      this.params = {obj: this.obj, operator: operator};
+      this.params = { obj: this.obj, operator: operator };
 
       //if there is no not matched values
       //or there is at least one matched
-      this.assert(wrongValues.length === 0 || (this.anyOne && wrongValues.length != valueCheckNames.length));
+      this.assert(
+        wrongValues.length === 0 ||
+          (this.anyOne && wrongValues.length != valueCheckNames.length)
+      );
     }
   });
 
@@ -3525,11 +3685,11 @@ var propertyAssertions = function(should, Assertion) {
    *
    * [1, 2].should.have.length(2);
    */
-  Assertion.add('length', function(n, description) {
-    this.have.property('length', n, description);
+  Assertion.add("length", function(n, description) {
+    this.have.property("length", n, description);
   });
 
-  Assertion.alias('length', 'lengthOf');
+  Assertion.alias("length", "lengthOf");
 
   /**
    * Asserts given object has own property. **On success it change given object to be value of property**.
@@ -3544,11 +3704,11 @@ var propertyAssertions = function(should, Assertion) {
    *
    * ({ a: 10 }).should.have.ownProperty('a');
    */
-  Assertion.add('ownProperty', function(name, description) {
+  Assertion.add("ownProperty", function(name, description) {
     name = convertPropertyName(name);
     this.params = {
       actual: this.obj,
-      operator: 'to have own property ' + formatProp(name),
+      operator: "to have own property " + formatProp(name),
       message: description
     };
 
@@ -3557,7 +3717,7 @@ var propertyAssertions = function(should, Assertion) {
     this.obj = this.obj[name];
   });
 
-  Assertion.alias('ownProperty', 'hasOwnProperty');
+  Assertion.alias("ownProperty", "hasOwnProperty");
 
   /**
    * Asserts given object is empty. For strings, arrays and arguments it checks .length property, for objects it checks keys.
@@ -3571,10 +3731,14 @@ var propertyAssertions = function(should, Assertion) {
    * [].should.be.empty();
    * ({}).should.be.empty();
    */
-  Assertion.add('empty', function() {
-    this.params = {operator: 'to be empty'};
-    this.assert(isEmpty(this.obj));
-  }, true);
+  Assertion.add(
+    "empty",
+    function() {
+      this.params = { operator: "to be empty" };
+      this.assert(isEmpty(this.obj));
+    },
+    true
+  );
 
   /**
    * Asserts given object has such keys. Compared to `properties`, `keys` does not accept Object as a argument.
@@ -3593,7 +3757,7 @@ var propertyAssertions = function(should, Assertion) {
    *
    * json.should.have.only.keys('type', 'version')
    */
-  Assertion.add('keys', function(keys) {
+  Assertion.add("keys", function(keys) {
     keys = aSlice.call(arguments);
 
     var obj = Object(this.obj);
@@ -3603,12 +3767,15 @@ var propertyAssertions = function(should, Assertion) {
       return !has(obj, key);
     });
 
-    var verb = 'to have ' + (this.onlyThis ? 'only ': '') + (keys.length === 1 ? 'key ' : 'keys ');
+    var verb =
+      "to have " +
+      (this.onlyThis ? "only " : "") +
+      (keys.length === 1 ? "key " : "keys ");
 
-    this.params = {operator: verb + keys.join(', ')};
+    this.params = { operator: verb + keys.join(", ") };
 
     if (missingKeys.length > 0) {
-      this.params.operator += '\n\tmissing keys: ' + missingKeys.join(', ');
+      this.params.operator += "\n\tmissing keys: " + missingKeys.join(", ");
     }
 
     this.assert(missingKeys.length === 0);
@@ -3618,8 +3785,7 @@ var propertyAssertions = function(should, Assertion) {
     }
   });
 
-
-  Assertion.add('key', function(key) {
+  Assertion.add("key", function(key) {
     this.have.keys(key);
     this.obj = get(this.obj, key);
   });
@@ -3637,7 +3803,7 @@ var propertyAssertions = function(should, Assertion) {
    * ({ a: 10 }).should.have.value('a', 10);
    * (new Map([[1, 2]])).should.have.value(1, 2);
    */
-  Assertion.add('value', function(key, value) {
+  Assertion.add("value", function(key, value) {
     this.have.key(key).which.is.eql(value);
   });
 
@@ -3653,8 +3819,8 @@ var propertyAssertions = function(should, Assertion) {
    * ({ a: 10 }).should.have.size(1);
    * (new Map([[1, 2]])).should.have.size(1);
    */
-  Assertion.add('size', function(s) {
-    this.params = { operator: 'to have size ' + s };
+  Assertion.add("size", function(s) {
+    this.params = { operator: "to have size " + s };
     size(this.obj).should.be.exactly(s);
   });
 
@@ -3669,7 +3835,7 @@ var propertyAssertions = function(should, Assertion) {
    *
    * ({ a: {b: 10}}).should.have.propertyByPath('a', 'b').eql(10);
    */
-  Assertion.add('propertyByPath', function(properties) {
+  Assertion.add("propertyByPath", function(properties) {
     properties = aSlice.call(arguments);
 
     var allProps = properties.map(formatProp);
@@ -3683,12 +3849,21 @@ var propertyAssertions = function(should, Assertion) {
     var currentProperty;
     while (properties.length) {
       currentProperty = properties.shift();
-      this.params = {operator: 'to have property by path ' + allProps.join(', ') + ' - failed on ' + formatProp(currentProperty)};
+      this.params = {
+        operator:
+          "to have property by path " +
+          allProps.join(", ") +
+          " - failed on " +
+          formatProp(currentProperty)
+      };
       obj = obj.have.property(currentProperty);
       foundProperties.push(currentProperty);
     }
 
-    this.params = {obj: this.obj, operator: 'to have property by path ' + allProps.join(', ')};
+    this.params = {
+      obj: this.obj,
+      operator: "to have property by path " + allProps.join(", ")
+    };
 
     this.obj = obj.obj;
   });
@@ -3727,10 +3902,10 @@ var errorAssertions = function(should, Assertion) {
    *   yield throwError();
    * }).should.throw();
    */
-  Assertion.add('throw', function(message, properties) {
+  Assertion.add("throw", function(message, properties) {
     var fn = this.obj;
     var err = {};
-    var errorInfo = '';
+    var errorInfo = "";
     var thrown = false;
 
     if (isGeneratorFunction(fn)) {
@@ -3752,11 +3927,11 @@ var errorAssertions = function(should, Assertion) {
 
     if (thrown) {
       if (message) {
-        if ('string' == typeof message) {
+        if ("string" == typeof message) {
           errorMatched = message == err.message;
         } else if (message instanceof RegExp) {
           errorMatched = message.test(err.message);
-        } else if ('function' == typeof message) {
+        } else if ("function" == typeof message) {
           errorMatched = err instanceof message;
         } else if (null != message) {
           try {
@@ -3772,12 +3947,21 @@ var errorAssertions = function(should, Assertion) {
         }
 
         if (!errorMatched) {
-          if ('string' == typeof message || message instanceof RegExp) {
-            errorInfo = " with a message matching " + i(message) + ", but got '" + err.message + "'";
-          } else if ('function' == typeof message) {
-            errorInfo = " of type " + functionName(message) + ", but got " + functionName(err.constructor);
+          if ("string" == typeof message || message instanceof RegExp) {
+            errorInfo =
+              " with a message matching " +
+              i(message) +
+              ", but got '" +
+              err.message +
+              "'";
+          } else if ("function" == typeof message) {
+            errorInfo =
+              " of type " +
+              functionName(message) +
+              ", but got " +
+              functionName(err.constructor);
           }
-        } else if ('function' == typeof message && properties) {
+        } else if ("function" == typeof message && properties) {
           try {
             should(err).match(properties);
           } catch (e) {
@@ -3794,13 +3978,13 @@ var errorAssertions = function(should, Assertion) {
       }
     }
 
-    this.params = { operator: 'to throw exception' + errorInfo };
+    this.params = { operator: "to throw exception" + errorInfo };
 
     this.assert(thrown);
     this.assert(errorMatched);
   });
 
-  Assertion.alias('throw', 'throwError');
+  Assertion.alias("throw", "throwError");
 };
 
 /*
@@ -3869,69 +4053,89 @@ var matchingAssertions = function(should, Assertion) {
    * (new Error('boom')).should.match(/abc/);//passed because no keys
    * (new Error('boom')).should.not.match({ message: /abc/ });//check specified property
    */
-  Assertion.add('match', function(other, description) {
-    this.params = {operator: 'to match ' + i(other), message: description};
+  Assertion.add("match", function(other, description) {
+    this.params = { operator: "to match " + i(other), message: description };
 
-    if (eq(this.obj, other).length !== 0) {
-      if (other instanceof RegExp) { // something - regex
+    if (eq$1(this.obj, other).length !== 0) {
+      if (other instanceof RegExp) {
+        // something - regex
 
-        if (typeof this.obj == 'string') {
-
+        if (typeof this.obj == "string") {
           this.assert(other.exec(this.obj));
-        } else if (null != this.obj && typeof this.obj == 'object') {
-
-          var notMatchedProps = [], matchedProps = [];
-          forEach(this.obj, function(value, name) {
-            if (other.exec(value)) {
-              matchedProps.push(formatProp(name));
-            } else {
-              notMatchedProps.push(formatProp(name) + ' (' + i(value) + ')');
-            }
-          }, this);
+        } else if (null != this.obj && typeof this.obj == "object") {
+          var notMatchedProps = [],
+            matchedProps = [];
+          forEach(
+            this.obj,
+            function(value, name) {
+              if (other.exec(value)) {
+                matchedProps.push(formatProp(name));
+              } else {
+                notMatchedProps.push(formatProp(name) + " (" + i(value) + ")");
+              }
+            },
+            this
+          );
 
           if (notMatchedProps.length) {
-            this.params.operator += '\n    not matched properties: ' + notMatchedProps.join(', ');
+            this.params.operator +=
+              "\n    not matched properties: " + notMatchedProps.join(", ");
           }
           if (matchedProps.length) {
-            this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
+            this.params.operator +=
+              "\n    matched properties: " + matchedProps.join(", ");
           }
 
           this.assert(notMatchedProps.length === 0);
-        } // should we try to convert to String and exec?
-        else {
+        } else {
+          // should we try to convert to String and exec?
           this.assert(false);
         }
-      } else if (typeof other == 'function') {
+      } else if (typeof other == "function") {
         var res;
 
         res = other(this.obj);
 
         //if we throw exception ok - it is used .should inside
-        if (typeof res == 'boolean') {
+        if (typeof res == "boolean") {
           this.assert(res); // if it is just boolean function assert on it
         }
-      } else if (other != null && this.obj != null && typeof other == 'object' && typeof this.obj == 'object') { // try to match properties (for Object and Array)
+      } else if (
+        other != null &&
+        this.obj != null &&
+        typeof other == "object" &&
+        typeof this.obj == "object"
+      ) {
+        // try to match properties (for Object and Array)
         notMatchedProps = [];
         matchedProps = [];
 
-        forEach(other, function(value, key) {
-          try {
-            should(this.obj).have.property(key).which.match(value);
-            matchedProps.push(formatProp(key));
-          } catch (e) {
-            if (e instanceof should.AssertionError) {
-              notMatchedProps.push(formatProp(key) + ' (' + i(this.obj[key]) + ')');
-            } else {
-              throw e;
+        forEach(
+          other,
+          function(value, key) {
+            try {
+              should(this.obj).have.property(key).which.match(value);
+              matchedProps.push(formatProp(key));
+            } catch (e) {
+              if (e instanceof should.AssertionError) {
+                notMatchedProps.push(
+                  formatProp(key) + " (" + i(this.obj[key]) + ")"
+                );
+              } else {
+                throw e;
+              }
             }
-          }
-        }, this);
+          },
+          this
+        );
 
         if (notMatchedProps.length) {
-          this.params.operator += '\n    not matched properties: ' + notMatchedProps.join(', ');
+          this.params.operator +=
+            "\n    not matched properties: " + notMatchedProps.join(", ");
         }
         if (matchedProps.length) {
-          this.params.operator += '\n    matched properties: ' + matchedProps.join(', ');
+          this.params.operator +=
+            "\n    matched properties: " + matchedProps.join(", ");
         }
 
         this.assert(notMatchedProps.length === 0);
@@ -3962,12 +4166,19 @@ var matchingAssertions = function(should, Assertion) {
    *
    * { a: 'a', b: 'a', c: 'a' }.should.matchEach(function(value) { value.should.be.eql('a') });
    */
-  Assertion.add('matchEach', function(other, description) {
-    this.params = {operator: 'to match each ' + i(other), message: description};
+  Assertion.add("matchEach", function(other, description) {
+    this.params = {
+      operator: "to match each " + i(other),
+      message: description
+    };
 
-    forEach(this.obj, function(value) {
-      should(value).match(other);
-    }, this);
+    forEach(
+      this.obj,
+      function(value) {
+        should(value).match(other);
+      },
+      this
+    );
   });
 
   /**
@@ -3991,25 +4202,30 @@ var matchingAssertions = function(should, Assertion) {
   *
   * { a: 'a', b: 'b', c: 'c' }.should.matchAny(function(value) { value.should.be.eql('a') });
   */
-  Assertion.add('matchAny', function(other, description) {
-    this.params = {operator: 'to match any ' + i(other), message: description};
+  Assertion.add("matchAny", function(other, description) {
+    this.params = {
+      operator: "to match any " + i(other),
+      message: description
+    };
 
-    this.assert(some(this.obj, function(value) {
-      try {
-        should(value).match(other);
-        return true;
-      } catch (e) {
-        if (e instanceof should.AssertionError) {
-          // Caught an AssertionError, return false to the iterator
-          return false;
+    this.assert(
+      some(this.obj, function(value) {
+        try {
+          should(value).match(other);
+          return true;
+        } catch (e) {
+          if (e instanceof should.AssertionError) {
+            // Caught an AssertionError, return false to the iterator
+            return false;
+          }
+          throw e;
         }
-        throw e;
-      }
-    }));
+      })
+    );
   });
 
-  Assertion.alias('matchAny', 'matchSome');
-  Assertion.alias('matchEach', 'matchEvery');
+  Assertion.alias("matchAny", "matchSome");
+  Assertion.alias("matchEach", "matchEvery");
 };
 
 /*
@@ -4029,7 +4245,7 @@ var matchingAssertions = function(should, Assertion) {
  * should('abc').be.a.String();
  */
 function should(obj) {
-  return (new Assertion(obj));
+  return new Assertion(obj);
 }
 
 should.AssertionError = AssertionError;
@@ -4038,8 +4254,8 @@ should.Assertion = Assertion;
 // exposing modules dirty way
 should.modules = {
   format: defaultFormat,
-  type: getGlobalType,
-  equal: eq
+  type: getGlobalType$1,
+  equal: eq$1
 };
 should.format = format;
 
@@ -4088,14 +4304,13 @@ should.config = config;
  * should.not.exist(Object.prototype.must);
  */
 should.extend = function(propertyName, proto) {
-  propertyName = propertyName || 'should';
+  propertyName = propertyName || "should";
   proto = proto || Object.prototype;
 
   var prevDescriptor = Object.getOwnPropertyDescriptor(proto, propertyName);
 
   Object.defineProperty(proto, propertyName, {
-    set: function() {
-    },
+    set: function() {},
     get: function() {
       return should(isWrapperType(this) ? this.valueOf() : this);
     },
@@ -4174,31 +4389,30 @@ should
   .use(promiseAssertions);
 
 var defaultProto = Object.prototype;
-var defaultProperty = 'should';
+var defaultProperty = "should";
+
+var _root = root;
 
 //Expose api via `Object#should`.
 try {
   var prevShould = should.extend(defaultProperty, defaultProto);
   should._prevShould = prevShould;
-} catch (e) {
-  //ignore errors
-}
 
-
-if (typeof define === 'function' && define.amd) {
-  define([], function() { return should });
-} else if (typeof module === 'object' && module.exports) {
-  module.exports = should;
-} else {
-  var _root = root;
-
-  _root.Should = should;
-
-  Object.defineProperty(_root, 'should', {
+  Object.defineProperty(_root, "should", {
     enumerable: false,
     configurable: true,
     value: should
   });
+} catch (e) {
+  //ignore errors
+}
+
+if (typeof define === "function" && define.amd) {
+  define([], function() {
+    return should;
+  });
+} else if (typeof module === "object" && module.exports) {
+  module.exports = should;
 }
 
 }(this));
