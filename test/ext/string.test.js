@@ -1,47 +1,46 @@
-var err = require('../util').err;
-require('../../');
+var err = require("../util").err;
+require("../../");
 
-describe('string', function() {
-  it('test startWith()', function() {
-    'foobar'.should.startWith('foo');
-    'foobar'.should.not.startWith('bar');
+describe("string", function() {
+  it("test startWith()", function() {
+    "foobar".should.startWith("foo");
+    "foobar".should.not.startWith("bar");
 
     err(function() {
-      'foobar'.should.startWith('bar');
+      "foobar".should.startWith("bar");
     }, "expected 'foobar' to start with 'bar'");
 
     err(function() {
-      'foobar'.should.not.startWith('foo');
+      "foobar".should.not.startWith("foo");
     }, "expected 'foobar' not to start with 'foo' (false negative fail)");
 
     err(function() {
-      'foobar'.should.startWith('bar', 'baz');
+      "foobar".should.startWith("bar", "baz");
     }, "baz");
 
     err(function() {
-      'foobar'.should.not.startWith('foo', 'baz');
+      "foobar".should.not.startWith("foo", "baz");
     }, "baz");
   });
 
-  it('test endWith()', function() {
-    'foobar'.should.endWith('bar');
-    'foobar'.should.not.endWith('foo');
+  it("test endWith()", function() {
+    "foobar".should.endWith("bar");
+    "foobar".should.not.endWith("foo");
 
     err(function() {
-      'foobar'.should.endWith('foo');
+      "foobar".should.endWith("foo");
     }, "expected 'foobar' to end with 'foo'");
 
     err(function() {
-      'foobar'.should.not.endWith('bar');
+      "foobar".should.not.endWith("bar");
     }, "expected 'foobar' not to end with 'bar' (false negative fail)");
 
     err(function() {
-      'foobar'.should.endWith('foo', 'baz');
+      "foobar".should.endWith("foo", "baz");
     }, "baz");
 
     err(function() {
-      'foobar'.should.not.endWith('bar', 'baz');
+      "foobar".should.not.endWith("bar", "baz");
     }, "baz");
   });
-
 });

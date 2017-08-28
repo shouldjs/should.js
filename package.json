@@ -24,6 +24,7 @@
     "eslint-config-shouldjs": "^1.0.0",
     "mocha": "latest",
     "mocha-better-spec-reporter": "latest",
+    "prettier": "^1.5.3",
     "rollup": "^0.49.1",
     "rollup-plugin-node-resolve": "^3.0.0",
     "zuul": "latest"
