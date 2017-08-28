@@ -129,11 +129,19 @@ describe('number', function() {
     (5).should.be.aboveOrEqual(2);
     (5).should.be.aboveOrEqual(5);
     (5).should.not.be.aboveOrEqual(6);
+
+    err(function() {
+      (5).should.be.aboveOrEqual(6);
+    }, 'expected 5 to be above or equal 6');
   });
 
   it('test belowOrEqual(n)', function() {
     (2).should.be.belowOrEqual(5);
     (5).should.be.belowOrEqual(5);
     (6).should.not.be.belowOrEqual(5);
+
+    err(function() {
+      (6).should.be.belowOrEqual(5);
+    }, 'expected 6 to be below or equal 5');
   });
 });
