@@ -1,5 +1,3 @@
-require("../");
-
 function mockComplexObject(prefix, depth, width) {
   if (depth <= 0) {
     return "value-" + prefix;

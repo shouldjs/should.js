@@ -2,8 +2,6 @@
  * Module dependencies.
  */
 
-var should = require("../");
-
 function err(fn, msg) {
   try {
     fn();

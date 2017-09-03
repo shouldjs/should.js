@@ -1,5 +1,3 @@
-var should = require("../");
-
 function err(fn, msg) {
   if (arguments.length > 2) {
     msg = Array.prototype.slice.call(arguments, 1).join("\n");

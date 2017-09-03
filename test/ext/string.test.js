@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("string", function() {
   it("test startWith()", function() {

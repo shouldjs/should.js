@@ -2,7 +2,6 @@
  * Module dependencies.
  */
 
-var should = require("../");
 var assert = require("assert");
 
 describe("should", function() {

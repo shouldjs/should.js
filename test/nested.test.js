@@ -1,5 +1,3 @@
-var should = require("../");
-
 var util = require("./util");
 
 should.Assertion.add(

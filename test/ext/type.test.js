@@ -1,5 +1,4 @@
-var err = require("../util").err,
-  should = require("../../");
+var err = require("../util").err;
 
 var AssertionError = require("assert").AssertionError;
 var util = require("util");

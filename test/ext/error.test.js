@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("error", function() {
   it("test throw()", function() {

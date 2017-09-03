@@ -1,5 +1,4 @@
 var err = require("../util").err;
-var should = require("../../");
 
 describe("match", function() {
   it("test string match(regexp)", function() {

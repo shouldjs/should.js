@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("contain*", function() {
   it("test containEql", function() {

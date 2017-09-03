@@ -1,5 +1,4 @@
-var err = require("../util").err,
-  should = require("../../");
+var err = require("../util").err;
 
 describe("eql", function() {
   it("test eql(val)", function() {

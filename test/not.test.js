@@ -1,4 +1,3 @@
-var should = require("../");
 var err = require("./util").err;
 
 var a = 10;

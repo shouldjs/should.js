@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("number", function() {
   it("test NaN", function() {

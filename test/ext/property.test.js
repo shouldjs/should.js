@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("property", function() {
   it("test enumerable(name)", function() {

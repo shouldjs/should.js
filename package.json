@@ -15,7 +15,7 @@
     "build": "npm run cjs && npm run es6",
     "prepare": "npm run build && npm run browser",
     "pretest": "npm run build",
-    "test": "mocha -R mocha-better-spec-reporter --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
+    "test": "mocha -R mocha-better-spec-reporter --require ./cjs/should --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
     "browser": "rollup -c rollup.config.js --input ./lib/umd.js --output.format=iife  --output.file ./should.js"
   },
@@ -32,12 +32,7 @@
     "typescript": "^2.4.2",
     "zuul": "latest"
   },
-  "keywords": [
-    "test",
-    "bdd",
-    "assert",
-    "should"
-  ],
+  "keywords": ["test", "bdd", "assert", "should"],
   "main": "./index.js",
   "license": "MIT",
   "dependencies": {
@@ -47,13 +42,5 @@
     "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"
   },
-  "files": [
-    "cjs/*",
-    "es6/*",
-    "as-function.js",
-    "index.js",
-    "should.js",
-    "LICENSE",
-    "*.md"
-  ]
+  "files": ["cjs/*", "es6/*", "as-function.js", "index.js", "should.js", "LICENSE", "*.md"]
 }

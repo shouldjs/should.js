@@ -1,5 +1,4 @@
 var err = require("../util").err;
-require("../../");
 
 describe("bool", function() {
   it("test true", function() {

@@ -1,5 +1,3 @@
-var should = require("../../");
-
 var Promise = require("bluebird");
 
 function promised(value) {
