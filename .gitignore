@@ -7,3 +7,4 @@ should.js.for-tests
 npm-debug.log
 cjs/
 es6/
+package-lock.json
