@@ -9,14 +9,14 @@
   },
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
-    "cjs": "rollup --output.format=cjs --output.file=cjs/should.js lib/should.js",
-    "es6": "rollup --output.format=es --output.file=es6/should.js lib/should.js",
+    "cjs": "rollup --output.format=cjs --output.file=cjs/should.js lib/index.js",
+    "es6": "rollup --output.format=es --output.file=es6/should.js lib/index.js",
     "build": "npm run cjs && npm run es6",
     "prepare": "npm run build && npm run browser",
     "pretest": "npm run build",
     "test": "mocha -R mocha-better-spec-reporter --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
-    "browser": "rollup -c rollup.config.js --output.format=iife  --output.file ./should.js"
+    "browser": "rollup -c rollup.config.js --input ./lib/umd.js --output.format=iife  --output.file ./should.js"
   },
   "devDependencies": {
     "bluebird": "^3.5.0",

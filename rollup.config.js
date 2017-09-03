@@ -15,7 +15,6 @@ const banner = `/*!
 `;
 
 module.exports = {
-  input: "browser-entry.js",
   banner,
   plugins: [
     nodeResolve({
@@ -24,9 +23,5 @@ module.exports = {
       main: true,
       preferBuiltins: false
     })
-  ],
-  external: ["root"],
-  globals: {
-    root: "this"
-  }
+  ]
 };
