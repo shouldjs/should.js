@@ -1,3 +1,10 @@
+13.0.0 / 2017-09-05
+===================
+
+  * Removed `.enumerable` and `.enumerables`
+  * Fixed `.match`ing on `Date`s
+  * Added TypeScript definitions 
+
 12.0.0 / 2017-08-28
 ===================
 

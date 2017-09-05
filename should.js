@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v12.0.0
+ * @version v13.0.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1412,9 +1412,7 @@ Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType
  * MIT Licensed
  */
 function isWrapperType(obj) {
-  return (
-    obj instanceof Number || obj instanceof String || obj instanceof Boolean
-  );
+  return obj instanceof Number || obj instanceof String || obj instanceof Boolean;
 }
 
 // XXX make it more strict: numbers, strings, symbols - and nothing else
@@ -1423,6 +1421,15 @@ function convertPropertyName(name) {
 }
 
 var functionName$1 = defaultFormat.functionName;
+
+function isPlainObject(obj) {
+  if (typeof obj == "object" && obj !== null) {
+    var proto = Object.getPrototypeOf(obj);
+    return proto === Object.prototype || proto === null;
+  }
+
+  return false;
+}
 
 /*
  * should.js - assertion library
@@ -3384,12 +3391,7 @@ var containAssertions = function(should, Assertion) {
       }
 
       this.assert(nextOther.done);
-    } else if (
-      obj != null &&
-      other != null &&
-      typeof obj == "object" &&
-      typeof other == "object"
-    ) {
+    } else if (obj != null && typeof obj == "object" && other != null && typeof other == "object") {
       //TODO compare types object contains object case
       forEach(other, function(value, key) {
         should(obj[key]).containDeepOrdered(value);
@@ -3449,12 +3451,7 @@ var containAssertions = function(should, Assertion) {
         },
         this
       );
-    } else if (
-      obj != null &&
-      other != null &&
-      typeof obj == "object" &&
-      typeof other == "object"
-    ) {
+    } else if (obj != null && other != null && typeof obj == "object" && typeof other == "object") {
       // object contains object case
       forEach(other, function(value, key) {
         should(obj[key]).containDeep(value);
@@ -3500,61 +3497,8 @@ var propertyAssertions = function(should, Assertion) {
     };
     var obj = this.obj;
     this.have.ownProperty(name);
-    should(Object.getOwnPropertyDescriptor(Object(obj), name)).have.properties(
-      desc
-    );
+    should(Object.getOwnPropertyDescriptor(Object(obj), name)).have.properties(desc);
   });
-
-  function processPropsArgs() {
-    var args = {};
-    if (arguments.length > 1) {
-      args.names = aSlice.call(arguments);
-    } else {
-      var arg = arguments[0];
-      if (typeof arg === "string") {
-        args.names = [arg];
-      } else if (Array.isArray(arg)) {
-        args.names = arg;
-      } else {
-        args.names = Object.keys(arg);
-        args.values = arg;
-      }
-    }
-    return args;
-  }
-
-  Assertion.add("enumerable", function(name, val) {
-    name = convertPropertyName(name);
-
-    this.params = {
-      operator:
-        "to have enumerable property " +
-        formatProp(name) +
-        (arguments.length > 1 ? " equal to " + i(val) : "")
-    };
-
-    var desc = { enumerable: true };
-    if (arguments.length > 1) {
-      desc.value = val;
-    }
-    this.have.propertyWithDescriptor(name, desc);
-  });
-
-  Assertion.add(
-    "enumerables",
-    function(/*names*/) {
-      var args = processPropsArgs.apply(null, arguments);
-
-      this.params = {
-        operator: "to have enumerables " + args.names.map(formatProp)
-      };
-
-      var obj = this.obj;
-      args.names.forEach(function(name) {
-        should(obj).have.enumerable(name);
-      });
-    }
-  );
 
   /**
    * Asserts given object has property with optionally value. **On success it change given object to be value of property**.
@@ -3628,19 +3572,14 @@ var propertyAssertions = function(should, Assertion) {
     }
 
     var operator =
-      (props.length === 1
-        ? "to have property "
-        : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
+      (props.length === 1 ? "to have property " : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
       props.join(", ");
 
     this.params = { obj: this.obj, operator: operator };
 
     //check that all properties presented
     //or if we request one of them that at least one them presented
-    this.assert(
-      missingProperties.length === 0 ||
-        (this.anyOne && missingProperties.length != names.length)
-    );
+    this.assert(missingProperties.length === 0 || (this.anyOne && missingProperties.length != names.length));
 
     // check if values in object matched expected
     var valueCheckNames = Object.keys(values);
@@ -3652,35 +3591,25 @@ var propertyAssertions = function(should, Assertion) {
       valueCheckNames.forEach(function(name) {
         var value = values[name];
         if (eq$1(obj[name], value).length !== 0) {
-          wrongValues.push(
-            formatProp(name) + " of " + i(value) + " (got " + i(obj[name]) + ")"
-          );
+          wrongValues.push(formatProp(name) + " of " + i(value) + " (got " + i(obj[name]) + ")");
         } else {
           props.push(formatProp(name) + " of " + i(value));
         }
       });
 
-      if (
-        (wrongValues.length !== 0 && !this.anyOne) ||
-        (this.anyOne && props.length === 0)
-      ) {
+      if ((wrongValues.length !== 0 && !this.anyOne) || (this.anyOne && props.length === 0)) {
         props = wrongValues;
       }
 
       operator =
-        (props.length === 1
-          ? "to have property "
-          : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
+        (props.length === 1 ? "to have property " : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
         props.join(", ");
 
       this.params = { obj: this.obj, operator: operator };
 
       //if there is no not matched values
       //or there is at least one matched
-      this.assert(
-        wrongValues.length === 0 ||
-          (this.anyOne && wrongValues.length != valueCheckNames.length)
-      );
+      this.assert(wrongValues.length === 0 || (this.anyOne && wrongValues.length != valueCheckNames.length));
     }
   });
 
@@ -3779,10 +3708,7 @@ var propertyAssertions = function(should, Assertion) {
       return !has(obj, key);
     });
 
-    var verb =
-      "to have " +
-      (this.onlyThis ? "only " : "") +
-      (keys.length === 1 ? "key " : "keys ");
+    var verb = "to have " + (this.onlyThis ? "only " : "") + (keys.length === 1 ? "key " : "keys ");
 
     this.params = { operator: verb + keys.join(", ") };
 
@@ -3862,11 +3788,7 @@ var propertyAssertions = function(should, Assertion) {
     while (properties.length) {
       currentProperty = properties.shift();
       this.params = {
-        operator:
-          "to have property by path " +
-          allProps.join(", ") +
-          " - failed on " +
-          formatProp(currentProperty)
+        operator: "to have property by path " + allProps.join(", ") + " - failed on " + formatProp(currentProperty)
       };
       obj = obj.have.property(currentProperty);
       foundProperties.push(currentProperty);
@@ -4090,12 +4012,10 @@ var matchingAssertions = function(should, Assertion) {
           );
 
           if (notMatchedProps.length) {
-            this.params.operator +=
-              "\n    not matched properties: " + notMatchedProps.join(", ");
+            this.params.operator += "\n    not matched properties: " + notMatchedProps.join(", ");
           }
           if (matchedProps.length) {
-            this.params.operator +=
-              "\n    matched properties: " + matchedProps.join(", ");
+            this.params.operator += "\n    matched properties: " + matchedProps.join(", ");
           }
 
           this.assert(notMatchedProps.length === 0);
@@ -4112,12 +4032,7 @@ var matchingAssertions = function(should, Assertion) {
         if (typeof res == "boolean") {
           this.assert(res); // if it is just boolean function assert on it
         }
-      } else if (
-        other != null &&
-        this.obj != null &&
-        typeof other == "object" &&
-        typeof this.obj == "object"
-      ) {
+      } else if (typeof this.obj == "object" && this.obj != null && (isPlainObject(other) || Array.isArray(other))) {
         // try to match properties (for Object and Array)
         notMatchedProps = [];
         matchedProps = [];
@@ -4132,9 +4047,7 @@ var matchingAssertions = function(should, Assertion) {
               matchedProps.push(formatProp(key));
             } catch (e) {
               if (e instanceof should.AssertionError) {
-                notMatchedProps.push(
-                  formatProp(key) + " (" + i(this.obj[key]) + ")"
-                );
+                notMatchedProps.push(formatProp(key) + " (" + i(this.obj[key]) + ")");
               } else {
                 throw e;
               }
@@ -4144,12 +4057,10 @@ var matchingAssertions = function(should, Assertion) {
         );
 
         if (notMatchedProps.length) {
-          this.params.operator +=
-            "\n    not matched properties: " + notMatchedProps.join(", ");
+          this.params.operator += "\n    not matched properties: " + notMatchedProps.join(", ");
         }
         if (matchedProps.length) {
-          this.params.operator +=
-            "\n    matched properties: " + matchedProps.join(", ");
+          this.params.operator += "\n    matched properties: " + matchedProps.join(", ");
         }
 
         this.assert(notMatchedProps.length === 0);
