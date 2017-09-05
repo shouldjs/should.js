@@ -128,6 +128,14 @@ describe("match", function() {
     d.should.not.match(ds);
     ds.should.not.match(d);
 
+    ({
+      a: new Date("2017-09-02"),
+      b: 12
+    }.should.not.match({
+      a: new Date("2017-09-03"),
+      b: 12
+    }));
+
     err(function() {
       ({ a: 10, b: "abc", c: { d: 10 }, d: 0 }.should.match({
         a: 11,

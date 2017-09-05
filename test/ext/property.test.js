@@ -1,39 +1,6 @@
 var err = require("../util").err;
 
 describe("property", function() {
-  it("test enumerable(name)", function() {
-    ({ length: 5 }.should.have.enumerable("length"));
-    (4).should.not.have.enumerable("length");
-
-    err(
-      function() {
-        "asd".should.have.enumerable("length");
-      },
-      "expected 'asd' to have enumerable property length",
-      "    expected 'asd' to have own property with descriptor Object { enumerable: true }",
-      "        expected Object { value: 3, writable: false, enumerable: false, configurable: false } to have property enumerable of true (got false)"
-    );
-  });
-
-  it("test enumerable(name, val)", function() {
-    ({ length: 5 }.should.have.enumerable("length", 5));
-
-    err(
-      function() {
-        ({ length: 3 }.should.have.enumerable("length", 5));
-      },
-      "expected Object { length: 3 } to have enumerable property length equal to 5",
-      "    expected Object { length: 3 } to have own property with descriptor Object { enumerable: true, value: 5 }",
-      "        expected Object { value: 3, writable: true, enumerable: true, configurable: true } to have property value of 5 (got 3)"
-    );
-  });
-
-  it("test enumerables(names)", function() {
-    var obj = { a: "a", b: "b", c: "c" };
-    obj.should.have.enumerables("a", "b");
-    obj.should.have.enumerables(["a", "b"]);
-  });
-
   it("test property(name)", function() {
     "test".should.have.property("length");
     (4).should.not.have.property("length");

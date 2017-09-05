@@ -35,9 +35,7 @@ describe("contain*", function() {
       b: { c: 10, d: 11, a: { b: 10, c: 11 } }
     }.should.containDeep({ a: { b: 10 }, b: { c: 10, a: { c: 11 } } }));
 
-    [1, 2, 3, { a: { b: { d: 12 } } }].should.containDeep([
-      { a: { b: { d: 12 } } }
-    ]);
+    [1, 2, 3, { a: { b: { d: 12 } } }].should.containDeep([{ a: { b: { d: 12 } } }]);
 
     [[1, [2, 3], 3], [2]].should.not.containDeep([1, 2]);
 
@@ -56,10 +54,7 @@ describe("contain*", function() {
     [1, 2, 3].should.containDeep([3, 2]);
 
     ["code-for-days", "code"].should.containDeep(["code", "code-for-days"]);
-    ["code-for-days", "code-fast"].should.containDeep([
-      "code-fast",
-      "code-for-days"
-    ]);
+    ["code-for-days", "code-fast"].should.containDeep(["code-fast", "code-for-days"]);
 
     err(function() {
       [{ a: "a" }, { b: "b", c: "c" }].should.not.containDeep([{ b: "b" }]);
@@ -82,9 +77,7 @@ describe("contain*", function() {
       b: { c: 10, d: 11, a: { b: 10, c: 11 } }
     }.should.containDeepOrdered({ a: { b: 10 }, b: { c: 10, a: { c: 11 } } }));
 
-    [1, 2, 3, { a: { b: { d: 12 } } }].should.containDeepOrdered([
-      { a: { b: { d: 12 } } }
-    ]);
+    [1, 2, 3, { a: { b: { d: 12 } } }].should.containDeepOrdered([{ a: { b: { d: 12 } } }]);
 
     [[1, [2, 3], 3], [2]].should.not.containDeepOrdered([1, 2]);
 
@@ -96,9 +89,7 @@ describe("contain*", function() {
     [{ a: "a" }, { b: "b", c: "c" }].should.containDeepOrdered([{ b: "b" }]);
 
     err(function() {
-      [{ a: "a" }, { b: "b", c: "c" }].should.not.containDeepOrdered([
-        { b: "b" }
-      ]);
+      [{ a: "a" }, { b: "b", c: "c" }].should.not.containDeepOrdered([{ b: "b" }]);
     }, "expected Array [ Object { a: 'a' }, Object { b: 'b', c: 'c' } ] not to contain Array [ Object { b: 'b' } ] (false negative fail)");
 
     ({ hi: null }.should.containEql({ hi: null }));
