@@ -6,7 +6,7 @@
  * @license MIT
  */
 
-(function (root) {
+(function () {
 'use strict';
 
 var types = {
@@ -269,7 +269,7 @@ Object.keys(types).forEach(function(typeName) {
   getGlobalType$1[typeName] = types[typeName];
 });
 
-function format$1(msg) {
+function format(msg) {
   var args = arguments;
   for (var i = 1, l = args.length; i < l; i++) {
     msg = msg.replace(/%s/, args[i]);
@@ -376,7 +376,7 @@ EQ.prototype = {
 
     // if objects has different types they are not equal
     if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
-      return this.collectFail(true, format$1(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
+      return this.collectFail(true, format(DIFFERENT_TYPES, typeToString(typeA), typeToString(typeB)));
     }
 
     // as types the same checks type specific things
@@ -435,7 +435,7 @@ EQ.prototype = {
         if (hasOwnProperty.call(a, key)) {
           this.checkPropertyEquality(key);
         } else {
-          this.collectFail(true, format$1(MISSING_KEY, "A", key));
+          this.collectFail(true, format(MISSING_KEY, "A", key));
         }
       }
     }
@@ -443,7 +443,7 @@ EQ.prototype = {
     // ensure both objects have the same number of properties
     for (key in a) {
       if (hasOwnProperty.call(a, key)) {
-        this.collectFail(!hasOwnProperty.call(b, key), format$1(MISSING_KEY, "B", key));
+        this.collectFail(!hasOwnProperty.call(b, key), format(MISSING_KEY, "B", key));
       }
     }
 
@@ -547,7 +547,7 @@ function checkMapByKeys(a, b) {
   for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
     var key = nextA.value;
     var hasKey = b.has(key);
-    this.collectFail(!hasKey, format$1(SET_MAP_MISSING_KEY, key));
+    this.collectFail(!hasKey, format(SET_MAP_MISSING_KEY, key));
 
     if (hasKey) {
       var valueB = b.get(key);
@@ -564,7 +564,7 @@ function checkSetByKeys(a, b) {
   for (var nextA = iteratorA.next(); !nextA.done; nextA = iteratorA.next()) {
     var key = nextA.value;
     var hasKey = b.has(key);
-    this.collectFail(!hasKey, format$1(SET_MAP_MISSING_KEY, key));
+    this.collectFail(!hasKey, format(SET_MAP_MISSING_KEY, key));
   }
 }
 
@@ -974,7 +974,7 @@ Formatter.formatterFunctionName = function formatterFunctionName(tp) {
 
 var EOL = '\n';
 
-function indent$1(v, indentation) {
+function indent(v, indentation) {
   return v
     .split(EOL)
     .map(function(vv) {
@@ -1006,7 +1006,7 @@ function pad0(str, value) {
 
 var functionNameRE = /^\s*function\s*(\S*)\s*\(/;
 
-function functionName$1(f) {
+function functionName(f) {
   if (f.name) {
     return f.name;
   }
@@ -1023,7 +1023,7 @@ function constructorName(obj) {
   while (obj) {
     var descriptor = Object.getOwnPropertyDescriptor(obj, 'constructor');
     if (descriptor !== undefined &&  typeof descriptor.value === 'function') {
-      var name = functionName$1(descriptor.value);
+      var name = functionName(descriptor.value);
       if (name !== '') {
         return name;
       }
@@ -1036,7 +1036,7 @@ function constructorName(obj) {
 var INDENT = '  ';
 
 function addSpaces(str) {
-  return indent$1(str, INDENT);
+  return indent(str, INDENT);
 }
 
 function typeAdaptorForEachFormat(obj, opts) {
@@ -1169,7 +1169,7 @@ function formatRegExp(value) {
 function formatFunction(value) {
   return formatPlainObject.call(this, value, {
     prefix: 'Function',
-    additionalKeys: [['name', functionName$1(value)]]
+    additionalKeys: [['name', functionName(value)]]
   });
 }
 
@@ -1304,7 +1304,7 @@ function defaultFormat(value, opts) {
 defaultFormat.Formatter = Formatter;
 defaultFormat.addSpaces = addSpaces;
 defaultFormat.pad0 = pad0;
-defaultFormat.functionName = functionName$1;
+defaultFormat.functionName = functionName;
 defaultFormat.constructorName = constructorName;
 defaultFormat.formatPlainObjectKey = formatPlainObjectKey;
 defaultFormat.formatPlainObject = formatPlainObject;
@@ -1422,7 +1422,7 @@ function convertPropertyName(name) {
   return typeof name === "symbol" ? name : String(name);
 }
 
-var functionName = defaultFormat.functionName;
+var functionName$1 = defaultFormat.functionName;
 
 /*
  * should.js - assertion library
@@ -1439,7 +1439,7 @@ var config = {
   }
 };
 
-function format(value, opts) {
+function format$2(value, opts) {
   return config.getFormatter(opts).format(value);
 }
 
@@ -1488,7 +1488,7 @@ function AssertionError(options) {
 
       if (this.stackStartFunction) {
         // try to strip useless frames
-        var fn_name = functionName(this.stackStartFunction);
+        var fn_name = functionName$1(this.stackStartFunction);
         var idx = out.indexOf("\n" + fn_name);
         if (idx >= 0) {
           // once we have located the function frame
@@ -1503,13 +1503,16 @@ function AssertionError(options) {
   }
 }
 
-var indent = "    ";
+var indent$1 = "    ";
 function prependIndent(line) {
-  return indent + line;
+  return indent$1 + line;
 }
 
 function indentLines(text) {
-  return text.split("\n").map(prependIndent).join("\n");
+  return text
+    .split("\n")
+    .map(prependIndent)
+    .join("\n");
 }
 
 // assert.AssertionError instanceof Error
@@ -1523,8 +1526,8 @@ AssertionError.prototype = Object.create(Error.prototype, {
       if (!this.operator && this.previous) {
         return this.previous.message;
       }
-      var actual = format(this.actual);
-      var expected = "expected" in this ? " " + format(this.expected) : "";
+      var actual = format$2(this.actual);
+      var expected = "expected" in this ? " " + format$2(this.expected) : "";
       var details =
         "details" in this && this.details ? " (" + this.details + ")" : "";
 
@@ -2389,7 +2392,10 @@ var numberAssertions = function(should, Assertion) {
   Assertion.add("Infinity", function() {
     this.params = { operator: "to be Infinity" };
 
-    this.is.a.Number().and.not.a.NaN().and.assert(!isFinite(this.obj));
+    this.is.a
+      .Number()
+      .and.not.a.NaN()
+      .and.assert(!isFinite(this.obj));
   });
 
   /**
@@ -2587,7 +2593,7 @@ var typeAssertions = function(should, Assertion) {
    */
   Assertion.add("instanceof", function(constructor, description) {
     this.params = {
-      operator: "to be an instance of " + functionName(constructor),
+      operator: "to be an instance of " + functionName$1(constructor),
       message: description
     };
 
@@ -2737,7 +2743,9 @@ var typeAssertions = function(should, Assertion) {
   Assertion.add("iterable", function() {
     this.params = { operator: "to be iterable" };
 
-    should(this.obj).have.property(Symbol.iterator).which.is.a.Function();
+    should(this.obj)
+      .have.property(Symbol.iterator)
+      .which.is.a.Function();
   });
 
   /**
@@ -2750,7 +2758,9 @@ var typeAssertions = function(should, Assertion) {
   Assertion.add("iterator", function() {
     this.params = { operator: "to be iterator" };
 
-    should(this.obj).have.property("next").which.is.a.Function();
+    should(this.obj)
+      .have.property("next")
+      .which.is.a.Function();
   });
 
   /**
@@ -2779,8 +2789,8 @@ function formatEqlResult(r, a, b) {
   return ((r.path.length > 0
     ? "at " + r.path.map(formatProp).join(" -> ")
     : "") +
-    (r.a === a ? "" : ", A has " + format(r.a)) +
-    (r.b === b ? "" : " and B has " + format(r.b)) +
+    (r.a === a ? "" : ", A has " + format$2(r.a)) +
+    (r.b === b ? "" : " and B has " + format$2(r.b)) +
     (r.showReason ? " because " + r.reason : "")).trim();
 }
 
@@ -2935,7 +2945,9 @@ var promiseAssertions = function(should, Assertion$$1) {
 
     var obj = this.obj;
 
-    should(obj).have.property("then").which.is.a.Function();
+    should(obj)
+      .have.property("then")
+      .which.is.a.Function();
   });
 
   /**
@@ -3149,9 +3161,9 @@ var promiseAssertions = function(should, Assertion$$1) {
           } else if ("function" === typeof message) {
             errorInfo =
               " of type " +
-              functionName(message) +
+              functionName$1(message) +
               ", but got " +
-              functionName(err.constructor);
+              functionName$1(err.constructor);
           }
         } else if ("function" === typeof message && properties) {
           try {
@@ -3957,9 +3969,9 @@ var errorAssertions = function(should, Assertion) {
           } else if ("function" == typeof message) {
             errorInfo =
               " of type " +
-              functionName(message) +
+              functionName$1(message) +
               ", but got " +
-              functionName(err.constructor);
+              functionName$1(err.constructor);
           }
         } else if ("function" == typeof message && properties) {
           try {
@@ -4114,7 +4126,9 @@ var matchingAssertions = function(should, Assertion) {
           other,
           function(value, key) {
             try {
-              should(this.obj).have.property(key).which.match(value);
+              should(this.obj)
+                .have.property(key)
+                .which.match(value);
               matchedProps.push(formatProp(key));
             } catch (e) {
               if (e instanceof should.AssertionError) {
@@ -4244,20 +4258,20 @@ var matchingAssertions = function(should, Assertion) {
  * var should = require('should');
  * should('abc').be.a.String();
  */
-function should(obj) {
+function should$1(obj) {
   return new Assertion(obj);
 }
 
-should.AssertionError = AssertionError;
-should.Assertion = Assertion;
+should$1.AssertionError = AssertionError;
+should$1.Assertion = Assertion;
 
 // exposing modules dirty way
-should.modules = {
+should$1.modules = {
   format: defaultFormat,
   type: getGlobalType$1,
   equal: eq$1
 };
-should.format = format;
+should$1.format = format$2;
 
 /**
  * Object with configuration.
@@ -4281,7 +4295,7 @@ should.format = format;
  * a.should.be.eql(b);
  * //throws AssertionError: expected { a: 10 } to equal { a: 10 } (because A and B have different prototypes)
  */
-should.config = config;
+should$1.config = config;
 
 /**
  * Allow to extend given prototype with should property using given name. This getter will **unwrap** all standard wrappers like `Number`, `Boolean`, `String`.
@@ -4303,7 +4317,7 @@ should.config = config;
  * var should = should.noConflict(prev);
  * should.not.exist(Object.prototype.must);
  */
-should.extend = function(propertyName, proto) {
+should$1.extend = function(propertyName, proto) {
   propertyName = propertyName || "should";
   proto = proto || Object.prototype;
 
@@ -4312,7 +4326,7 @@ should.extend = function(propertyName, proto) {
   Object.defineProperty(proto, propertyName, {
     set: function() {},
     get: function() {
-      return should(isWrapperType(this) ? this.valueOf() : this);
+      return should$1(isWrapperType(this) ? this.valueOf() : this);
     },
     configurable: true
   });
@@ -4339,8 +4353,8 @@ should.extend = function(propertyName, proto) {
  *
  * should(Object.prototype).not.have.property('must');
  */
-should.noConflict = function(desc) {
-  desc = desc || should._prevShould;
+should$1.noConflict = function(desc) {
+  desc = desc || should$1._prevShould;
 
   if (desc) {
     delete desc.proto[desc.name];
@@ -4349,7 +4363,7 @@ should.noConflict = function(desc) {
       Object.defineProperty(desc.proto, desc.name, desc.descriptor);
     }
   }
-  return should;
+  return should$1;
 };
 
 /**
@@ -4369,12 +4383,12 @@ should.noConflict = function(desc) {
  *  })
  * })
  */
-should.use = function(f) {
-  f(should, should.Assertion);
+should$1.use = function(f) {
+  f(should$1, should$1.Assertion);
   return this;
 };
 
-should
+should$1
   .use(assertExtensions)
   .use(chainAssertions)
   .use(booleanAssertions)
@@ -4391,17 +4405,25 @@ should
 var defaultProto = Object.prototype;
 var defaultProperty = "should";
 
-var _root = root;
+var freeGlobal =
+  typeof global == "object" && global && global.Object === Object && global;
+
+/** Detect free variable `self`. */
+var freeSelf =
+  typeof self == "object" && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function("return this")();
 
 //Expose api via `Object#should`.
 try {
-  var prevShould = should.extend(defaultProperty, defaultProto);
-  should._prevShould = prevShould;
+  var prevShould = should$1.extend(defaultProperty, defaultProto);
+  should$1._prevShould = prevShould;
 
-  Object.defineProperty(_root, "should", {
+  Object.defineProperty(root, "should", {
     enumerable: false,
     configurable: true,
-    value: should
+    value: should$1
   });
 } catch (e) {
   //ignore errors
@@ -4409,10 +4431,10 @@ try {
 
 if (typeof define === "function" && define.amd) {
   define([], function() {
-    return should;
+    return should$1;
   });
 } else if (typeof module === "object" && module.exports) {
-  module.exports = should;
+  module.exports = should$1;
 }
 
-}(this));
+}());

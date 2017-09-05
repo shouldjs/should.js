@@ -10,14 +10,16 @@
   },
   "homepage": "https://github.com/shouldjs/should.js",
   "scripts": {
-    "cjs": "rollup --output.format=cjs --output.file=cjs/should.js lib/index.js",
-    "es6": "rollup --output.format=es --output.file=es6/should.js lib/index.js",
-    "build": "npm run cjs && npm run es6",
-    "prepare": "npm run build && npm run browser",
+    "build:cjs": "rollup --output.format=cjs --output.file=cjs/should.js lib/index.js",
+    "build:es6": "rollup --output.format=es --output.file=es6/should.js lib/index.js",
+    "build": "npm run build:cjs && npm run build:es6",
+    "prepare": "npm run build && npm run build:umd && npm run build:cjs:as-function",
     "pretest": "npm run build",
-    "test": "mocha -R mocha-better-spec-reporter --require ./cjs/should --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
+    "build:cjs:as-function": "rollup --input ./lib/should.js --output.format=cjs --output.file ./as-function.js",
+    "test":
+      "mocha -R mocha-better-spec-reporter --require ./cjs/should --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
-    "browser": "rollup -c rollup.config.js --input ./lib/umd.js --output.format=iife  --output.file ./should.js"
+    "build:umd": "rollup -c rollup.config.js --input ./lib/umd.js --output.format=iife  --output.file ./should.js"
   },
   "devDependencies": {
     "bluebird": "^3.5.0",
@@ -33,7 +35,8 @@
     "zuul": "latest"
   },
   "keywords": ["test", "bdd", "assert", "should"],
-  "main": "./index.js",
+  "main": "./cjs/should.js",
+  "module": "./es6/should.js",
   "license": "MIT",
   "dependencies": {
     "should-equal": "^2.0.0",
@@ -42,5 +45,5 @@
     "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"
   },
-  "files": ["cjs/*", "es6/*", "as-function.js", "index.js", "should.js", "LICENSE", "*.md"]
+  "files": ["cjs/*", "es6/*", "as-function.js", "LICENSE", "*.md", "should.d.ts"]
 }

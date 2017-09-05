@@ -8,3 +8,4 @@ npm-debug.log
 cjs/
 es6/
 package-lock.json
+/as-function.js
