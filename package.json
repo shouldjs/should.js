@@ -45,5 +45,5 @@
     "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"
   },
-  "files": ["cjs/*", "es6/*", "as-function.js", "LICENSE", "*.md", "should.d.ts"]
+  "files": ["cjs/*", "es6/*", "as-function.js", "should.js", "LICENSE", "*.md", "should.d.ts"]
 }
