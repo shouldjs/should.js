@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v13.0.0
+ * @version v13.0.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
