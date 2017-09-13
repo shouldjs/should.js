@@ -1,6 +1,6 @@
 // Type definitions for should.js
 
-declare function should(obj: any): should.Assertion
+declare function should(obj: any): should.Assertion;
 
 // node assert methods
 /*interface NodeAssert {
@@ -164,9 +164,11 @@ declare namespace should {
     Promise(): this;
 
     fulfilled: Promise<any>;
+    resolved: Promise<any>;
     rejected: Promise<any>;
 
     fulfilledWith(obj: any): Promise<any>;
+    resolvedWith(obj: any): Promise<any>;
     rejectedWith(msg: RegExp | string | Error, properties?: {});
     rejectedWith(properties: {});
     finally: PromisedAssertion;
