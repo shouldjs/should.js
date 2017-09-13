@@ -1,14 +1,21 @@
+13.1.0 / 2017-09-13
+===================
+
+  * Added `.resolved` as alias to `.fulfilled`
+  * Added `.resolvedWith` as alias to `.fulfilledWith`
+  * All zero argument assertion will throw `TypeError` if any arg passed
+
 13.0.1 / 2017-09-06
 ===================
 
-  * Add missng umd bundle for browser
+  * Add missing UMD bundle for browser
 
 13.0.0 / 2017-09-05
 ===================
 
   * Removed `.enumerable` and `.enumerables`
   * Fixed `.match`ing on `Date`s
-  * Added TypeScript definitions 
+  * Added TypeScript definitions
 
 12.0.0 / 2017-08-28
 ===================
