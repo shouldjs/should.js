@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v13.0.1
+ * @version v13.1.0
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -1670,6 +1670,12 @@ Assertion.prototype = {
    */
   fail: function() {
     return this.assert(false);
+  },
+
+  assertZeroArguments: function(args) {
+    if (args.length !== 0) {
+      throw new TypeError("This assertion does not expect any arguments. You may need to check your code");
+    }
   }
 };
 
@@ -1828,22 +1834,11 @@ Assertion.addChain = function(name, onCall) {
 Assertion.alias = function(from, to) {
   var desc = Object.getOwnPropertyDescriptor(Assertion.prototype, from);
   if (!desc) {
-    throw new Error(
-      "Alias " +
-        from +
-        " -> " +
-        to +
-        " could not be created as " +
-        from +
-        " not defined"
-    );
+    throw new Error("Alias " + from + " -> " + to + " could not be created as " + from + " not defined");
   }
   Object.defineProperty(Assertion.prototype, to, desc);
 
-  var desc2 = Object.getOwnPropertyDescriptor(
-    PromisedAssertion.prototype,
-    from
-  );
+  var desc2 = Object.getOwnPropertyDescriptor(PromisedAssertion.prototype, from);
   if (desc2) {
     Object.defineProperty(PromisedAssertion.prototype, to, desc2);
   }
@@ -2355,6 +2350,7 @@ var booleanAssertions = function(should, Assertion) {
    * (0).should.not.be.ok();
    */
   Assertion.add("ok", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be truthy" };
 
     this.assert(this.obj);
@@ -2380,6 +2376,7 @@ var numberAssertions = function(should, Assertion) {
    * NaN.should.be.NaN();
    */
   Assertion.add("NaN", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be NaN" };
 
     this.assert(this.obj !== this.obj);
@@ -2397,6 +2394,7 @@ var numberAssertions = function(should, Assertion) {
    * NaN.should.not.be.Infinity();
    */
   Assertion.add("Infinity", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be Infinity" };
 
     this.is.a
@@ -2555,6 +2553,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Number", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be a number" };
 
     this.have.type("number");
@@ -2568,6 +2567,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("arguments", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be arguments" };
 
     this.have.class("Arguments");
@@ -2616,6 +2616,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Function", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be a function" };
 
     this.have.type("function");
@@ -2628,6 +2629,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Object", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be an object" };
 
     this.is.not.null().and.have.type("object");
@@ -2640,6 +2642,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("String", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be a string" };
 
     this.have.type("string");
@@ -2652,6 +2655,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Array", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be an array" };
 
     this.have.class("Array");
@@ -2664,6 +2668,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Boolean", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be a boolean" };
 
     this.have.type("boolean");
@@ -2676,6 +2681,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Error", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be an error" };
 
     this.have.instanceOf(Error);
@@ -2688,6 +2694,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("Date", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be a date" };
 
     this.have.instanceOf(Date);
@@ -2701,6 +2708,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("null", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be null" };
 
     this.assert(this.obj === null);
@@ -2718,9 +2726,7 @@ var typeAssertions = function(should, Assertion) {
   Assertion.add("class", function(cls) {
     this.params = { operator: "to have [[Class]] " + cls };
 
-    this.assert(
-      Object.prototype.toString.call(this.obj) === "[object " + cls + "]"
-    );
+    this.assert(Object.prototype.toString.call(this.obj) === "[object " + cls + "]");
   });
 
   Assertion.alias("class", "Class");
@@ -2733,6 +2739,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion types
    */
   Assertion.add("undefined", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be undefined" };
 
     this.assert(this.obj === void 0);
@@ -2748,6 +2755,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion es6
    */
   Assertion.add("iterable", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be iterable" };
 
     should(this.obj)
@@ -2763,6 +2771,7 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion es6
    */
   Assertion.add("iterator", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be iterator" };
 
     should(this.obj)
@@ -2777,11 +2786,10 @@ var typeAssertions = function(should, Assertion) {
    * @category assertion es6
    */
   Assertion.add("generator", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be generator" };
 
-    should(this.obj).be.iterable.and.iterator.and.it.is.equal(
-      this.obj[Symbol.iterator]()
-    );
+    should(this.obj).be.iterable.and.iterator.and.it.is.equal(this.obj[Symbol.iterator]());
   });
 };
 
@@ -2948,6 +2956,7 @@ var promiseAssertions = function(should, Assertion$$1) {
    * (10).should.not.be.a.Promise()
    */
   Assertion$$1.add("Promise", function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be promise" };
 
     var obj = this.obj;
@@ -2962,6 +2971,7 @@ var promiseAssertions = function(should, Assertion$$1) {
    *
    * @name fulfilled
    * @memberOf Assertion
+   * @alias Assertion#resolved
    * @returns {Promise}
    * @category assertion promises
    * @example
@@ -2976,6 +2986,7 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.fulfilled = function Assertion$fulfilled() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be fulfilled" };
 
     should(this.obj).be.a.Promise();
@@ -2990,14 +3001,15 @@ var promiseAssertions = function(should, Assertion$$1) {
       },
       function next$onReject(err) {
         if (!that.negate) {
-          that.params.operator +=
-            ", but it was rejected with " + should.format(err);
+          that.params.operator += ", but it was rejected with " + should.format(err);
           that.fail();
         }
         return err;
       }
     );
   };
+
+  Assertion$$1.prototype.resolved = Assertion$$1.prototype.fulfilled;
 
   /**
    * Assert given promise will be rejected. Result of assertion is still .thenable and should be handled accordingly.
@@ -3019,6 +3031,7 @@ var promiseAssertions = function(should, Assertion$$1) {
    * });
    */
   Assertion$$1.prototype.rejected = function() {
+    this.assertZeroArguments(arguments);
     this.params = { operator: "to be rejected" };
 
     should(this.obj).be.a.Promise();
@@ -3050,6 +3063,7 @@ var promiseAssertions = function(should, Assertion$$1) {
    *
    * @name fulfilledWith
    * @memberOf Assertion
+   * @alias Assertion#resolvedWith
    * @category assertion promises
    * @returns {Promise}
    * @example
@@ -3082,14 +3096,15 @@ var promiseAssertions = function(should, Assertion$$1) {
       },
       function next$onError(err) {
         if (!that.negate) {
-          that.params.operator +=
-            ", but it was rejected with " + should.format(err);
+          that.params.operator += ", but it was rejected with " + should.format(err);
           that.fail();
         }
         return err;
       }
     );
   };
+
+  Assertion$$1.prototype.resolvedWith = Assertion$$1.prototype.fulfilledWith;
 
   /**
    * Assert given promise will be rejected with some sort of error. Arguments is the same for Assertion#throw.
@@ -3159,18 +3174,9 @@ var promiseAssertions = function(should, Assertion$$1) {
 
         if (!errorMatched) {
           if (typeof message === "string" || message instanceof RegExp) {
-            errorInfo =
-              " with a message matching " +
-              should.format(message) +
-              ", but got '" +
-              err.message +
-              "'";
+            errorInfo = " with a message matching " + should.format(message) + ", but got '" + err.message + "'";
           } else if ("function" === typeof message) {
-            errorInfo =
-              " of type " +
-              functionName$1(message) +
-              ", but got " +
-              functionName$1(err.constructor);
+            errorInfo = " of type " + functionName$1(message) + ", but got " + functionName$1(err.constructor);
           }
         } else if ("function" === typeof message && properties) {
           try {

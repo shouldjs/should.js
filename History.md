@@ -1,9 +1,10 @@
-13.1.0 / 2017-09-13
+13.1.0 / 2017-09-20
 ===================
 
   * Added `.resolved` as alias to `.fulfilled`
   * Added `.resolvedWith` as alias to `.fulfilledWith`
   * All zero argument assertion will throw `TypeError` if any arg passed
+  * Fix default export for TS definition
 
 13.0.1 / 2017-09-06
 ===================
