@@ -240,4 +240,4 @@ declare global {
 
 export as namespace should;
 
-export = should;
+export default should;
