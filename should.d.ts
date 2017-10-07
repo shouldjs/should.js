@@ -169,8 +169,8 @@ declare namespace should {
 
     fulfilledWith(obj: any): Promise<any>;
     resolvedWith(obj: any): Promise<any>;
-    rejectedWith(msg: RegExp | string | Error, properties?: {});
-    rejectedWith(properties: {});
+    rejectedWith(msg: RegExp | string | Error, properties?: {}): Promise<any>;
+    rejectedWith(properties: {}): Promise<any>;
     finally: PromisedAssertion;
     eventually: PromisedAssertion;
 
