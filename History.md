@@ -1,3 +1,8 @@
+13.1.1 / 2017-10-07
+===================
+
+  * Added missing return type for `.rejecteWith` in typescript definition
+
 13.1.0 / 2017-09-20
 ===================
 
