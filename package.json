@@ -16,25 +16,29 @@
     "prepare": "npm run build && npm run build:umd && npm run build:cjs:as-function",
     "pretest": "npm run build",
     "build:cjs:as-function": "rollup --input ./lib/should.js --output.format=cjs --output.file ./as-function.js",
-    "test":
-      "mocha -R mocha-better-spec-reporter --require ./cjs/should --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
+    "test": "mocha -R mocha-better-spec-reporter --require ./cjs/should --color --check-leaks ./test/*.test.js ./test/**/*.test.js",
     "zuul": "zuul -- ./test/**/*.test.js ./test/*.test.js",
     "build:umd": "rollup -c rollup.config.js --input ./lib/umd.js --output.format=iife  --output.file ./should.js"
   },
   "devDependencies": {
-    "bluebird": "^3.5.0",
+    "bluebird": "^3.5.1",
     "eslint": "^3.19.0",
     "eslint-config-shouldjs": "^1.0.0",
-    "mocha": "latest",
+    "mocha": "^4.0.1",
     "mocha-better-spec-reporter": "latest",
-    "prettier": "^1.6.1",
-    "rollup": "^0.49.1",
+    "prettier": "^1.7.4",
+    "rollup": "^0.49.3",
     "rollup-plugin-node-resolve": "^3.0.0",
-    "tslint": "^5.7.0",
-    "typescript": "^2.4.2",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3",
     "zuul": "latest"
   },
-  "keywords": ["test", "bdd", "assert", "should"],
+  "keywords": [
+    "test",
+    "bdd",
+    "assert",
+    "should"
+  ],
   "main": "./cjs/should.js",
   "module": "./es6/should.js",
   "license": "MIT",
@@ -45,5 +49,13 @@
     "should-type-adaptors": "^1.0.1",
     "should-util": "^1.0.0"
   },
-  "files": ["cjs/*", "es6/*", "as-function.js", "should.js", "LICENSE", "*.md", "should.d.ts"]
+  "files": [
+    "cjs/*",
+    "es6/*",
+    "as-function.js",
+    "should.js",
+    "LICENSE",
+    "*.md",
+    "should.d.ts"
+  ]
 }
