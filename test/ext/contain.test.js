@@ -54,6 +54,7 @@ describe("contain*", function() {
     [1, 2, 3].should.containDeep([3, 2]);
 
     ["code-for-days", "code"].should.containDeep(["code", "code-for-days"]);
+    ({ a: "hello" }.should.not.containDeep({ a: ["hello"] }));
     ["code-for-days", "code-fast"].should.containDeep(["code-fast", "code-for-days"]);
 
     err(function() {
