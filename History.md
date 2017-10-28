@@ -1,3 +1,8 @@
+13.1.3 / 2017-10-28
+===================
+
+  * Fix weird bug in `.containDeep` when given object is string (see \#157)
+
 13.1.2 / 2017-10-10
 ===================
 
