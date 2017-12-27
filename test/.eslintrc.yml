@@ -1,0 +1,4 @@
+extends: ../
+
+env:
+  node: true
