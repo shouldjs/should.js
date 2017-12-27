@@ -1,3 +1,8 @@
+13.2.0 / 2017-12-27
+===================
+
+  * Update type adaptors to allow to use Set as iterable everywhere
+
 13.1.3 / 2017-10-28
 ===================
 
