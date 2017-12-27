@@ -257,16 +257,16 @@ main
  * @return {Type}    type info
  * @private
  */
-function getGlobalType$1(obj) {
+function getGlobalType(obj) {
   return main.getType(obj);
 }
 
-getGlobalType$1.checker = main;
-getGlobalType$1.TypeChecker = TypeChecker;
-getGlobalType$1.Type = Type;
+getGlobalType.checker = main;
+getGlobalType.TypeChecker = TypeChecker;
+getGlobalType.Type = Type;
 
 Object.keys(types).forEach(function(typeName) {
-  getGlobalType$1[typeName] = types[typeName];
+  getGlobalType[typeName] = types[typeName];
 });
 
 function format(msg) {
@@ -371,8 +371,8 @@ EQ.prototype = {
       return this.collectFail(a === 0 && 1 / a !== 1 / b && !this.plusZeroAndMinusZeroEqual, PLUS_0_AND_MINUS_0);
     }
 
-    var typeA = getGlobalType$1(a);
-    var typeB = getGlobalType$1(b);
+    var typeA = getGlobalType(a);
+    var typeB = getGlobalType(b);
 
     // if objects has different types they are not equal
     if (typeA.type !== typeB.type || typeA.cls !== typeB.cls || typeA.sub !== typeB.sub) {
@@ -463,22 +463,22 @@ EQ.prototype = {
   defaultCheck: EQ.checkStrictEquality
 };
 
-EQ.add(getGlobalType$1.NUMBER, function(a, b) {
+EQ.add(getGlobalType.NUMBER, function(a, b) {
   this.collectFail((a !== a && b === b) || (b !== b && a === a) || (a !== b && a === a && b === b), EQUALITY);
 });
 
-[getGlobalType$1.SYMBOL, getGlobalType$1.BOOLEAN, getGlobalType$1.STRING].forEach(function(tp) {
+[getGlobalType.SYMBOL, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
   EQ.add(tp, EQ.checkStrictEquality);
 });
 
-EQ.add(getGlobalType$1.FUNCTION, function(a, b) {
+EQ.add(getGlobalType.FUNCTION, function(a, b) {
   // functions are compared by their source code
   this.collectFail(a.toString() !== b.toString(), FUNCTION_SOURCES);
   // check user properties
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.REGEXP, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.REGEXP, function(a, b) {
   // check regexp flags
   var flags = ["source", "global", "multiline", "lastIndex", "ignoreCase", "sticky", "unicode"];
   while (flags.length) {
@@ -488,15 +488,15 @@ EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.REGEXP, function(a, b) {
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.DATE, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.DATE, function(a, b) {
   //check by timestamp only (using .valueOf)
   this.collectFail(+a !== +b, EQUALITY);
   // check user properties
   this.checkPlainObjectsEquality(a, b);
 });
 
-[getGlobalType$1.NUMBER, getGlobalType$1.BOOLEAN, getGlobalType$1.STRING].forEach(function(tp) {
-  EQ.add(getGlobalType$1.OBJECT, tp, function(a, b) {
+[getGlobalType.NUMBER, getGlobalType.BOOLEAN, getGlobalType.STRING].forEach(function(tp) {
+  EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
     //primitive type wrappers
     this.collectFail(a.valueOf() !== b.valueOf(), WRAPPED_VALUE);
     // check user properties
@@ -504,32 +504,32 @@ EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.DATE, function(a, b) {
   });
 });
 
-EQ.add(getGlobalType$1.OBJECT, function(a, b) {
+EQ.add(getGlobalType.OBJECT, function(a, b) {
   this.checkPlainObjectsEquality(a, b);
 });
 
-[getGlobalType$1.ARRAY, getGlobalType$1.ARGUMENTS, getGlobalType$1.TYPED_ARRAY].forEach(function(tp) {
-  EQ.add(getGlobalType$1.OBJECT, tp, function(a, b) {
+[getGlobalType.ARRAY, getGlobalType.ARGUMENTS, getGlobalType.TYPED_ARRAY].forEach(function(tp) {
+  EQ.add(getGlobalType.OBJECT, tp, function(a, b) {
     this.checkPropertyEquality("length");
 
     this.checkPlainObjectsEquality(a, b);
   });
 });
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY_BUFFER, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER, function(a, b) {
   this.checkPropertyEquality("byteLength");
 
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.ERROR, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.ERROR, function(a, b) {
   this.checkPropertyEquality("name");
   this.checkPropertyEquality("message");
 
   this.checkPlainObjectsEquality(a, b);
 });
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.BUFFER, function(a) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.BUFFER, function(a) {
   this.checkPropertyEquality("length");
 
   var l = a.length;
@@ -553,7 +553,7 @@ function checkMapByKeys(a, b) {
       var valueB = b.get(key);
       var valueA = a.get(key);
 
-      eq$1(valueA, valueB, this);
+      eq(valueA, valueB, this);
     }
   }
 }
@@ -568,7 +568,7 @@ function checkSetByKeys(a, b) {
   }
 }
 
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.MAP, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.MAP, function(a, b) {
   this._meet.push([a, b]);
 
   checkMapByKeys.call(this, a, b);
@@ -578,7 +578,7 @@ EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.MAP, function(a, b) {
 
   this.checkPlainObjectsEquality(a, b);
 });
-EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.SET, function(a, b) {
+EQ.add(getGlobalType.OBJECT, getGlobalType.SET, function(a, b) {
   this._meet.push([a, b]);
 
   checkSetByKeys.call(this, a, b);
@@ -589,11 +589,11 @@ EQ.add(getGlobalType$1.OBJECT, getGlobalType$1.SET, function(a, b) {
   this.checkPlainObjectsEquality(a, b);
 });
 
-function eq$1(a, b, opts) {
+function eq(a, b, opts) {
   return new EQ(opts, a, b).check();
 }
 
-eq$1.EQ = EQ;
+eq.EQ = EQ;
 
 var _hasOwnProperty = Object.prototype.hasOwnProperty;
 var _propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -681,7 +681,7 @@ function TypeAdaptorStorage() {
 
 TypeAdaptorStorage.prototype = {
   add: function(type, cls, sub, adaptor) {
-    return this.addType(new getGlobalType$1.Type(type, cls, sub), adaptor);
+    return this.addType(new getGlobalType.Type(type, cls, sub), adaptor);
   },
 
   addType: function(type, adaptor) {
@@ -743,8 +743,8 @@ var objectAdaptor = {
 };
 
 // default for objects
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT), objectAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.FUNCTION), objectAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT), objectAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.FUNCTION), objectAdaptor);
 
 var mapAdaptor = {
   has: function(obj, key) {
@@ -781,13 +781,16 @@ setAdaptor.get = function(obj, key) {
     return key;
   }
 };
+setAdaptor.iterator = function(obj) {
+  return obj.values();
+};
 
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.MAP), mapAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SET), setAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_SET), setAdaptor);
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_MAP), mapAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), mapAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), setAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), setAdaptor);
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), mapAdaptor);
 
-defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.STRING), {
+defaultTypeAdaptorStorage.addType(new getGlobalType.Type(getGlobalType.STRING), {
   isEmpty: function(obj) {
     return obj === '';
   },
@@ -797,8 +800,9 @@ defaultTypeAdaptorStorage.addType(new getGlobalType$1.Type(getGlobalType$1.STRIN
   }
 });
 
-defaultTypeAdaptorStorage.addIterableType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY));
-defaultTypeAdaptorStorage.addIterableType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARGUMENTS));
+defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY));
+defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS));
+defaultTypeAdaptorStorage.addIterableType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET));
 
 function forEach(obj, f, context) {
   if (isGeneratorFunction(obj)) {
@@ -812,7 +816,7 @@ function forEach(obj, f, context) {
       value = obj.next();
     }
   } else {
-    var type = getGlobalType$1(obj);
+    var type = getGlobalType(obj);
     var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'forEach');
     func(obj, f, context);
   }
@@ -820,7 +824,7 @@ function forEach(obj, f, context) {
 
 
 function size(obj) {
-  var type = getGlobalType$1(obj);
+  var type = getGlobalType(obj);
   var func = defaultTypeAdaptorStorage.getAdaptor(type, 'size');
   if (func) {
     return func(obj);
@@ -834,7 +838,7 @@ function size(obj) {
 }
 
 function isEmpty(obj) {
-  var type = getGlobalType$1(obj);
+  var type = getGlobalType(obj);
   var func = defaultTypeAdaptorStorage.getAdaptor(type, 'isEmpty');
   if (func) {
     return func(obj);
@@ -850,14 +854,14 @@ function isEmpty(obj) {
 
 // return boolean if obj has such 'key'
 function has(obj, key) {
-  var type = getGlobalType$1(obj);
+  var type = getGlobalType(obj);
   var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'has');
   return func(obj, key);
 }
 
 // return value for given key
 function get(obj, key) {
-  var type = getGlobalType$1(obj);
+  var type = getGlobalType(obj);
   var func = defaultTypeAdaptorStorage.requireAdaptor(type, 'get');
   return func(obj, key);
 }
@@ -874,11 +878,11 @@ function some(obj, f, context) {
 }
 
 function isIterable(obj) {
-  return defaultTypeAdaptorStorage.isIterableType(getGlobalType$1(obj));
+  return defaultTypeAdaptorStorage.isIterableType(getGlobalType(obj));
 }
 
 function iterator(obj) {
-  return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType$1(obj), 'iterator')(obj);
+  return defaultTypeAdaptorStorage.requireAdaptor(getGlobalType(obj), 'iterator')(obj);
 }
 
 function looksLikeANumber(n) {
@@ -935,7 +939,7 @@ Formatter.prototype = {
   constructor: Formatter,
 
   format: function(value) {
-    var tp = getGlobalType$1(value);
+    var tp = getGlobalType(value);
 
     if (this.alreadySeen(value)) {
       return '[Circular]';
@@ -1310,98 +1314,98 @@ defaultFormat.formatPlainObjectKey = formatPlainObjectKey;
 defaultFormat.formatPlainObject = formatPlainObject;
 defaultFormat.typeAdaptorForEachFormat = typeAdaptorForEachFormat;
 // adding primitive types
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.UNDEFINED), function() {
+Formatter.addType(new getGlobalType.Type(getGlobalType.UNDEFINED), function() {
   return 'undefined';
 });
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.NULL), function() {
+Formatter.addType(new getGlobalType.Type(getGlobalType.NULL), function() {
   return 'null';
 });
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.BOOLEAN), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.BOOLEAN), function(value) {
   return value ? 'true': 'false';
 });
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.SYMBOL), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.SYMBOL), function(value) {
   return value.toString();
 });
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.NUMBER), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.NUMBER), function(value) {
   if (value === 0 && 1 / value < 0) {
     return '-0';
   }
   return String(value);
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.STRING), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.STRING), function(value) {
   return '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
       .replace(/'/g, "\\'")
       .replace(/\\"/g, '"') + '\'';
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.FUNCTION), formatFunction);
+Formatter.addType(new getGlobalType.Type(getGlobalType.FUNCTION), formatFunction);
 
 // plain object
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT), formatPlainObject);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT), formatPlainObject);
 
 // type wrappers
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.NUMBER), formatWrapper1);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.BOOLEAN), formatWrapper1);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.STRING), formatWrapper2);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.NUMBER), formatWrapper1);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BOOLEAN), formatWrapper1);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.STRING), formatWrapper2);
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.REGEXP), formatRegExp);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY), formatArray);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARGUMENTS), formatArguments);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.DATE), formatDate);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ERROR), formatError);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SET), formatSet);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.MAP), formatMap);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_MAP), formatMap);
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.WEAK_SET), formatSet);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.REGEXP), formatRegExp);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY), formatArray);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARGUMENTS), formatArguments);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.DATE), formatDate);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ERROR), formatError);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SET), formatSet);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.MAP), formatMap);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_MAP), formatMap);
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.WEAK_SET), formatSet);
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.BUFFER), generateFormatForNumberArray('length', 'Buffer', 2));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.BUFFER), generateFormatForNumberArray('length', 'Buffer', 2));
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.ARRAY_BUFFER), generateFormatForNumberArray('byteLength', 'ArrayBuffer', 2));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.ARRAY_BUFFER), generateFormatForNumberArray('byteLength', 'ArrayBuffer', 2));
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int8'), generateFormatForNumberArray('length', 'Int8Array', 2));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint8'), generateFormatForNumberArray('length', 'Uint8Array', 2));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint8clamped'), generateFormatForNumberArray('length', 'Uint8ClampedArray', 2));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int8'), generateFormatForNumberArray('length', 'Int8Array', 2));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8'), generateFormatForNumberArray('length', 'Uint8Array', 2));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint8clamped'), generateFormatForNumberArray('length', 'Uint8ClampedArray', 2));
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int16'), generateFormatForNumberArray('length', 'Int16Array', 4));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint16'), generateFormatForNumberArray('length', 'Uint16Array', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int16'), generateFormatForNumberArray('length', 'Int16Array', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint16'), generateFormatForNumberArray('length', 'Uint16Array', 4));
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'int32'), generateFormatForNumberArray('length', 'Int32Array', 8));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.TYPED_ARRAY, 'uint32'), generateFormatForNumberArray('length', 'Uint32Array', 8));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'int32'), generateFormatForNumberArray('length', 'Int32Array', 8));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.TYPED_ARRAY, 'uint32'), generateFormatForNumberArray('length', 'Uint32Array', 8));
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool16x8'), genSimdVectorFormat('Bool16x8', 8));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool32x4'), genSimdVectorFormat('Bool32x4', 4));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'bool8x16'), genSimdVectorFormat('Bool8x16', 16));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'float32x4'), genSimdVectorFormat('Float32x4', 4));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int16x8'), genSimdVectorFormat('Int16x8', 8));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int32x4'), genSimdVectorFormat('Int32x4', 4));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'int8x16'), genSimdVectorFormat('Int8x16', 16));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint16x8'), genSimdVectorFormat('Uint16x8', 8));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint32x4'), genSimdVectorFormat('Uint32x4', 4));
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.SIMD, 'uint8x16'), genSimdVectorFormat('Uint8x16', 16));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool16x8'), genSimdVectorFormat('Bool16x8', 8));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool32x4'), genSimdVectorFormat('Bool32x4', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'bool8x16'), genSimdVectorFormat('Bool8x16', 16));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'float32x4'), genSimdVectorFormat('Float32x4', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int16x8'), genSimdVectorFormat('Int16x8', 8));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int32x4'), genSimdVectorFormat('Int32x4', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'int8x16'), genSimdVectorFormat('Int8x16', 16));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint16x8'), genSimdVectorFormat('Uint16x8', 8));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint32x4'), genSimdVectorFormat('Uint32x4', 4));
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.SIMD, 'uint8x16'), genSimdVectorFormat('Uint8x16', 16));
 
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.PROMISE), function() {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.PROMISE), function() {
   return '[Promise]';//TODO it could be nice to inspect its state and value
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.XHR), function() {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.XHR), function() {
   return '[XMLHttpRequest]';//TODO it could be nice to inspect its state
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT), function(value) {
   return value.outerHTML;
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT, '#text'), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#text'), function(value) {
   return value.nodeValue;
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HTML_ELEMENT, '#document'), function(value) {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HTML_ELEMENT, '#document'), function(value) {
   return value.documentElement.outerHTML;
 });
 
-Formatter.addType(new getGlobalType$1.Type(getGlobalType$1.OBJECT, getGlobalType$1.HOST), function() {
+Formatter.addType(new getGlobalType.Type(getGlobalType.OBJECT, getGlobalType.HOST), function() {
   return '[Host]';
 });
 
@@ -2016,7 +2020,7 @@ assert.notEqual = function notEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.deepEqual = function deepEqual(actual, expected, message) {
-  if (eq$1(actual, expected).length !== 0) {
+  if (eq(actual, expected).length !== 0) {
     fail(actual, expected, message, "deepEqual", assert.deepEqual);
   }
 };
@@ -2035,7 +2039,7 @@ assert.deepEqual = function deepEqual(actual, expected, message) {
  * @param {string} [message]
  */
 assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if (eq$1(actual, expected).result) {
+  if (eq(actual, expected).result) {
     fail(actual, expected, message, "notDeepEqual", assert.notDeepEqual);
   }
 };
@@ -2175,7 +2179,7 @@ assert.ifError = function(err) {
  * MIT Licensed
  */
 
-var assertExtensions = function(should) {
+function assertExtensions(should) {
   var i = should.format;
 
   /*
@@ -2236,7 +2240,7 @@ var assertExtensions = function(should) {
       });
     }
   };
-};
+}
 
 /*
  * should.js - assertion library
@@ -2245,7 +2249,7 @@ var assertExtensions = function(should) {
  * MIT Licensed
  */
 
-var chainAssertions = function(should, Assertion) {
+function chainAssertions(should, Assertion) {
   /**
    * Simple chaining to improve readability. Does nothing.
    *
@@ -2283,7 +2287,7 @@ var chainAssertions = function(should, Assertion) {
   ].forEach(function(name) {
     Assertion.addChain(name);
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -2292,7 +2296,7 @@ var chainAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var booleanAssertions = function(should, Assertion) {
+function booleanAssertions(should, Assertion) {
   /**
    * Assert given object is exactly `true`.
    *
@@ -2355,7 +2359,7 @@ var booleanAssertions = function(should, Assertion) {
 
     this.assert(this.obj);
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -2364,7 +2368,7 @@ var booleanAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var numberAssertions = function(should, Assertion) {
+function numberAssertions(should, Assertion) {
   /**
    * Assert given object is NaN
    * @name NaN
@@ -2536,7 +2540,7 @@ var numberAssertions = function(should, Assertion) {
 
   Assertion.alias("aboveOrEqual", "greaterThanOrEqual");
   Assertion.alias("belowOrEqual", "lessThanOrEqual");
-};
+}
 
 /*
  * should.js - assertion library
@@ -2545,7 +2549,7 @@ var numberAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var typeAssertions = function(should, Assertion) {
+function typeAssertions(should, Assertion) {
   /**
    * Assert given object is number
    * @name Number
@@ -2791,7 +2795,7 @@ var typeAssertions = function(should, Assertion) {
 
     should(this.obj).be.iterable.and.iterator.and.it.is.equal(this.obj[Symbol.iterator]());
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -2809,7 +2813,7 @@ function formatEqlResult(r, a, b) {
     (r.showReason ? " because " + r.reason : "")).trim();
 }
 
-var equalityAssertions = function(should, Assertion) {
+function equalityAssertions(should, Assertion) {
   /**
    * Deep object equality comparison. For full spec see [`should-equal tests`](https://github.com/shouldjs/equal/blob/master/test.js).
    *
@@ -2834,14 +2838,14 @@ var equalityAssertions = function(should, Assertion) {
   Assertion.add("eql", function(val, description) {
     this.params = { operator: "to equal", expected: val, message: description };
     var obj = this.obj;
-    var fails = eq$1(this.obj, val, should.config);
+    var fails = eq(this.obj, val, should.config);
     this.params.details = fails
       .map(function(fail) {
         return formatEqlResult(fail, obj, val);
       })
       .join(", ");
 
-    this.params.showDiff = eq$1(getGlobalType$1(obj), getGlobalType$1(val)).length === 0;
+    this.params.showDiff = eq(getGlobalType(obj), getGlobalType(val)).length === 0;
 
     this.assert(fails.length === 0);
   });
@@ -2866,7 +2870,7 @@ var equalityAssertions = function(should, Assertion) {
   Assertion.add("equal", function(val, description) {
     this.params = { operator: "to be", expected: val, message: description };
 
-    this.params.showDiff = eq$1(getGlobalType$1(this.obj), getGlobalType$1(val)).length === 0;
+    this.params.showDiff = eq(getGlobalType(this.obj), getGlobalType(val)).length === 0;
 
     this.assert(val === this.obj);
   });
@@ -2933,7 +2937,7 @@ var equalityAssertions = function(should, Assertion) {
    * ({a: 10}).should.be.oneOf(['a', 10, 'ab', {a: 10}]);
    */
   addOneOf("oneOf", "to be one of", "eql");
-};
+}
 
 /*
  * should.js - assertion library
@@ -2942,7 +2946,7 @@ var equalityAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var promiseAssertions = function(should, Assertion$$1) {
+function promiseAssertions(should, Assertion$$1) {
   /**
    * Assert given object is a Promise
    *
@@ -3241,7 +3245,7 @@ var promiseAssertions = function(should, Assertion$$1) {
   });
 
   Assertion$$1.alias("finally", "eventually");
-};
+}
 
 /*
  * should.js - assertion library
@@ -3250,7 +3254,7 @@ var promiseAssertions = function(should, Assertion$$1) {
  * MIT Licensed
  */
 
-var stringAssertions = function(should, Assertion) {
+function stringAssertions(should, Assertion) {
   /**
    * Assert given string starts with prefix
    * @name startWith
@@ -3290,7 +3294,7 @@ var stringAssertions = function(should, Assertion) {
 
     this.assert(this.obj.indexOf(str, this.obj.length - str.length) >= 0);
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -3299,7 +3303,7 @@ var stringAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var containAssertions = function(should, Assertion) {
+function containAssertions(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3338,7 +3342,7 @@ var containAssertions = function(should, Assertion) {
     } else if (isIterable(obj)) {
       this.assert(
         some(obj, function(v) {
-          return eq$1(v, other).length === 0;
+          return eq(v, other).length === 0;
         })
       );
     } else {
@@ -3471,7 +3475,7 @@ var containAssertions = function(should, Assertion) {
       this.eql(other);
     }
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -3482,7 +3486,7 @@ var containAssertions = function(should, Assertion) {
 
 var aSlice = Array.prototype.slice;
 
-var propertyAssertions = function(should, Assertion) {
+function propertyAssertions(should, Assertion) {
   var i = should.format;
   /**
    * Asserts given object has some descriptor. **On success it change given object to be value of property**.
@@ -3596,7 +3600,7 @@ var propertyAssertions = function(should, Assertion) {
       // now check values, as there we have all properties
       valueCheckNames.forEach(function(name) {
         var value = values[name];
-        if (eq$1(obj[name], value).length !== 0) {
+        if (eq(obj[name], value).length !== 0) {
           wrongValues.push(formatProp(name) + " of " + i(value) + " (got " + i(obj[name]) + ")");
         } else {
           props.push(formatProp(name) + " of " + i(value));
@@ -3807,7 +3811,7 @@ var propertyAssertions = function(should, Assertion) {
 
     this.obj = obj.obj;
   });
-};
+}
 
 /*
  * should.js - assertion library
@@ -3815,7 +3819,7 @@ var propertyAssertions = function(should, Assertion) {
  * Copyright(c) 2013-2017 Denis Bardadym <bardadymchik@gmail.com>
  * MIT Licensed
  */
-var errorAssertions = function(should, Assertion) {
+function errorAssertions(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3925,7 +3929,7 @@ var errorAssertions = function(should, Assertion) {
   });
 
   Assertion.alias("throw", "throwError");
-};
+}
 
 /*
  * should.js - assertion library
@@ -3934,7 +3938,7 @@ var errorAssertions = function(should, Assertion) {
  * MIT Licensed
  */
 
-var matchingAssertions = function(should, Assertion) {
+function matchingAssertions(should, Assertion) {
   var i = should.format;
 
   /**
@@ -3996,7 +4000,7 @@ var matchingAssertions = function(should, Assertion) {
   Assertion.add("match", function(other, description) {
     this.params = { operator: "to match " + i(other), message: description };
 
-    if (eq$1(this.obj, other).length !== 0) {
+    if (eq(this.obj, other).length !== 0) {
       if (other instanceof RegExp) {
         // something - regex
 
@@ -4157,7 +4161,7 @@ var matchingAssertions = function(should, Assertion) {
 
   Assertion.alias("matchAny", "matchSome");
   Assertion.alias("matchEach", "matchEvery");
-};
+}
 
 /*
  * should.js - assertion library
@@ -4185,8 +4189,8 @@ should$1.Assertion = Assertion;
 // exposing modules dirty way
 should$1.modules = {
   format: defaultFormat,
-  type: getGlobalType$1,
-  equal: eq$1
+  type: getGlobalType,
+  equal: eq
 };
 should$1.format = format$2;
 

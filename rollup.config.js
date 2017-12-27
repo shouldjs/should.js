@@ -15,7 +15,9 @@ const banner = `/*!
 `;
 
 module.exports = {
-  banner,
+  output: {
+    banner
+  },
   plugins: [
     nodeResolve({
       module: true,
