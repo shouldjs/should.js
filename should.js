@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v13.2.0
+ * @version v13.2.1
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -3582,14 +3582,17 @@ function propertyAssertions(should, Assertion) {
     }
 
     var operator =
-      (props.length === 1 ? "to have property " : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
-      props.join(", ");
+      (props.length === 1
+        ? "to have property "
+        : "to have " + (this.anyOne ? "any of " : "") + "properties ") + props.join(", ");
 
     this.params = { obj: this.obj, operator: operator };
 
     //check that all properties presented
     //or if we request one of them that at least one them presented
-    this.assert(missingProperties.length === 0 || (this.anyOne && missingProperties.length != names.length));
+    this.assert(
+      missingProperties.length === 0 || (this.anyOne && missingProperties.length != names.length)
+    );
 
     // check if values in object matched expected
     var valueCheckNames = Object.keys(values);
@@ -3612,14 +3615,17 @@ function propertyAssertions(should, Assertion) {
       }
 
       operator =
-        (props.length === 1 ? "to have property " : "to have " + (this.anyOne ? "any of " : "") + "properties ") +
-        props.join(", ");
+        (props.length === 1
+          ? "to have property "
+          : "to have " + (this.anyOne ? "any of " : "") + "properties ") + props.join(", ");
 
       this.params = { obj: this.obj, operator: operator };
 
       //if there is no not matched values
       //or there is at least one matched
-      this.assert(wrongValues.length === 0 || (this.anyOne && wrongValues.length != valueCheckNames.length));
+      this.assert(
+        wrongValues.length === 0 || (this.anyOne && wrongValues.length != valueCheckNames.length)
+      );
     }
   });
 
@@ -3769,7 +3775,7 @@ function propertyAssertions(should, Assertion) {
    */
   Assertion.add("size", function(s) {
     this.params = { operator: "to have size " + s };
-    size(this.obj).should.be.exactly(s);
+    should(size(this.obj)).be.exactly(s);
   });
 
   /**
@@ -3798,7 +3804,11 @@ function propertyAssertions(should, Assertion) {
     while (properties.length) {
       currentProperty = properties.shift();
       this.params = {
-        operator: "to have property by path " + allProps.join(", ") + " - failed on " + formatProp(currentProperty)
+        operator:
+          "to have property by path " +
+          allProps.join(", ") +
+          " - failed on " +
+          formatProp(currentProperty)
       };
       obj = obj.have.property(currentProperty);
       foundProperties.push(currentProperty);
