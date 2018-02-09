@@ -232,12 +232,6 @@ declare namespace should {
   interface PromisedAssertion extends Assertion, PromiseLike<any> {}
 }
 
-declare global {
-  interface Object {
-    should: should.Assertion;
-  }
-}
-
 export as namespace should;
 
 export = should;
