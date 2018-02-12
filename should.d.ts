@@ -73,11 +73,11 @@ declare namespace should {
     only: this;
 
     // bool
-    true(): this;
-    True(): this;
+    true(message?: string): this;
+    True(message?: string): this;
 
-    false(): this;
-    False(): this;
+    false(message?: string): this;
+    False(message?: string): this;
 
     ok(): this;
 
