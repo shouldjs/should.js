@@ -163,9 +163,9 @@ declare namespace should {
     //promise
     Promise(): this;
 
-    fulfilled: Promise<any>;
-    resolved: Promise<any>;
-    rejected: Promise<any>;
+    fulfilled(): Promise<any>;
+    resolved(): Promise<any>;
+    rejected(): Promise<any>;
 
     fulfilledWith(obj: any): Promise<any>;
     resolvedWith(obj: any): Promise<any>;
