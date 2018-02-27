@@ -16,7 +16,7 @@
 
 # 13.1.1 / 2017-10-07
 
-* Added missing return type for `.rejecteWith` in typescript definition
+* Added missing return type for `.rejectedWith` in typescript definition
 
 # 13.1.0 / 2017-09-20
 
@@ -86,7 +86,7 @@
 
 # 9.0.0 / 2016-05-30
 
-* Set should.config values to be more obvious. Pls check brecking changes page for exact values.
+* Set should.config values to be more obvious. Pls check breaking changes page for exact values.
 * Add support for SIMD data types.
 * Fixed minor bugs in .eql
 * Allow to show all equality check fails in .eql
@@ -180,7 +180,7 @@
 * **Breaking Change (possibly)** .matchEach and .matchAny now uses internally .match. See #65.
 * **Breaking Change** No more getter assertions. No all assertions are functions.
 * **Breaking Change** No more proxy returning, to check property names.
-* **Breaking Change** `should-format` now looks more like chrome developer tools inpections.
+* **Breaking Change** `should-format` now looks more like chrome developer tools inspections.
 
 # 6.0.3 / 2015-05-18
 
@@ -218,12 +218,12 @@
 * Remove old .eql implementation
 * Refactor nested errors
 * Added separate reporting message for false negative results like 10.should.not.equal(10)
-* Make error.message lazy fix old perfomance bottlenecks for constructing messages for big objects
+* Make error.message lazy fix old performance bottlenecks for constructing messages for big objects
 * Added .propertyWithDescriptor
 
 # 4.6.5 / 2015-02-05
 
-* Fix perfomance degradation on large objects
+* Fix performance degradation on large objects
 
 # 4.6.4 / 2015-02-05
 
