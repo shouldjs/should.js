@@ -42,4 +42,25 @@ describe("string", function() {
       "foobar".should.not.endWith("bar", "baz");
     }, "baz");
   });
+
+  it("test contain()", function() {
+    "foobar".should.contain("oob");
+    "foobar".should.not.contain("foobi");
+
+    err(function() {
+      "foobar".should.contain("boo");
+    }, "expected 'foobar' to contain 'boo'");
+
+    err(function() {
+      "foobar".should.not.contain("bar");
+    }, "expected 'foobar' not to contain 'bar' (false negative fail)");
+
+    err(function() {
+      "foobar".should.contain("oooo", "baz");
+    }, "baz");
+
+    err(function() {
+      "foobar".should.not.contain("oob", "baz");
+    }, "baz");
+  });
 });
