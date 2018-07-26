@@ -1,3 +1,7 @@
+# 13.2.2 / 2018-07-26
+
+* Updates for TS definition 
+
 # 13.2.1 / 2018-01-12
 
 * Fix `.size` to work with should/as-function

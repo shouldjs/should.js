@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v13.2.1
+ * @version v13.2.2
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -134,15 +134,15 @@ TypeChecker.prototype = {
   },
 
   addTypeOf: function(type, res) {
-    return this.add(function(obj, typeOf) {
-      if (typeOf === type) {
+    return this.add(function(obj, tpeOf) {
+      if (tpeOf === type) {
         return new Type(res);
       }
     });
   },
 
   addClass: function(cls, res, sub) {
-    return this.add(function(obj, typeOf, objCls) {
+    return this.add(function(obj, tpeOf, objCls) {
       if (objCls === cls) {
         return new Type(types.OBJECT, res, sub);
       }
@@ -241,7 +241,7 @@ main
     }
   })
   .add(function(obj) {
-    // probably at the beginning should be enough these checks
+    // probably at the begginging should be enough these checks
     if (obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
       return new Type(types.OBJECT, types.HOST);
     }
