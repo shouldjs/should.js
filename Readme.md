@@ -70,6 +70,14 @@ someAsyncTask(foo, function(err, result){
     should(10).be.exactly(5).and.be.a.Number();
     ```
 
+  3. For TypeScript users:
+
+    ```js
+    import * as should from 'should';
+
+    (0).should.be.Number();
+    ```
+
 ## In browser
 
 Well, even when browsers by complaints of authors have 100% es5 support, it does not mean it has no bugs. Please see [wiki](https://github.com/shouldjs/should.js/wiki/Known-Bugs) for known bugs.
