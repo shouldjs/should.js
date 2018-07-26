@@ -134,15 +134,15 @@ TypeChecker.prototype = {
   },
 
   addTypeOf: function(type, res) {
-    return this.add(function(obj, tpeOf) {
-      if (tpeOf === type) {
+    return this.add(function(obj, typeOf) {
+      if (typeOf === type) {
         return new Type(res);
       }
     });
   },
 
   addClass: function(cls, res, sub) {
-    return this.add(function(obj, tpeOf, objCls) {
+    return this.add(function(obj, typeOf, objCls) {
       if (objCls === cls) {
         return new Type(types.OBJECT, res, sub);
       }
@@ -241,7 +241,7 @@ main
     }
   })
   .add(function(obj) {
-    // probably at the begginging should be enough these checks
+    // probably at the beginning should be enough these checks
     if (obj.Boolean === Boolean && obj.Number === Number && obj.String === String && obj.Date === Date) {
       return new Type(types.OBJECT, types.HOST);
     }
@@ -1612,7 +1612,7 @@ Assertion.prototype = {
    * Before calling this method need to fill Assertion#params object. This method usually called from other assertion methods.
    * `Assertion#params` can contain such properties:
    * * `operator` - required string containing description of this assertion
-   * * `obj` - optional replacement for this.obj, it usefull if you prepare more clear object then given
+   * * `obj` - optional replacement for this.obj, it is useful if you prepare more clear object then given
    * * `message` - if this property filled with string any others will be ignored and this one used as assertion message
    * * `expected` - any object used when you need to assert relation between given object and expected. Like given == expected (== is a relation)
    * * `details` - additional string with details to generated message

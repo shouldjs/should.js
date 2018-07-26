@@ -9,7 +9,7 @@ declare function should(obj: any): should.Assertion;
   equal(actual: any, expected: any, message?: string): void;
   notEqual(actual: any, expected: any, message?: string): void;
   deepEqual(actual: any, expected: any, message?: string): void;
-  notDeepEqual(acutal: any, expected: any, message?: string): void;
+  notDeepEqual(actual: any, expected: any, message?: string): void;
   strictEqual(actual: any, expected: any, message?: string): void;
   notStrictEqual(actual: any, expected: any, message?: string): void;
 
@@ -43,7 +43,7 @@ declare namespace should {
   function equal(actual: any, expected: any, message?: string): void;
   function notEqual(actual: any, expected: any, message?: string): void;
   function deepEqual(actual: any, expected: any, message?: string): void;
-  function notDeepEqual(acutal: any, expected: any, message?: string): void;
+  function notDeepEqual(actual: any, expected: any, message?: string): void;
   function strictEqual(actual: any, expected: any, message?: string): void;
   function notStrictEqual(actual: any, expected: any, message?: string): void;
 
@@ -73,11 +73,11 @@ declare namespace should {
     only: this;
 
     // bool
-    true(): this;
-    True(): this;
+    true(message?: string): this;
+    True(message?: string): this;
 
-    false(): this;
-    False(): this;
+    false(message?: string): this;
+    False(message?: string): this;
 
     ok(): this;
 
@@ -119,7 +119,7 @@ declare namespace should {
     throw(): this;
     throw(msg: RegExp | string | Function, properties?: {}): this;
     throw(properties: {}): this;
-    //TODO how to expess generators???
+    //TODO how to express generators???
     throwError(): this;
     throwError(msg: RegExp | string | Function, properties?: {}): this;
     throwError(properties: {}): this;
@@ -163,9 +163,9 @@ declare namespace should {
     //promise
     Promise(): this;
 
-    fulfilled: Promise<any>;
-    resolved: Promise<any>;
-    rejected: Promise<any>;
+    fulfilled(): Promise<any>;
+    resolved(): Promise<any>;
+    rejected(): Promise<any>;
 
     fulfilledWith(obj: any): Promise<any>;
     resolvedWith(obj: any): Promise<any>;
