@@ -1,6 +1,10 @@
+# 13.2.3 / 2018-07-30
+
+* `.only.keys` throws when no `Object.prototype.should`
+
 # 13.2.2 / 2018-07-26
 
-* Updates for TS definition 
+* Updates for TS definition
 
 # 13.2.1 / 2018-01-12
 

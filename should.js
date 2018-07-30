@@ -1,6 +1,6 @@
 /*!
  * should - test framework agnostic BDD-style assertions
- * @version v13.2.2
+ * @version v13.2.3
  * @author TJ Holowaychuk <tj@vision-media.ca>, Denis Bardadym <bardadymchik@gmail.com>
  * @link https://github.com/shouldjs/should.js
  * @license MIT
@@ -3735,7 +3735,7 @@ function propertyAssertions(should, Assertion) {
     this.assert(missingKeys.length === 0);
 
     if (this.onlyThis) {
-      obj.should.have.size(keys.length);
+      should(obj).have.size(keys.length);
     }
   });
 
