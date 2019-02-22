@@ -50,5 +50,51 @@ describe("bool", function() {
     err(function() {
       "test".should.not.be.ok();
     }, "expected 'test' not to be truthy (false negative fail)");
+
+    err(function() {
+      "hello".should.be.ok(true);
+    }, "This assertion does not expect any arguments. You may need to check your code");
+  });
+
+  it("test truthy", function() {
+    true.should.be.truthy();
+    false.should.not.be.truthy();
+    (1).should.be.truthy();
+    (0).should.not.be.truthy();
+    ({}).should.be.truthy();
+    (function() {}).should.be.truthy();
+
+    err(function() {
+      "".should.be.truthy();
+    }, "expected '' to be truthy");
+
+    err(function() {
+      "test".should.not.be.truthy();
+    }, "expected 'test' not to be truthy (false negative fail)");
+
+    err(function() {
+      "hello".should.be.truthy(true);
+    }, "This assertion does not expect any arguments. You may need to check your code");
+  });
+
+  it("test falsy", function() {
+    true.should.not.be.falsy();
+    false.should.be.falsy();
+    (1).should.not.be.falsy();
+    (0).should.be.falsy();
+    ({}).should.not.be.falsy();
+    (function() {}).should.not.be.falsy();
+
+    err(function() {
+      "".should.not.be.falsy();
+    }, "expected '' not to be falsy (false negative fail)");
+
+    err(function() {
+      "test".should.be.falsy();
+    }, "expected 'test' to be falsy");
+
+    err(function() {
+      "".should.be.falsy(false);
+    }, "This assertion does not expect any arguments. You may need to check your code");
   });
 });

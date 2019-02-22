@@ -66,6 +66,12 @@ false.should.not.be.ok();
 "".should.not.be.ok();
 (0).should.not.be.ok();
 
+"wee".should.be.truthy();
+should(-2).be.truthy();
+
+(0).should.be.falsy();
+should(null).be.falsy();
+
 true.should.be.true();
 true.should.be.True();
 "1".should.not.be.true();
