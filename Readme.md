@@ -70,8 +70,8 @@ someAsyncTask(foo, function(err, result){
     should(10).be.exactly(5).and.be.a.Number();
     ```
 
-  3. For TypeScript users:
-
+ 3. For TypeScript users:
+  
     ```js
     import * as should from 'should';
 
