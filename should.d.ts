@@ -80,6 +80,8 @@ declare namespace should {
     False(message?: string): this;
 
     ok(): this;
+    truthy(): this;
+    falsy(): this;
 
     //chain
     an: this;
