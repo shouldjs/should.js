@@ -251,6 +251,9 @@ describe("assert", function() {
     );
     threw = false;
 
+    // if passing a arrow function, catch all
+    assert.throws(makeBlock(thrower, TypeError), () => true);
+
     // doesNotThrow should pass through all errors
     try {
       assert.doesNotThrow(makeBlock(thrower, TypeError), assert.AssertionError);
